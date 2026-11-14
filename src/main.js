@@ -1,10 +1,14 @@
 import { CATEGORIES, ORIGINAL_TRACKS, formatTime, timeDescription, nextIndex, previousIndex, readJsonStorage, saveJsonStorage } from "./music.js";
-import { safeHttpsUrl } from "./api.js";
+
 import { cleanPlaylist, readPlaylists, savePlaylists, shareUrl, decodeShare, MAX_PLAYLISTS, MAX_TRACKS } from "./playlists.js";
-import { AmbientSynth } from "./audio.js";
+
 import { openAudioDb, listStoredAudio, storeAudioFile, deleteStoredAudio, toPlaylistTrack, MAX_AUDIO_FILES } from "./local-audio.js";
 
 const $=id=>document.getElementById(id);
+function safeHttpsUrl(value){
+  try{const url=new URL(value);return url.protocol==="https:"?url.href:"";}
+  catch{return "";}
+}
 const KEY="focodev:";
 const LOCAL_CATEGORY=CATEGORIES[0];
 const localTracks=ORIGINAL_TRACKS.map(t=>({id:t.id,source:"published",title:t.title,artist:t.artist,artwork:t.artwork,duration:t.duration,categoryId:t.categoryId}));
@@ -18,13 +22,12 @@ const state={
 };
 let categoryLoaded=false;
 let nameAction="create";
-const synth=new AmbientSynth({onEnded:()=>advance(true)});
 const fileAudio=$("file-player");
 let audioDb=null;
 let fileObjectUrl=null;
 const isImported=track=>track?.source==="local-file" || track?.source==="published";
-const currentPosition=()=>isImported(selected()) ? fileAudio.currentTime||0 : synth.currentTime;
-const currentDuration=()=>isImported(selected()) ? (Number.isFinite(fileAudio.duration)?fileAudio.duration:0) : synth.duration;
+const currentPosition=()=>fileAudio.currentTime||0;
+const currentDuration=()=>Number.isFinite(fileAudio.duration)?fileAudio.duration:0;
 
 function say(message){$("announcer").textContent=message;}
 function safeStorage(){try{return window.localStorage;}catch{return null;}}
@@ -340,7 +343,6 @@ function stopFilePlayback(){
   if(fileObjectUrl){URL.revokeObjectURL(fileObjectUrl);fileObjectUrl=null;}
 }
 function prepareSelected(){
-  synth.pause();
   stopFilePlayback();
   const track=selected();
   if(!track)return false;
@@ -356,7 +358,7 @@ function prepareSelected(){
       fileAudio.src=fileObjectUrl;
     }
     fileAudio.load();
-  }else synth.load(track);
+  }
   return true;
 }
 function playFromTrack(track,collection=localTracks){
@@ -405,10 +407,8 @@ function updateTimeline(){
 async function play(){
   if(!selected())return;
   try{
-    if(isImported(selected())){
-      if(!fileAudio.src && !prepareSelected())return;
-      await fileAudio.play();
-    }else await synth.play();
+    if(!fileAudio.src && !prepareSelected())return;
+    await fileAudio.play();
     state.playing=true;
     renderPlayer();
   }catch(error){
@@ -418,7 +418,6 @@ async function play(){
   }
 }
 function pause(){
-  synth.pause();
   fileAudio.pause();
   state.playing=false;renderPlayer();
 }
@@ -431,8 +430,7 @@ function advance(ended=false){
 }
 function previous(){
   if(currentPosition()>3){
-    if(isImported(selected()))fileAudio.currentTime=0;
-    else synth.seek(0);
+    fileAudio.currentTime=0;
     updateTimeline();return;
   }
   pause();state.index=previousIndex(state.index,state.queue.length,state.repeat);
@@ -444,7 +442,6 @@ function renderQueue(){
   renderSongs("queue-items",tracks,{mode:"queue"});
 }
 function setVolume(){
-  synth.setVolume(state.volume/100);synth.setMuted(state.muted);
   fileAudio.volume=state.muted?0:state.volume/100;fileAudio.muted=state.muted;
   $("volume").value=String(state.volume);
   $("volume").setAttribute("aria-valuetext",state.volume+" por cento");
@@ -587,8 +584,7 @@ function initPlayer(){
   $("volume").addEventListener("input",()=>{state.volume=Number($("volume").value);state.muted=false;setVolume();saveSelection();});
   $("seek").addEventListener("input",()=>{
     const position=currentDuration()*Number($("seek").value)/1000;
-    if(isImported(selected())){if(Number.isFinite(position))fileAudio.currentTime=position;}
-    else synth.seek(position);
+    if(Number.isFinite(position))fileAudio.currentTime=position;
     updateTimeline();
   });
   $("expand-player").addEventListener("click",()=>{
@@ -606,16 +602,16 @@ function initPlayer(){
       navigator.mediaSession.setActionHandler("previoustrack",previous);
       navigator.mediaSession.setActionHandler("seekto",event=>{
         const position=event.seekTime??0;
-        if(isImported(selected()))fileAudio.currentTime=position;else synth.seek(position);
+        fileAudio.currentTime=position;
         updateTimeline();
       });
     }catch{}
   }
   fileAudio.addEventListener("loadedmetadata",updateTimeline);
-  fileAudio.addEventListener("ended",()=>{if(isImported(selected()))advance(true);});
+  fileAudio.addEventListener("ended",()=>advance(true));
   fileAudio.addEventListener("error",()=>{if(isImported(selected())){state.playing=false;renderPlayer();say("Arquivo indisponível. Confirme que os MP3s do catálogo foram enviados ao projeto ou que o arquivo pessoal ainda existe.");}});
   window.setInterval(()=>{if(state.playing)updateTimeline();},300);
-  window.addEventListener("pagehide",()=>{stopFilePlayback();synth.dispose();audioDb?.close();},{once:true});
+  window.addEventListener("pagehide",()=>{stopFilePlayback();audioDb?.close();},{once:true});
   renderPlayer();renderQueue();
 }
 function init(){
