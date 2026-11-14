@@ -9,7 +9,7 @@ test("formatTime sanitiza números inválidos", () => {
   assert.equal(formatTime(NaN), "0:00");
 });
 test("descrição acessível de tempo", () => {
-  assert.equal(timeDescription(72), "1 minutos e 12 segundos");
+  assert.equal(timeDescription(72), "1 minuto e 12 segundos");
 });
 test("avanço automático e limite da fila", () => {
   assert.equal(nextIndex(0, 4), 1);
