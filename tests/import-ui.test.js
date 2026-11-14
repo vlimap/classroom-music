@@ -17,3 +17,10 @@ test("integração oficial do VLibras mantém foco e marca",()=>{
   assert.match(main,/#315d49/i);
   assert.match(tokens,/--vlibras-btn-focus-visible-outline/);
 });
+
+test("VLibras mantém acionador original para delegar evento a botão visual da marca",()=>{
+  assert.ok(html.includes('id="vlibras-fab"'));
+  assert.match(main,/function findVLibrasButton\(/);
+  assert.match(main,/native\.click\(\)/);
+  assert.match(main,/dataset\.vlibrasBranded/);
+});
