@@ -127,7 +127,7 @@ function renderSongs(target,tracks,{mode="catalog",label=""}={}){
       const remove=button("","x-lg",()=>removeTrack(index),"");
       remove.setAttribute("aria-label","Remover "+track.title+" da playlist");remove.title="Remover faixa";
       actions.append(remove);
-    }else if(mode!=="queue"){
+    }else if(mode!=="queue" && mode!=="shared"){
       const add=button("","plus-circle",()=>addTrackDialog(track),"");
       add.setAttribute("aria-label","Adicionar "+track.title+" a uma playlist");add.title="Adicionar à playlist";
       actions.append(add);
@@ -221,7 +221,7 @@ function openPlaylist(id){
   $("playlist-empty").hidden=playlist.tracks.length>0;
   $("rename-playlist").hidden=playlist.id==="compartilhada";
   $("delete-playlist").hidden=playlist.id==="compartilhada";
-  renderSongs("playlist-songs",playlist.tracks,{mode:"playlist"});
+  renderSongs("playlist-songs",playlist.tracks,{mode:playlist.id==="compartilhada"?"shared":"playlist"});
   setView("playlist");
 }
 function uniqueId(){return globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+"-"+Math.random().toString(36).slice(2);}
