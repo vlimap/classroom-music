@@ -1,16 +1,16 @@
-import { ORIGINAL_TRACKS, formatTime, timeDescription, nextIndex, previousIndex, readJsonStorage, saveJsonStorage } from "./music.js";
-import { getCategories, getCategoryTracks, searchTracks, LICENSED_STREAMING, PAGE_SIZE, safeHttpsUrl } from "./api.js";
+import { CATEGORIES, ORIGINAL_TRACKS, formatTime, timeDescription, nextIndex, previousIndex, readJsonStorage, saveJsonStorage } from "./music.js";
+import { safeHttpsUrl } from "./api.js";
 import { cleanPlaylist, readPlaylists, savePlaylists, shareUrl, decodeShare, MAX_PLAYLISTS, MAX_TRACKS } from "./playlists.js";
 import { AmbientSynth } from "./audio.js";
 import { openAudioDb, listStoredAudio, storeAudioFile, deleteStoredAudio, toPlaylistTrack, MAX_AUDIO_FILES } from "./local-audio.js";
 
 const $=id=>document.getElementById(id);
 const KEY="focodev:";
-const LOCAL_CATEGORY={id:"original",name:"Ambientes originais",type:"Trilhas Foco.dev",artwork:"/covers/noite-de-codigo.svg",local:true};
-const localTracks=ORIGINAL_TRACKS.map(t=>({id:t.id,source:"local",title:t.title,artist:t.artist,artwork:t.artwork,duration:t.duration}));
+const LOCAL_CATEGORY=CATEGORIES[0];
+const localTracks=ORIGINAL_TRACKS.map(t=>({id:t.id,source:"published",title:t.title,artist:t.artist,artwork:t.artwork,duration:t.duration,categoryId:t.categoryId}));
 const allLocal=new Map(localTracks.map(t=>[t.id,t]));
 const state={
-  view:"discover",categories:[],categoriesExpanded:false,category:null,categoryResults:[],categoryOffset:0,categoryTotal:0,
+  view:"discover",categories:CATEGORIES,categoriesExpanded:false,category:null,categoryResults:[],categoryOffset:0,categoryTotal:0,
   searchResults:[],searchOffset:0,searchTotal:0,searchTerm:"",
   playlists:[],activePlaylist:null,shared:null,pending:null,
   queue:[...ORIGINAL_TRACKS],index:0,playing:false,shuffle:false,repeat:"off",
@@ -22,7 +22,7 @@ const synth=new AmbientSynth({onEnded:()=>advance(true)});
 const fileAudio=$("file-player");
 let audioDb=null;
 let fileObjectUrl=null;
-const isImported=track=>track?.source==="local-file";
+const isImported=track=>track?.source==="local-file" || track?.source==="published";
 const currentPosition=()=>isImported(selected()) ? fileAudio.currentTime||0 : synth.currentTime;
 const currentDuration=()=>isImported(selected()) ? (Number.isFinite(fileAudio.duration)?fileAudio.duration:0) : synth.duration;
 
@@ -76,49 +76,23 @@ function card(title,caption,cover,handler,play=false){
   b.addEventListener("click",handler);return b;
 }
 function renderCategories(){
-  const container=$("category-grid");const fragment=document.createDocumentFragment();
-  fragment.append(card(LOCAL_CATEGORY.name,"4 faixas · reprodução liberada",LOCAL_CATEGORY.artwork,()=>openCategory(LOCAL_CATEGORY),true));
+  const container=$("category-grid");
+  const fragment=document.createDocumentFragment();
+  for(const category of CATEGORIES){
+    const n=localTracks.filter(t=>t.categoryId===category.id).length;
+    fragment.append(card(category.name,n+" faixa"+(n===1?"":"s")+" · vlimap",category.artwork,()=>openCategory(category),true));
+  }
   if(state.audioFiles.size){
-    const personal={id:"personal",name:"Meus arquivos",type:"Áudio deste navegador",artwork:"/logo.svg",local:true};
-    fragment.append(card(personal.name,state.audioFiles.size+" músicas locais",personal.artwork,()=>openCategory(personal),true));
+    const personal={id:"personal",name:"Meus arquivos",artwork:"/logo.svg"};
+    fragment.append(card(personal.name,state.audioFiles.size+" arquivos pessoais",personal.artwork,()=>openCategory(personal),true));
   }
-  const items=state.categoriesExpanded ? state.categories : state.categories.slice(0,11);
-  for(const c of items)fragment.append(card(c.name,c.type||"Catálogo FreeToUse",c.artwork,()=>openCategory(c)));
   container.replaceChildren(fragment);
-  const more=$("show-categories");
-  more.hidden=state.categories.length<=11;
-  more.lastChild.textContent=state.categoriesExpanded?" Mostrar menos categorias":" Mostrar todas as categorias ("+state.categories.length+")";
-  more.setAttribute("aria-expanded",String(state.categoriesExpanded));
+  $("show-categories").hidden=true;
 }
-async function fetchCategories({force=false}={}){
-  if(categoryLoaded&&!force)return;
-  if(!force && storage){
-    try{
-      const cached=JSON.parse(storage.getItem(KEY+"category-cache-v2")||"null");
-      if(cached?.saved && Date.now()-cached.saved<1800000 && Array.isArray(cached.data)){
-        state.categories=cached.data;categoryLoaded=true;renderCategories();
-        $("category-status").textContent=state.categories.length+" categorias disponíveis (cache local).";
-        return;
-      }
-    }catch{}
-  }
-  $("category-status").textContent="Carregando categorias...";
-  $("reload-categories").disabled=true;
-  renderCategories(); // fallback original always available
-  if(state.request?.type==="categories")state.request.controller.abort();
-  const controller=new AbortController();state.request={type:"categories",controller};
-  try{
-    const categories=await getCategories({signal:controller.signal,limit:100});
-    if(controller.signal.aborted)return;
-    state.categories=categories;
-    categoryLoaded=true;
-    if(storage){try{storage.setItem(KEY+"category-cache",JSON.stringify({saved:Date.now(),data:categories}));}catch{}}
-    renderCategories();
-    $("category-status").textContent=categories.length?categories.length+" categorias disponíveis no catálogo.":"Nenhuma categoria retornada pela API.";
-  }catch(error){
-    if(controller.signal.aborted)return;
-    $("category-status").textContent="Não foi possível carregar as categorias ("+(error.message||"erro de rede")+"). Você ainda pode ouvir os ambientes originais. Use Atualizar para tentar novamente.";
-  }finally{$("reload-categories").disabled=false;}
+async function fetchCategories(){
+  state.categories=CATEGORIES;
+  renderCategories();
+  $("category-status").textContent="Coleção Foco.dev Sessions · "+ORIGINAL_TRACKS.length+" músicas · produção vlimap.";
 }
 function renderSongs(target,tracks,{mode="catalog",label=""}={}){
   const container=$(target);
@@ -133,7 +107,7 @@ function renderSongs(target,tracks,{mode="catalog",label=""}={}){
     info.append(name,artist);row.append(info);
     const time=document.createElement("span");time.className="song-time";time.textContent=formatTime(track.duration);row.append(time);
     const actions=document.createElement("div");actions.className="song-actions";
-    const local=track.source==="local" || (isImported(track) && state.audioFiles.has(track.id));
+    const local=track.source==="published" || (track.source==="local-file" && state.audioFiles.has(track.id));
     if(local){
       const collection=mode==="playlist"||mode==="shared" ? currentPlaylist()?.tracks :
         mode==="queue" ? state.queue : mode==="imported" ? [...state.audioFiles.values()].map(toPlaylistTrack) :
@@ -169,67 +143,28 @@ function renderSongs(target,tracks,{mode="catalog",label=""}={}){
 async function openCategory(category){
   state.category=category;
   $("category-title").textContent=category.name;
-  $("category-type").textContent=category.id==="personal"?"Arquivos pessoais":category.local?"Áudio original":"Catálogo FreeToUse";
-  $("category-desc").textContent=category.id==="personal"
-    ?"Áudio armazenado somente neste navegador; nenhum arquivo é enviado ao servidor."
-    :category.local?"Faixas instrumentais originais prontas para ouvir e incluir nas suas playlists."
-    :"Explore as músicas, veja as capas e organize sua biblioteca. Reprodução externa exige licença.";
-  state.categoryResults=[];state.categoryOffset=0;state.categoryTotal=0;
-  renderSongs("category-tracks",[]);
+  $("category-type").textContent=category.id==="personal"?"Biblioteca deste dispositivo":"Foco.dev Sessions · vlimap";
+  $("category-desc").textContent=category.id==="personal"?
+    "Áudios pessoais mantidos somente neste dispositivo.":
+    category.description+" Música produzida com auxílio de Adobe Firefly.";
+  state.categoryResults=category.id==="personal"
+    ?[...state.audioFiles.values()].map(toPlaylistTrack)
+    :localTracks.filter(t=>t.categoryId===category.id);
+  renderSongs("category-tracks",state.categoryResults);
   $("category-more").hidden=true;
+  $("category-tracks-status").textContent=state.categoryResults.length+" faixa(s) para ouvir ou adicionar à playlist.";
   setView("category");
-  if(category.local){
-    state.categoryResults=category.id==="personal" ? [...state.audioFiles.values()].map(toPlaylistTrack) : [...localTracks];
-    renderSongs("category-tracks",state.categoryResults);
-    $("category-tracks-status").textContent=state.categoryResults.length+" faixas disponíveis para reprodução neste navegador.";
-    return;
-  }
-  await loadCategoryTracks();
-}
-async function loadCategoryTracks(){
-  if(!state.category || state.category.local)return;
-  if(state.request?.type==="tracks")state.request.controller.abort();
-  const controller=new AbortController();state.request={type:"tracks",controller};
-  $("category-tracks-status").textContent="Consultando músicas...";
-  $("category-more").hidden=true;
-  try{
-    const data=await getCategoryTracks(state.category.id,{offset:state.categoryOffset,signal:controller.signal});
-    if(controller.signal.aborted)return;
-    const known=new Set(state.categoryResults.map(t=>t.id));
-    state.categoryResults.push(...data.tracks.filter(t=>!known.has(t.id)));
-    state.categoryOffset=data.offset;state.categoryTotal=data.count;
-    renderSongs("category-tracks",state.categoryResults);
-    $("category-tracks-status").textContent=state.categoryResults.length+" faixas encontradas.";
-    $("category-more").hidden=state.categoryOffset>=state.categoryTotal;
-  }catch(error){
-    if(!controller.signal.aborted)$("category-tracks-status").textContent="Falha ao consultar categoria: "+error.message;
-  }
-}
-async function doSearch({more=false}={}){
-  const term=$("search-query").value.trim().slice(0,80);
-  if(!term)return;
-  if(state.request?.type==="search")state.request.controller.abort();
-  const controller=new AbortController();state.request={type:"search",controller};
-  if(!more || term!==state.searchTerm){
-    state.searchTerm=term;state.searchResults=[];state.searchOffset=0;state.searchTotal=0;
-    renderSongs("search-results",[]);
-  }
-  $("search-status").textContent="Buscando músicas...";
-  $("search-more").hidden=true;
-  try{
-    const data=await searchTracks(term,{offset:state.searchOffset,signal:controller.signal});
-    if(controller.signal.aborted)return;
-    const known=new Set(state.searchResults.map(t=>t.id));
-    state.searchResults.push(...data.tracks.filter(t=>!known.has(t.id)));
-    state.searchOffset=data.offset;state.searchTotal=data.count;
-    renderSongs("search-results",state.searchResults);
-    $("search-status").textContent=state.searchResults.length+" faixas encontradas para “"+term+"”.";
-    $("search-more").hidden=state.searchOffset>=state.searchTotal;
-  }catch(error){
-    if(!controller.signal.aborted)$("search-status").textContent="Falha na busca: "+error.message+". Verifique a rota da API ou tente novamente.";
-  }
 }
 
+async function doSearch(){
+  const term=$("search-query").value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
+  const selected=term?localTracks.filter(t=>[t.title,t.artist,...CATEGORIES.filter(c=>c.id===t.categoryId).map(c=>c.name)]
+    .some(v=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR").includes(term))):[];
+  state.searchResults=selected;
+  renderSongs("search-results",selected);
+  $("search-status").textContent=selected.length+" faixa"+(selected.length===1?"":"s")+" encontrada(s) na coleção.";
+  $("search-more").hidden=true;
+}
 function renderImportedAudio(){
   const tracks=[...state.audioFiles.values()].map(toPlaylistTrack);
   renderSongs("local-audio-list",tracks,{mode:"imported"});
@@ -410,10 +345,16 @@ function prepareSelected(){
   const track=selected();
   if(!track)return false;
   if(isImported(track)){
-    const record=state.audioFiles.get(track.id);
-    if(!record){say("Este arquivo não está disponível neste navegador.");return false;}
-    fileObjectUrl=URL.createObjectURL(record.blob);
-    fileAudio.src=fileObjectUrl;
+    if(track.source==="published"){
+      const published=ORIGINAL_TRACKS.find(x=>x.id===track.id);
+      if(!published){say("Faixa não reconhecida no catálogo.");return false;}
+      fileAudio.src=published.audio;
+    }else{
+      const record=state.audioFiles.get(track.id);
+      if(!record){say("Este arquivo não está disponível neste navegador.");return false;}
+      fileObjectUrl=URL.createObjectURL(record.blob);
+      fileAudio.src=fileObjectUrl;
+    }
     fileAudio.load();
   }else synth.load(track);
   return true;
@@ -421,7 +362,7 @@ function prepareSelected(){
 function playFromTrack(track,collection=localTracks){
   const tracks=(Array.isArray(collection)?collection:localTracks).map(t=>{
     if(isImported(t))return state.audioFiles.has(t.id)?toPlaylistTrack(state.audioFiles.get(t.id)):null;
-    return t.source==="local"||allLocal.has(t.id)?ORIGINAL_TRACKS.find(o=>o.id===t.id):null;
+    return t.source==="published" || allLocal.has(t.id) ? ORIGINAL_TRACKS.find(o=>o.id===t.id) : null;
   }).filter(Boolean);
   const idx=tracks.findIndex(t=>t.id===track.id&&Boolean(isImported(t))===Boolean(isImported(track)));
   if(idx<0){say("A gravação não está disponível para reprodução neste navegador.");return;}
@@ -600,17 +541,13 @@ function initNavigation(){
       if(v==="queue")renderQueue();
     });
   }
-  $("reload-categories").addEventListener("click",()=>void fetchCategories({force:true}));
-  $("show-categories").addEventListener("click",()=>{
-    state.categoriesExpanded=!state.categoriesExpanded;
-    renderCategories();
-    say(state.categoriesExpanded?"Todas as categorias exibidas.":"Exibindo as categorias mais populares.");
-  });
+  $("reload-categories").addEventListener("click",()=>void fetchCategories());
+  $("show-categories").hidden=true;
   $("back-categories").addEventListener("click",()=>setView("discover"));
   $("back-playlists").addEventListener("click",()=>{listPlaylists();setView("playlists");});
-  $("category-more").addEventListener("click",()=>void loadCategoryTracks());
+  $("category-more").hidden=true;
   $("search-form").addEventListener("submit",e=>{e.preventDefault();void doSearch();});
-  $("search-more").addEventListener("click",()=>void doSearch({more:true}));
+  $("search-more").hidden=true;
 }
 function initPlaylists(){
   $("create-top").addEventListener("click",()=>{state.pending=null;showNameDialog();});
@@ -676,7 +613,7 @@ function initPlayer(){
   }
   fileAudio.addEventListener("loadedmetadata",updateTimeline);
   fileAudio.addEventListener("ended",()=>{if(isImported(selected()))advance(true);});
-  fileAudio.addEventListener("error",()=>{if(isImported(selected())){state.playing=false;renderPlayer();say("Não foi possível ler este arquivo de áudio.");}});
+  fileAudio.addEventListener("error",()=>{if(isImported(selected())){state.playing=false;renderPlayer();say("Arquivo indisponível. Confirme que os MP3s do catálogo foram enviados ao projeto ou que o arquivo pessoal ainda existe.");}});
   window.setInterval(()=>{if(state.playing)updateTimeline();},300);
   window.addEventListener("pagehide",()=>{stopFilePlayback();synth.dispose();audioDb?.close();},{once:true});
   renderPlayer();renderQueue();
