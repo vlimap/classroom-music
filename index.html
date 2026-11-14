@@ -7,6 +7,7 @@
   <meta name="description" content="Foco.dev: uma trilha sonora tranquila para estudar e programar, com acesso inclusivo.">
   <title>Foco.dev — Música para programar</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/src/styles/tokens.css">
   <link rel="stylesheet" href="/src/styles/app.css">
   <script type="module" src="/src/main.js"></script>
@@ -20,16 +21,16 @@
         <img src="/logo.svg" width="52" height="52" alt="">
         <span><strong>foco.dev</strong><small>Música para quem constrói.</small></span>
       </a>
-      <nav class="preferences" aria-label="Preferências de acessibilidade">
-        <button class="btn btn-quiet" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" aria-pressed="false">Tema</button>
-        <button class="btn btn-quiet" id="contrast-toggle" type="button" aria-label="Ativar alto contraste" aria-pressed="false">Contraste</button>
-        <button class="btn btn-quiet" id="font-toggle" type="button" aria-label="Aumentar tamanho dos textos" aria-pressed="false">A+</button>
-        <button class="btn btn-quiet" id="vlibras-trigger" type="button" aria-label="Abrir tradução para Libras">Libras</button>
+      <nav id="preferences" tabindex="-1" class="preferences" aria-label="Preferências de acessibilidade">
+        <button class="btn btn-quiet" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" aria-pressed="false"><i class="bi bi-moon-stars" aria-hidden="true"></i><span id="theme-label">Modo escuro</span></button>
+        <button class="btn btn-quiet" id="contrast-toggle" type="button" aria-label="Ativar alto contraste" aria-pressed="false"><i class="bi bi-circle-half" aria-hidden="true"></i><span>Contraste</span></button>
+        <button class="btn btn-quiet" id="font-toggle" type="button" aria-label="Aumentar tamanho dos textos" aria-pressed="false"><i class="bi bi-type" aria-hidden="true"></i><span>A+</span></button>
+        <button class="btn btn-quiet" id="vlibras-trigger" type="button" aria-label="Abrir tradução para Libras"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Libras</span></button>
       </nav>
     </header>
 
     <main id="main" tabindex="-1">
-      <section class="intro" aria-labelledby="intro-title">
+      <section id="inicio" tabindex="-1" class="intro" aria-labelledby="intro-title">
         <div>
           <p class="eyebrow">Seu espaço para concentrar</p>
           <h1 id="intro-title">Entre no seu ritmo.</h1>
@@ -41,7 +42,7 @@
         </div>
       </section>
 
-      <section aria-labelledby="listen-heading" class="workspace">
+      <section id="trilhas" tabindex="-1" aria-labelledby="listen-heading" class="workspace">
         <div class="workspace-top">
           <div>
             <p class="eyebrow">Ouvir agora</p>
@@ -51,8 +52,8 @@
         </div>
 
         <div class="tabs" role="tablist" aria-label="Bibliotecas musicais">
-          <button id="tab-original" role="tab" aria-selected="true" aria-controls="panel-original" tabindex="0" type="button" class="tab active">Ambientes originais</button>
-          <button id="tab-library" role="tab" aria-selected="false" aria-controls="panel-library" tabindex="-1" type="button" class="tab">Explorar catálogo</button>
+          <button id="tab-original" role="tab" aria-selected="true" aria-controls="panel-original" tabindex="0" type="button" class="tab active"><i class="bi bi-music-note-list" aria-hidden="true"></i> Ambientes originais</button>
+          <button id="tab-library" role="tab" aria-selected="false" aria-controls="panel-library" tabindex="-1" type="button" class="tab"><i class="bi bi-collection-play" aria-hidden="true"></i> Explorar catálogo</button>
         </div>
 
         <div class="workspace-grid">
@@ -69,7 +70,7 @@
               <div class="section-heading"><div><h3>Catálogo FreeToUse</h3><p>Busca pública de faixas e artistas da FreeToUse.</p></div></div>
               <form id="search-form" class="search-form" role="search">
                 <label for="search-input">Buscar música</label>
-                <div class="search-row"><input id="search-input" name="query" type="search" placeholder="lofi, chill, ambient..." minlength="1" maxlength="80" value="lofi" autocomplete="off"><button class="btn btn-primary" type="submit">Buscar</button></div>
+                <div class="search-row"><input id="search-input" name="query" type="search" placeholder="lofi, chill, ambient..." minlength="1" maxlength="80" value="lofi" autocomplete="off"><button class="btn btn-primary" type="submit"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button></div>
               </form>
               <div id="catalog-license" class="notice" role="note"><strong>Licenciamento do catálogo</strong><p>Esta API é pública, mas suas gravações têm licença própria. A reprodução no aplicativo fica desativada até existir autorização apropriada. Você pode conhecer as faixas e os artistas por aqui.</p><a href="https://freetouse.com/license" target="_blank" rel="noopener noreferrer">Consultar termos da FreeToUse (nova aba)</a></div>
               <p id="catalog-status" class="support-text" role="status" aria-live="polite">Utilize a busca para explorar as músicas.</p>
@@ -78,7 +79,7 @@
             </section>
           </div>
 
-          <aside class="card queue-card" aria-labelledby="queue-title">
+          <aside id="fila" class="card queue-card" aria-labelledby="queue-title" tabindex="-1">
             <div class="section-heading"><div><h3 id="queue-title">Próximas faixas</h3><p>Fila de reprodução</p></div></div>
             <ol id="queue-list" class="queue-list"></ol>
             <div class="queue-help">
@@ -97,35 +98,46 @@
     </main>
   </div>
 
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Navegação inferior">
+    <button type="button" data-nav-target="home" aria-current="page"><i class="bi bi-house-door-fill" aria-hidden="true"></i><span>Início</span></button>
+    <button type="button" data-nav-target="tracks"><i class="bi bi-music-note-list" aria-hidden="true"></i><span>Trilhas</span></button>
+    <button type="button" data-nav-target="explore"><i class="bi bi-search" aria-hidden="true"></i><span>Explorar</span></button>
+    <button type="button" data-nav-target="queue"><i class="bi bi-list-ol" aria-hidden="true"></i><span>Fila</span></button>
+    <button type="button" data-nav-target="access"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Acesso</span></button>
+  </nav>
+
   <footer class="player" aria-label="Controles de reprodução">
-    <div class="player-inner">
+    <div id="player-inner" class="player-inner">
       <div class="now-playing">
-        <img src="/logo.svg" id="playing-cover" width="56" height="56" alt="" class="playing-cover">
+        <img src="/covers/noite-de-codigo.svg" id="playing-cover" width="56" height="56" alt="" class="playing-cover">
         <div class="track-meta">
           <strong id="playing-title">Selecione uma faixa</strong>
           <span id="playing-artist">Foco.dev</span>
         </div>
         <button id="favorite-button" type="button" class="icon-button favorite-button" aria-label="Adicionar aos favoritos" aria-pressed="false" title="Favorito">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.9a5.6 5.6 0 0 0-7.9 0L12 5.8l-.9-.9a5.6 5.6 0 1 0-7.9 7.9L12 21l8.8-8.2a5.6 5.6 0 0 0 0-7.9Z"/></svg>
+          <i id="favorite-icon" class="bi bi-heart" aria-hidden="true"></i>
+        </button>
+        <button id="player-expand" type="button" class="icon-button player-expand" aria-controls="player-inner" aria-expanded="false" aria-label="Mostrar mais controles" title="Mais controles">
+          <i id="expand-icon" class="bi bi-sliders" aria-hidden="true"></i>
         </button>
       </div>
       <div class="playback-center">
         <div class="transport">
           <button id="shuffle-button" type="button" class="icon-button" aria-label="Ativar ordem aleatória" aria-pressed="false" title="Aleatório">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3c5 0 5 10 10 10h3m-3-3 3 3-3 3M4 17h3c2 0 3-2 4-4m3-4c1-1 2-2 3-2h3m-3-3 3 3-3 3"/></svg>
+            <i class="bi bi-shuffle" aria-hidden="true"></i>
           </button>
           <button id="previous-button" type="button" class="icon-button" aria-label="Faixa anterior" title="Anterior">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14M19 5 8 12l11 7V5Z"/></svg>
+            <i class="bi bi-skip-start-fill" aria-hidden="true"></i>
           </button>
           <button id="play-button" type="button" class="play-button" aria-label="Reproduzir" aria-pressed="false" title="Reproduzir">
-            <svg id="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>
-            <svg id="pause-icon" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+            <i id="play-icon" class="bi bi-play-fill" aria-hidden="true"></i>
+            <i id="pause-icon" class="bi bi-pause-fill" aria-hidden="true" hidden></i>
           </button>
           <button id="next-button" type="button" class="icon-button" aria-label="Próxima faixa" title="Próxima">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5v14M5 5l11 7-11 7V5Z"/></svg>
+            <i class="bi bi-skip-end-fill" aria-hidden="true"></i>
           </button>
           <button id="repeat-button" type="button" class="icon-button" aria-label="Repetição desligada" title="Repetição">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3"/></svg>
+            <i class="bi bi-repeat" aria-hidden="true"></i>
             <span id="repeat-one" class="repeat-one" hidden>1</span>
           </button>
         </div>
@@ -138,7 +150,7 @@
       </div>
       <div class="volume-group">
         <button id="mute-button" type="button" class="icon-button" aria-label="Silenciar" aria-pressed="false" title="Silenciar">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm4 4a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/></svg>
+          <i id="volume-icon" class="bi bi-volume-up-fill" aria-hidden="true"></i>
         </button>
         <label for="volume" class="sr-only">Volume</label>
         <input id="volume" type="range" min="0" max="100" step="1" value="40" aria-valuetext="40 por cento">
