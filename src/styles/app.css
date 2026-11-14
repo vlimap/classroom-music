@@ -185,3 +185,7 @@ body[data-expanded="true"] .volume-control input{min-height:32px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.category-card{transition:none}.skip-link{transition:none}}
 @media(forced-colors:active){.button,.category-card,.card,.song-row,.mobile-nav button{border:1px solid ButtonText}.mobile-nav button[aria-current]{outline:2px solid Highlight}}
+
+.more-categories{display:flex;justify-content:center;margin:26px 0 10px}
+.more-categories .button{min-width:220px}
+@media(max-width:640px){.more-categories{margin:18px 0}.more-categories .button{width:100%}}
