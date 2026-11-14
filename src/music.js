@@ -1,17 +1,31 @@
+// Catálogo editorial Foco.dev Sessions, Volume 1.
+// MP3s e artes são entregues separadamente pelo pacote de mídias.
+// Produção/curadoria: vlimap. Geração assistida por Adobe Firefly.
+export const CATEGORIES = Object.freeze([
+  { id: "lofi-focus", name: "Lo-fi & Focus", kind: "music", description: "Ritmos tranquilos para estudar, programar e criar.", artwork: "/covers/categories/lofi.svg" },
+  { id: "ambient-zen", name: "Ambient & Zen", kind: "music", description: "Texturas atmosféricas e ambientes relaxantes.", artwork: "/covers/categories/ambient.svg" },
+  { id: "love-romance", name: "Love & Romance", kind: "music", description: "Melodias românticas autorais em produção.", artwork: "/covers/categories/love.svg" },
+  { id: "rock-indie", name: "Rock & Indie", kind: "music", description: "Guitarras e composições originais em produção.", artwork: "/covers/categories/rock.svg" },
+  { id: "jazz-coffee", name: "Jazz & Coffee", kind: "music", description: "Jazz suave e harmonias aconchegantes em produção.", artwork: "/covers/categories/jazz.svg" },
+  { id: "electronic-chill", name: "Electronic & Chill", kind: "music", description: "Sintetizadores e eletrônica para concentração.", artwork: "/covers/categories/electronic.svg" },
+  { id: "podcasts", name: "Podcasts & Notícias", kind: "podcast", description: "Episódios do Foco.dev News com transcrições e fontes.", artwork: "/covers/categories/podcasts.svg" }
+]);
+
 export const ORIGINAL_TRACKS = Object.freeze([
-  { id: "noite-de-codigo", artwork: "/covers/noite-de-codigo.svg", title: "Noite de código", artist: "Foco.dev · original", duration: 180, bpm: 74, root: 45, motif: [0, 4, 7, 9, 7, 4, 2, 0], chords: [[0, 3, 7, 10], [5, 9, 12, 15], [2, 5, 9, 12], [7, 10, 14, 17]] },
-  { id: "terminal-aconchegante", artwork: "/covers/terminal-aconchegante.svg", title: "Terminal aconchegante", artist: "Foco.dev · original", duration: 210, bpm: 68, root: 48, motif: [7, 4, 2, 0, 4, 7, 9, 7], chords: [[0, 4, 7, 11], [9, 12, 16, 19], [5, 9, 12, 16], [7, 11, 14, 17]] },
-  { id: "fluxo-de-ideias", artwork: "/covers/fluxo-de-ideias.svg", title: "Fluxo de ideias", artist: "Foco.dev · original", duration: 195, bpm: 82, root: 43, motif: [0, 2, 5, 7, 10, 7, 5, 2], chords: [[0, 3, 7, 10], [8, 12, 15, 19], [5, 8, 12, 15], [7, 10, 14, 17]] },
-  { id: "pausa-entre-commits", artwork: "/covers/pausa-entre-commits.svg", title: "Pausa entre commits", artist: "Foco.dev · original", duration: 180, bpm: 72, root: 50, motif: [0, 7, 5, 2, 4, 7, 11, 7], chords: [[0, 4, 7, 11], [5, 9, 12, 16], [9, 12, 16, 19], [7, 11, 14, 17]] }
+  { id: "noite-entre-commits", source: "published", title: "Noite entre Commits", artist: "vlimap", producer: "vlimap", categoryId: "lofi-focus", artwork: "/covers/noite-entre-commits.jpg", audio: "/audio/noite-entre-commits.mp3", duration: 180 },
+  { id: "jardim-ao-amanhecer", source: "published", title: "Jardim ao Amanhecer", artist: "vlimap", producer: "vlimap", categoryId: "ambient-zen", artwork: "/covers/jardim-ao-amanhecer.jpg", audio: "/audio/jardim-ao-amanhecer.mp3", duration: 180 },
+  { id: "caminho-da-floresta", source: "published", title: "Caminho da Floresta", artist: "vlimap", producer: "vlimap", categoryId: "ambient-zen", artwork: "/covers/caminho-da-floresta.jpg", audio: "/audio/caminho-da-floresta.mp3", duration: 180 },
+  { id: "refugio-zen", source: "published", title: "Refúgio Zen", artist: "vlimap", producer: "vlimap", categoryId: "ambient-zen", artwork: "/covers/refugio-zen.jpg", audio: "/audio/refugio-zen.mp3", duration: 180 }
 ]);
 
 export function formatTime(seconds) {
   const n = Number.isFinite(Number(seconds)) ? Math.max(0, Math.floor(Number(seconds))) : 0;
-  return String(Math.floor(n / 60)) + ":" + String(n % 60).padStart(2, "0");
+  return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0");
 }
 export function timeDescription(seconds) {
   const n = Number.isFinite(Number(seconds)) ? Math.max(0, Math.floor(Number(seconds))) : 0;
-  const minutes = Math.floor(n / 60); const secs = n % 60;
+  const minutes = Math.floor(n / 60);
+  const secs = n % 60;
   return minutes + (minutes === 1 ? " minuto" : " minutos") + " e " + secs + (secs === 1 ? " segundo" : " segundos");
 }
 export function nextIndex(index, count, repeatMode = "off", shuffle = false, random = Math.random) {
@@ -33,10 +47,8 @@ export function readJsonStorage(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
     return raw === null ? fallback : JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
+  } catch { return fallback; }
 }
 export function saveJsonStorage(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* armazenamento indisponível */ }
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Bloqueio do armazenamento */ }
 }

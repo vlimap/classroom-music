@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { encodeShare,decodeShare,cleanPlaylist,shareUrl,readPlaylists,savePlaylists,MAX_TRACKS } from "../src/playlists.js";
-const playlist={id:"a",name:"Sessão de estudo",tracks:[{source:"local",id:"noite-de-codigo",title:"Noite de código",artist:"Foco.dev",artwork:"/covers/noite-de-codigo.svg",duration:180}]};
+const playlist={id:"a",name:"Sessão de estudo",tracks:[{source:"published",id:"noite-entre-commits",title:"Noite entre Commits",artist:"vlimap",artwork:"/covers/noite-entre-commits.jpg",duration:180}]};
 test("playlist é compartilhável por link sem backend",()=>{
  const code=encodeShare(playlist);assert.ok(/^[\w-]+$/.test(code));
  const restored=decodeShare(code);assert.equal(restored.name,playlist.name);assert.equal(restored.tracks[0].id,playlist.tracks[0].id);
@@ -33,4 +33,12 @@ test("arquivo importado pode constar na playlist, mas o link não transporta o �
   assert.equal(restored.tracks[0].title,"Exemplo local");
   assert.equal("blob" in restored.tracks[0],false);
   assert.equal(encoded.includes("12000000"),false);
+});
+
+test("link compartilhado preserva fonte das músicas publicadas sem incluir o MP3",()=>{
+ const code=encodeShare(playlist);
+ const out=decodeShare(code);
+ assert.equal(out.tracks[0].source,"published");
+ assert.equal(out.tracks[0].artist,"vlimap");
+ assert.equal("audio" in out.tracks[0],false);
 });

@@ -61,3 +61,11 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 - O player utiliza o elemento HTMLAudioElement para conteúdo importado e Web Audio para as composições originais.
 - Compatibilidade de codecs depende do navegador; não existe transcodificação.
 - O armazenamento pode ser descartado pelo navegador se limpar dados ou ultrapassar a quota. Guarde cópias dos arquivos originais.
+
+## Foco.dev News — transcrições
+
+- O podcast é acessível por navegação inferior e menu desktop.
+- Cada episódio possui página com título, data, transcrição em texto puro, opção de copiar/baixar e links de fontes abrindo em nova aba.
+- A transcrição do Adobe Podcast é automática e ainda não foi revisada; erros de reconhecimento são avisados explicitamente.
+- Se o MP3 ainda não está publicado, o botão Ouvir fica desabilitado; transcrição e fontes continuam acessíveis.
+- A transcrição original só contém o marcador 00:00:00. Não inventar timestamps ou alinhamento temporal entre áudio e texto.
