@@ -512,43 +512,42 @@ function setVolume(){
   $("volume-icon").className="bi "+(state.muted||state.volume===0?"bi-volume-mute-fill":state.volume<50?"bi-volume-down-fill":"bi-volume-up-fill");
 }
 
-function styleVLibrasButton(){
-  // VLibras v7 tem múltiplas builds: initBtn pode não existir na versão carregada.
-  // Alteramos somente o controle de acesso, sem interferir no avatar ou no popup.
-  const native=window.VLibrasWidget?.initBtn;
-  const candidates=[
-    native,
-    document.getElementById("vlibras-button"),
-    document.querySelector('[data-testid="vlibras-access-button"]'),
-    document.querySelector('[vw-access-button] .access-button')
-  ].filter(Boolean);
-  if(!candidates.length)return false;
-  const highContrast=document.documentElement.dataset.contrast==="high";
-  const color=highContrast?"#000000":"#315d49";
-  const border=highContrast?"#ffffff":"#d7b98a";
-  for(const candidate of new Set(candidates)){
-    const button=candidate.matches?.("button")?candidate:
-      candidate.shadowRoot?.querySelector("button") ||
-      candidate.querySelector?.("button") || candidate;
-    for(const target of [candidate,button]){
-      if(!target?.style)continue;
-      target.style.setProperty("background-color",color,"important");
-      target.style.setProperty("border","2px solid "+border,"important");
-      target.style.setProperty("border-radius","12px","important");
-    }
-  }
+function findVLibrasButton(){
+  const official=document.getElementById("vlibras-button")
+    ||document.querySelector('[data-testid="vlibras-access-button"]')
+    ||document.querySelector('[vw-access-button] .access-button');
+  if(official && typeof official.click==="function")return official;
+  const exposed=window.VLibrasWidget?.initBtn;
+  const button=exposed?.matches?.("button")?exposed:
+    exposed?.shadowRoot?.querySelector("button") ||
+    exposed?.querySelector?.("button") || exposed;
+  return typeof button?.click==="function" ? button : null;
+}
+function openVLibras(){
+  const native=findVLibrasButton();
+  if(!native){say("VLibras ainda não está disponível. Verifique a conexão.");return;}
+  native.click();
+}
+function syncVLibrasLauncher(){
+  const native=findVLibrasButton();
+  if(!native)return false;
+  // Apenas o controle visual é ocultado; o tradutor/iframe não é alterado.
+  document.documentElement.dataset.vlibrasBranded="true";
+  native.setAttribute("aria-hidden","true");
+  native.tabIndex=-1;
+  $("vlibras-fab").hidden=false;
   return true;
 }
 function initVLibrasBrand(){
-  styleVLibrasButton();
-  // O widget é injetado assincronamente; observar o host atende a novas versões.
-  const observer=new MutationObserver(()=>styleVLibrasButton());
+  $("vlibras-fab").addEventListener("click",openVLibras);
+  syncVLibrasLauncher();
+  const observer=new MutationObserver(()=>syncVLibrasLauncher());
   observer.observe(document.body,{childList:true,subtree:true});
-  let attempts=0;
+  let checks=0;
   const timer=window.setInterval(()=>{
-    attempts++;
-    styleVLibrasButton();
-    if(attempts>=60){window.clearInterval(timer);observer.disconnect();}
+    checks++;
+    syncVLibrasLauncher();
+    if(checks>=60){window.clearInterval(timer);observer.disconnect();}
   },350);
 }
 
@@ -567,12 +566,12 @@ function initPreferences(){
   $("theme-toggle").addEventListener("click",()=>{
     root.dataset.theme=root.dataset.theme==="dark"?"light":"dark";
     if(storage)saveJsonStorage(KEY+"theme",root.dataset.theme);
-    sync();styleVLibrasButton();
+    sync();syncVLibrasLauncher();
   });
   $("contrast-toggle").addEventListener("click",()=>{
     root.dataset.contrast=root.dataset.contrast==="high"?"normal":"high";
     if(storage)saveJsonStorage(KEY+"contrast",root.dataset.contrast==="high");
-    sync();styleVLibrasButton();
+    sync();syncVLibrasLauncher();
   });
   $("font-toggle").addEventListener("click",()=>{
     root.dataset.font=root.dataset.font==="large"?"normal":"large";
@@ -580,11 +579,7 @@ function initPreferences(){
     sync();
   });
   sync();
-  $("vlibras-trigger").addEventListener("click",()=>{
-    const control=window.VLibrasWidget?.initBtn;
-    if(typeof control?.click==="function")control.click();
-    else say("VLibras ainda não carregou. Verifique sua conexão.");
-  });
+  $("vlibras-trigger").addEventListener("click",openVLibras);
 }
 function initNavigation(){
   for(const b of document.querySelectorAll("[data-view]")){
