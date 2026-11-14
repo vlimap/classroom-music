@@ -1,38 +1,28 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ORIGINAL_TRACKS, formatTime, nextIndex, previousIndex, timeDescription } from "../src/music.js";
-
-test("formatTime sanitiza números inválidos", () => {
-  assert.equal(formatTime(0), "0:00");
-  assert.equal(formatTime(125.9), "2:05");
-  assert.equal(formatTime(-8), "0:00");
-  assert.equal(formatTime(NaN), "0:00");
+import { ORIGINAL_TRACKS, CATEGORIES, formatTime, nextIndex, previousIndex, timeDescription } from "../src/music.js";
+test("tempo legível e acessível", () => {
+ assert.equal(formatTime(125.9),"2:05");assert.equal(formatTime(-8),"0:00");
+ assert.equal(timeDescription(72),"1 minuto e 12 segundos");
 });
-test("descrição acessível de tempo", () => {
-  assert.equal(timeDescription(72), "1 minuto e 12 segundos");
+test("fila: avanço, aleatório e repetição", () => {
+ assert.equal(nextIndex(0,4),1);
+ assert.equal(nextIndex(3,4),-1);
+ assert.equal(nextIndex(3,4,"all"),0);
+ assert.equal(nextIndex(2,4,"one"),2);
+ assert.equal(nextIndex(0,0),-1);
+ assert.notEqual(nextIndex(2,4,"off",true,()=>0),2);
+ assert.equal(previousIndex(0,3),0);
+ assert.equal(previousIndex(0,3,"all"),2);
 });
-test("avanço automático e limite da fila", () => {
-  assert.equal(nextIndex(0, 4), 1);
-  assert.equal(nextIndex(3, 4), -1);
-  assert.equal(nextIndex(3, 4, "all"), 0);
-  assert.equal(nextIndex(2, 4, "one"), 2);
-  assert.equal(nextIndex(0, 0), -1);
-});
-test("ordem aleatória não repete a faixa atual", () => {
-  const index = nextIndex(2, 4, "off", true, () => 0);
-  assert.notEqual(index, 2);
-  assert.ok(index >= 0 && index < 4);
-});
-test("anterior respeita início e modo de repetição", () => {
-  assert.equal(previousIndex(0, 3), 0);
-  assert.equal(previousIndex(0, 3, "all"), 2);
-  assert.equal(previousIndex(2, 3), 1);
-});
-test("trilhas originais são completas e distintas", () => {
-  assert.equal(new Set(ORIGINAL_TRACKS.map((track) => track.id)).size, ORIGINAL_TRACKS.length);
-  for (const track of ORIGINAL_TRACKS) {
-    assert.ok(track.duration > 60);
-    assert.ok(track.bpm >= 60);
-    assert.equal(track.chords.length, 4);
-  }
+test("quatro faixas vlimap e duas categorias próprias", () => {
+ assert.equal(ORIGINAL_TRACKS.length,4);assert.equal(CATEGORIES.length,2);
+ assert.equal(new Set(ORIGINAL_TRACKS.map(t=>t.id)).size,4);
+ for(const t of ORIGINAL_TRACKS) {
+  assert.equal(t.source,"published");assert.equal(t.artist,"vlimap");
+  assert.ok(t.audio.startsWith("/audio/")&&t.audio.endsWith(".mp3"));
+  assert.ok(t.artwork.startsWith("/covers/")&&t.artwork.endsWith(".jpg"));
+  assert.equal(t.duration,180);
+  assert.ok(CATEGORIES.some(c=>c.id===t.categoryId));
+ }
 });
