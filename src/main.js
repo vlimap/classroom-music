@@ -535,6 +535,11 @@ function syncVLibrasLauncher(){
   document.documentElement.dataset.vlibrasBranded="true";
   native.setAttribute("aria-hidden","true");
   native.tabIndex=-1;
+  // Hide the visual native trigger even when it is inside the VLibras shadow root.
+  // Programmatic click remains available through openVLibras().
+  native.style?.setProperty("visibility","hidden","important");
+  native.style?.setProperty("opacity","0","important");
+  native.style?.setProperty("pointer-events","none","important");
   $("vlibras-fab").hidden=false;
   return true;
 }
