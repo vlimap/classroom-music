@@ -518,8 +518,8 @@ function styleVLibrasButton(){
   const native=window.VLibrasWidget?.initBtn;
   if(!native)return false;
   const highContrast=document.documentElement.dataset.contrast==="high";
-  const color=highContrast ? (#000000) : "#315d49";
-  const border=highContrast ? (#ffffff) : "#d7b98a";
+  const color=highContrast ? "#000000" : "#315d49";
+  const border=highContrast ? "#ffffff" : "#d7b98a";
   const paint=element=>{
     if(!element?.style)return;
     element.style.setProperty("background-color",color,"important");
