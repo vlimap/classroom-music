@@ -80,3 +80,12 @@ O modo de alto contraste utiliza preto/branco e acentos de alto contraste; prefe
 As variáveis `--vlibras-btn-focus-visible-outline`, `--vlibras-btn-focus-visible-shadow`, `--vlibras-btn-hover-filter` são suportadas oficialmente. O botão auxiliar “Libras” usa as cores da marca e aciona o controle oficial quando disponível. A personalização de cor/vestimenta do avatar oficial exige parceria formal, portanto não foi falsamente simulada.
 
 Documentação: https://www.vlibras.gov.br/doc/widget/installation/webpageintegration.html
+
+## Atualização mobile e iconografia
+
+- Ícones: Bootstrap Icons 1.13.2, publicados via jsDelivr; não exige importar o framework Bootstrap.
+- Conteúdo acessível: ícones decorativos com `aria-hidden`, botões com `aria-label` e textos na navegação inferior.
+- Capas: arquivos SVG originais individualizados por faixa sintética, e `thumbnails.sm/md` da FreeToUse para cada resultado de busca. Imagens externas são validadas como URLs HTTPS e possuem fallback.
+- Dock inferior com 5 destinos móveis: Início, Trilhas, Explorar, Fila e Acesso; destaque da seleção por contraste e `aria-current`.
+- Mini-player acima do dock, com play/next de acesso imediato e modo expandido para os demais controles.
+- Safe-area: `env(safe-area-inset-bottom)`; alvos de toque priorizados, foco navegável e textos legíveis.

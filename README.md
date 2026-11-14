@@ -10,6 +10,9 @@ Player de foco, simples e acessível, para estudar e programar. Deploy estático
 - Play/pausa, anterior, próxima, ordem aleatória, repetição (desligada/fila/faixa), progresso, volume, mute e favoritos locais.
 - Próxima faixa automática depois do primeiro Play; a reprodução inicial exige interação por política dos navegadores.
 - Catálogo pesquisável da API pública FreeToUse, com paginação e imagens/nomes de seus respectivos autores.
+- Capas individuais para cada ambiente instrumental original; faixas do catálogo apresentam as capas oficiais de cada música fornecidas em `thumbnails` pela API, com fallback seguro.
+- Bootstrap Icons 1.13.2 (fontes via CDN oficial), sem depender do framework visual Bootstrap.
+- Navegação inferior fixa em celulares: Início, Trilhas, Explorar, Fila e Acesso. Mini-player fixo acima da navegação, com controles avançados expansíveis.
 - Layout adaptativo, temas claro e escuro, modo alto contraste, ampliação do texto, teclas nativas de navegação, rótulos acessíveis e anúncio de mudanças importantes.
 - Integração oficial do VLibras, com botão auxiliar da própria marca e foco personalizável conforme as opções oficiais.
 - Preferências e favoritos salvos no armazenamento local do navegador, sem sincronização entre dispositivos.
@@ -76,3 +79,9 @@ Referências: https://www.vlibras.gov.br/doc/widget/installation/webpageintegrat
 - Sem backend, não há playlists compartilhadas multiusuário ou moderação persistente. Favoritos são locais.
 - A reprodução pode depender de gestos do usuário e das políticas de economia de bateria de cada navegador.
 - A ferramenta é independente, sem afiliação comercial a plataformas de streaming.
+
+## Experiência móvel
+
+Em telas de até 640px, a navegação inferior permanece fixa e utiliza ícones e rótulos visíveis. O mini-player fica acima da barra, com play/pausa e próxima como ações prioritárias. O botão **Mais controles** expande anterior, ordem aleatória, repetição, volume e favorito. O rodapé respeita o safe-area dos dispositivos compatíveis. Para um funcionamento confiável, as capas de trilhas originais ficam em `covers/` como SVGs independentes; imagens da API são consultadas diretamente, sem download nem cópias locais.
+
+O deploy depende da integração GitHub → Vercel já configurada no projeto; mudanças na branch principal normalmente ativam nova publicação, que deve ser confirmada no painel da Vercel.

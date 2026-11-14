@@ -1,8 +1,8 @@
 export const ORIGINAL_TRACKS = Object.freeze([
-  { id: "noite-de-codigo", title: "Noite de código", artist: "Foco.dev · original", duration: 180, bpm: 74, root: 45, motif: [0, 4, 7, 9, 7, 4, 2, 0], chords: [[0, 3, 7, 10], [5, 9, 12, 15], [2, 5, 9, 12], [7, 10, 14, 17]] },
-  { id: "terminal-aconchegante", title: "Terminal aconchegante", artist: "Foco.dev · original", duration: 210, bpm: 68, root: 48, motif: [7, 4, 2, 0, 4, 7, 9, 7], chords: [[0, 4, 7, 11], [9, 12, 16, 19], [5, 9, 12, 16], [7, 11, 14, 17]] },
-  { id: "fluxo-de-ideias", title: "Fluxo de ideias", artist: "Foco.dev · original", duration: 195, bpm: 82, root: 43, motif: [0, 2, 5, 7, 10, 7, 5, 2], chords: [[0, 3, 7, 10], [8, 12, 15, 19], [5, 8, 12, 15], [7, 10, 14, 17]] },
-  { id: "pausa-entre-commits", title: "Pausa entre commits", artist: "Foco.dev · original", duration: 180, bpm: 72, root: 50, motif: [0, 7, 5, 2, 4, 7, 11, 7], chords: [[0, 4, 7, 11], [5, 9, 12, 16], [9, 12, 16, 19], [7, 11, 14, 17]] }
+  { id: "noite-de-codigo", artwork: "/covers/noite-de-codigo.svg", title: "Noite de código", artist: "Foco.dev · original", duration: 180, bpm: 74, root: 45, motif: [0, 4, 7, 9, 7, 4, 2, 0], chords: [[0, 3, 7, 10], [5, 9, 12, 15], [2, 5, 9, 12], [7, 10, 14, 17]] },
+  { id: "terminal-aconchegante", artwork: "/covers/terminal-aconchegante.svg", title: "Terminal aconchegante", artist: "Foco.dev · original", duration: 210, bpm: 68, root: 48, motif: [7, 4, 2, 0, 4, 7, 9, 7], chords: [[0, 4, 7, 11], [9, 12, 16, 19], [5, 9, 12, 16], [7, 11, 14, 17]] },
+  { id: "fluxo-de-ideias", artwork: "/covers/fluxo-de-ideias.svg", title: "Fluxo de ideias", artist: "Foco.dev · original", duration: 195, bpm: 82, root: 43, motif: [0, 2, 5, 7, 10, 7, 5, 2], chords: [[0, 3, 7, 10], [8, 12, 15, 19], [5, 8, 12, 15], [7, 10, 14, 17]] },
+  { id: "pausa-entre-commits", artwork: "/covers/pausa-entre-commits.svg", title: "Pausa entre commits", artist: "Foco.dev · original", duration: 180, bpm: 72, root: 50, motif: [0, 7, 5, 2, 4, 7, 11, 7], chords: [[0, 4, 7, 11], [5, 9, 12, 16], [9, 12, 16, 19], [7, 11, 14, 17]] }
 ]);
 
 export function formatTime(seconds) {

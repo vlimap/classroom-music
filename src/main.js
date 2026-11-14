@@ -40,6 +40,18 @@ function currentTime() { return source === "original" ? synth.currentTime : (vie
 function isFavorite(id) { return favorites.has(id); }
 function saveFavorites() { saveJsonStorage(KEY + "favorites", [...favorites]); }
 function trackArtist(track) { return source === "original" ? track.artist : artistNames(track); }
+function coverFor(track, kind, size = "md") {
+  if (!track) return "/logo.svg";
+  if (kind === "original") return track.artwork || "/logo.svg";
+  const images = track.thumbnails || {};
+  return safeHttpsUrl(images[size] || images.md || images.sm || images.lg || images.xl) || "/logo.svg";
+}
+function setCover(img, path) {
+  img.onerror = () => {
+    if (!img.src.endsWith("/logo.svg")) img.src = "/logo.svg";
+  };
+  img.src = path;
+}
 
 function makeRow(track, index, kind) {
   const isLocal = kind === "original";
@@ -51,16 +63,12 @@ function makeRow(track, index, kind) {
     row.addEventListener("click", () => selectTrack(index, kind, true));
   } else { row.setAttribute("role", "group"); }
   if (selected()?.id === track.id && source === kind) row.setAttribute("aria-current", "true");
-  const artwork = isLocal ? document.createElement("span") : document.createElement("img");
-  artwork.className = "track-cover" + (isLocal ? " local" : "");
-  if (isLocal) {
-    artwork.textContent = "∿";
-    artwork.setAttribute("aria-hidden", "true");
-  } else {
-    artwork.src = safeHttpsUrl(track.thumbnails?.sm || track.thumbnails?.md) || "/logo.svg";
-    artwork.alt = "";
-    artwork.loading = "lazy";
-  }
+  const artwork = document.createElement("img");
+  artwork.className = "track-cover";
+  artwork.alt = "";
+  artwork.loading = "lazy";
+  artwork.decoding = "async";
+  setCover(artwork, coverFor(track, kind, "sm"));
   const detail = document.createElement("span");
   detail.className = "track-details";
   const name = document.createElement("span"); name.className = "track-name"; name.textContent = track.title;
@@ -93,7 +101,15 @@ function renderQueue() {
     if (currentIndex === index) item.setAttribute("aria-current", "true");
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = track.title;
+    const picture = document.createElement("img");
+    picture.className = "queue-cover";
+    picture.alt = "";
+    picture.loading = "lazy";
+    picture.decoding = "async";
+    setCover(picture, coverFor(track, source, "sm"));
+    const name = document.createElement("span");
+    name.textContent = track.title;
+    button.append(picture, name);
     button.setAttribute("aria-label", "Selecionar " + track.title);
     button.addEventListener("click", () => selectTrack(index, source, true));
     item.append(button);
@@ -105,10 +121,11 @@ function updatePlayer() {
   const track = selected();
   view.title.textContent = track?.title || "Selecione uma faixa";
   view.artist.textContent = track ? trackArtist(track) : "Foco.dev";
-  view.cover.src = source === "original" ? "/logo.svg" : (safeHttpsUrl(track?.thumbnails?.md) || "/logo.svg");
+  setCover(view.cover, coverFor(track, source, "md"));
   view.favorite.disabled = !track;
   view.favorite.setAttribute("aria-pressed", String(Boolean(track && isFavorite(track.id))));
   view.favorite.setAttribute("aria-label", track && isFavorite(track.id) ? "Remover dos favoritos" : "Adicionar aos favoritos");
+  el("favorite-icon").className = "bi " + (track && isFavorite(track.id) ? "bi-heart-fill" : "bi-heart");
   view.play.setAttribute("aria-label", playing ? "Pausar" : "Reproduzir");
   view.play.setAttribute("aria-pressed", String(playing));
   view.play.title = playing ? "Pausar" : "Reproduzir";
@@ -130,7 +147,7 @@ function updateMediaSession() {
   if (!("mediaSession" in navigator) || !("MediaMetadata" in window) || !selected()) return;
   navigator.mediaSession.metadata = new MediaMetadata({
     title: selected().title, artist: trackArtist(selected()), album: "Foco.dev",
-    artwork: [{ src: new URL(view.cover.getAttribute("src"), location.href).href, sizes: "128x128", type: "image/svg+xml" }]
+    artwork: [{ src: new URL(view.cover.getAttribute("src"), location.href).href }]
   });
   navigator.mediaSession.playbackState = playing ? "playing" : "paused";
 }
@@ -143,6 +160,7 @@ function setPlayerVolume() {
   view.volume.setAttribute("aria-valuetext", volume + " por cento");
   view.mute.setAttribute("aria-pressed", String(muted));
   view.mute.setAttribute("aria-label", muted ? "Ativar som" : "Silenciar");
+  el("volume-icon").className = "bi " + (muted || volume === 0 ? "bi-volume-mute-fill" : volume < 50 ? "bi-volume-down-fill" : "bi-volume-up-fill");
 }
 async function play() {
   if (!selected()) return;
@@ -232,6 +250,8 @@ function selectTab(tab) {
   el("panel-original").hidden = !original;
   el("panel-library").hidden = original;
   if (!original && !catalogLoaded) void fetchCatalog(false);
+  const current = document.querySelector("#mobile-nav [aria-current='page']")?.dataset.navTarget;
+  if (current === "tracks" || current === "explore") markMobileNav(original ? "tracks" : "explore");
 }
 function initTabs() {
   const tabs = [el("tab-original"), el("tab-library")];
@@ -290,7 +310,8 @@ function initPreferences() {
     const dark = effectiveDark();
     themeButton.setAttribute("aria-pressed", String(dark));
     themeButton.setAttribute("aria-label", dark ? "Ativar modo claro" : "Ativar modo escuro");
-    themeButton.textContent = dark ? "Modo escuro" : "Modo claro";
+    el("theme-label").textContent = dark ? "Modo escuro" : "Modo claro";
+    themeButton.querySelector(".bi").className = "bi " + (dark ? "bi-moon-stars" : "bi-sun");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#151a18" : "#f6f4ed");
   }
   reflectTheme();
@@ -322,6 +343,49 @@ function initAccessibility() {
     const button = window.VLibrasWidget?.initBtn;
     if (button && typeof button.click === "function") button.click();
     else announce("O VLibras ainda não está disponível. Verifique sua conexão e utilize o botão oficial quando aparecer.");
+  });
+}
+function markMobileNav(target) {
+  for (const button of document.querySelectorAll("#mobile-nav [data-nav-target]")) {
+    if (button.dataset.navTarget === target) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  }
+}
+function initMobileNavigation() {
+  const nav = el("mobile-nav");
+  if (!nav) return;
+  const sections = {
+    home: el("inicio"),
+    tracks: el("trilhas"),
+    explore: el("trilhas"),
+    queue: el("fila"),
+    access: el("preferences")
+  };
+  nav.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-nav-target]");
+    if (!button) return;
+    const destination = button.dataset.navTarget;
+    if (destination === "tracks") selectTab("original");
+    if (destination === "explore") selectTab("library");
+    markMobileNav(destination);
+    const target = sections[destination];
+    if (!target) return;
+    target.scrollIntoView({ behavior: "auto", block: "start" });
+    // O foco acompanha a navegação escolhida explicitamente.
+    target.focus({ preventScroll: true });
+  });
+}
+function initMobilePlayer() {
+  const toggle = el("player-expand");
+  if (!toggle) return;
+  toggle.addEventListener("click", () => {
+    const expanded = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(expanded));
+    toggle.setAttribute("aria-label", expanded ? "Recolher controles adicionais" : "Mostrar mais controles");
+    toggle.title = expanded ? "Recolher controles" : "Mais controles";
+    el("expand-icon").className = "bi " + (expanded ? "bi-chevron-down" : "bi-sliders");
+    document.body.dataset.playerExpanded = String(expanded);
+    announce(expanded ? "Controles adicionais exibidos." : "Controles adicionais recolhidos.");
   });
 }
 function initControls() {
@@ -379,6 +443,8 @@ function init() {
   initAccessibility();
   initTabs();
   initControls();
+  initMobileNavigation();
+  initMobilePlayer();
   setPlayerVolume();
   view.catalogLicense.hidden = LICENSED_STREAMING;
   selectTrack(0, "original", false);
