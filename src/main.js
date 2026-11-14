@@ -363,7 +363,7 @@ function prepareSelected(){
 }
 function playFromTrack(track,collection=localTracks){
   const tracks=(Array.isArray(collection)?collection:localTracks).map(t=>{
-    if(isImported(t))return state.audioFiles.has(t.id)?toPlaylistTrack(state.audioFiles.get(t.id)):null;
+    if(t.source==="local-file")return state.audioFiles.has(t.id)?toPlaylistTrack(state.audioFiles.get(t.id)):null;
     return t.source==="published" || allLocal.has(t.id) ? ORIGINAL_TRACKS.find(o=>o.id===t.id) : null;
   }).filter(Boolean);
   const idx=tracks.findIndex(t=>t.id===track.id&&Boolean(isImported(t))===Boolean(isImported(track)));
