@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#151a18">
-  <meta name="description" content="Foco.dev: uma trilha sonora tranquila para estudar e programar, com acesso inclusivo.">
-  <title>Foco.dev — Música para programar</title>
+  <meta name="description" content="Foco.dev: descubra músicas, explore categorias e compartilhe playlists sem cadastro.">
+  <title>Foco.dev — Música para se concentrar</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/src/styles/tokens.css">
@@ -14,151 +14,149 @@
   <script defer src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Ir para o conteúdo principal</a>
-  <div class="app-shell">
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="Foco.dev, início">
-        <img src="/logo.svg" width="52" height="52" alt="">
-        <span><strong>foco.dev</strong><small>Música para quem constrói.</small></span>
+  <a class="skip-link" href="#content">Pular para o conteúdo</a>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Foco.dev, página inicial">
+        <img src="/logo.svg" width="46" height="46" alt="">
+        <span><strong>foco.dev</strong><small>Sua música, seu ritmo.</small></span>
       </a>
-      <nav id="preferences" tabindex="-1" class="preferences" aria-label="Preferências de acessibilidade">
-        <button class="btn btn-quiet" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" aria-pressed="false"><i class="bi bi-moon-stars" aria-hidden="true"></i><span id="theme-label">Modo escuro</span></button>
-        <button class="btn btn-quiet" id="contrast-toggle" type="button" aria-label="Ativar alto contraste" aria-pressed="false"><i class="bi bi-circle-half" aria-hidden="true"></i><span>Contraste</span></button>
-        <button class="btn btn-quiet" id="font-toggle" type="button" aria-label="Aumentar tamanho dos textos" aria-pressed="false"><i class="bi bi-type" aria-hidden="true"></i><span>A+</span></button>
-        <button class="btn btn-quiet" id="vlibras-trigger" type="button" aria-label="Abrir tradução para Libras"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Libras</span></button>
+      <nav class="desktop-nav" aria-label="Menu principal">
+        <button type="button" data-view="discover" aria-current="page"><i class="bi bi-grid" aria-hidden="true"></i> Categorias</button>
+        <button type="button" data-view="search"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+        <button type="button" data-view="playlists"><i class="bi bi-music-note-list" aria-hidden="true"></i> Playlists</button>
+        <button type="button" data-view="queue"><i class="bi bi-list-ol" aria-hidden="true"></i> Fila</button>
       </nav>
+      <div class="top-actions">
+        <button id="create-top" class="button primary" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i> <span>Criar playlist</span></button>
+        <button type="button" class="icon-button desktop-settings" data-view="access" aria-label="Configurações e acessibilidade" title="Configurações"><i class="bi bi-sliders" aria-hidden="true"></i></button>
+      </div>
     </header>
 
-    <main id="main" tabindex="-1">
-      <section id="inicio" tabindex="-1" class="intro" aria-labelledby="intro-title">
-        <div>
-          <p class="eyebrow">Seu espaço para concentrar</p>
-          <h1 id="intro-title">Entre no seu ritmo.</h1>
-          <p>Uma trilha tranquila para estudar, programar e manter o foco. Sem anúncios, sem distrações e sem cadastro.</p>
-        </div>
-        <div class="intro-mark" aria-hidden="true">
-          <span class="mark-code">&lt;/&gt;</span>
-          <span class="mark-wave">▂ ▄ ▆ ▃ ▅ ▂ ▄</span>
-        </div>
+    <main id="content" tabindex="-1">
+      <section id="shared-banner" class="notice" role="status" hidden>
+        <i class="bi bi-share" aria-hidden="true"></i>
+        <span id="shared-message"></span>
+        <button id="save-shared" type="button" class="button secondary">Salvar na minha biblioteca</button>
       </section>
 
-      <section id="trilhas" tabindex="-1" aria-labelledby="listen-heading" class="workspace">
-        <div class="workspace-top">
-          <div>
-            <p class="eyebrow">Ouvir agora</p>
-            <h2 id="listen-heading">Trilhas para sua sessão</h2>
-          </div>
-          <p class="support-text">Inicie a reprodução manualmente. As próximas faixas avançam sozinhas.</p>
+      <section id="view-discover" class="view" aria-labelledby="discover-title">
+        <div class="section-head">
+          <div><p class="eyebrow">Explorar</p><h1 id="discover-title">Categorias musicais</h1><p>Escolha um estilo para descobrir novas faixas.</p></div>
+          <button id="reload-categories" class="button secondary" type="button"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Atualizar</button>
         </div>
-
-        <div class="tabs" role="tablist" aria-label="Bibliotecas musicais">
-          <button id="tab-original" role="tab" aria-selected="true" aria-controls="panel-original" tabindex="0" type="button" class="tab active"><i class="bi bi-music-note-list" aria-hidden="true"></i> Ambientes originais</button>
-          <button id="tab-library" role="tab" aria-selected="false" aria-controls="panel-library" tabindex="-1" type="button" class="tab"><i class="bi bi-collection-play" aria-hidden="true"></i> Explorar catálogo</button>
-        </div>
-
-        <div class="workspace-grid">
-          <div class="primary-column">
-            <section id="panel-original" role="tabpanel" tabindex="0" aria-labelledby="tab-original" class="card library-card">
-              <div class="section-heading">
-                <div><h3>Ambientes instrumentais</h3><p>Composições geradas localmente. Funcionam sem conexão.</p></div>
-                <span class="pill">Áudio original</span>
-              </div>
-              <div id="original-list" class="track-list" aria-label="Faixas instrumentais originais"></div>
-            </section>
-
-            <section id="panel-library" role="tabpanel" tabindex="0" aria-labelledby="tab-library" class="card library-card" hidden>
-              <div class="section-heading"><div><h3>Catálogo FreeToUse</h3><p>Busca pública de faixas e artistas da FreeToUse.</p></div></div>
-              <form id="search-form" class="search-form" role="search">
-                <label for="search-input">Buscar música</label>
-                <div class="search-row"><input id="search-input" name="query" type="search" placeholder="lofi, chill, ambient..." minlength="1" maxlength="80" value="lofi" autocomplete="off"><button class="btn btn-primary" type="submit"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button></div>
-              </form>
-              <div id="catalog-license" class="notice" role="note"><strong>Licenciamento do catálogo</strong><p>Esta API é pública, mas suas gravações têm licença própria. A reprodução no aplicativo fica desativada até existir autorização apropriada. Você pode conhecer as faixas e os artistas por aqui.</p><a href="https://freetouse.com/license" target="_blank" rel="noopener noreferrer">Consultar termos da FreeToUse (nova aba)</a></div>
-              <p id="catalog-status" class="support-text" role="status" aria-live="polite">Utilize a busca para explorar as músicas.</p>
-              <div id="catalog-list" class="track-list" aria-label="Resultados do catálogo"></div>
-              <button id="load-more" class="btn btn-secondary" type="button" hidden>Carregar mais resultados</button>
-            </section>
-          </div>
-
-          <aside id="fila" class="card queue-card" aria-labelledby="queue-title" tabindex="-1">
-            <div class="section-heading"><div><h3 id="queue-title">Próximas faixas</h3><p>Fila de reprodução</p></div></div>
-            <ol id="queue-list" class="queue-list"></ol>
-            <div class="queue-help">
-              <details>
-                <summary>Como usar o player</summary>
-                <p>Use Tab para navegar pelos botões. A barra de progresso e o volume podem ser alterados com as setas. Espaço ou Enter ativam os controles.</p>
-                <p>O áudio só começa após uma ação sua. Você pode pausar a qualquer momento.</p>
-              </details>
-            </div>
-          </aside>
-        </div>
+        <p id="category-status" class="status" role="status" aria-live="polite">Carregando categorias...</p>
+        <div id="category-grid" class="category-grid" aria-label="Categorias disponíveis"></div>
       </section>
-      <section class="bottom-note" aria-label="Informações do projeto">
-        <p>Uma experiência independente para uso pessoal e educacional. Faixas originais sintetizadas no navegador; catálogo de terceiros sujeito aos respectivos termos.</p>
+
+      <section id="view-category" class="view" aria-labelledby="category-title" hidden>
+        <button id="back-categories" type="button" class="button link-button"><i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar às categorias</button>
+        <div class="section-head">
+          <div><p class="eyebrow" id="category-type">Categoria</p><h1 id="category-title">Músicas</h1><p id="category-desc">Explore e adicione faixas às suas playlists.</p></div>
+        </div>
+        <p id="category-tracks-status" class="status" role="status" aria-live="polite"></p>
+        <div id="category-tracks" class="song-list" aria-label="Faixas da categoria"></div>
+        <button id="category-more" type="button" class="button secondary" hidden>Mostrar mais</button>
+      </section>
+
+      <section id="view-search" class="view" aria-labelledby="search-title" hidden>
+        <div class="section-head"><div><p class="eyebrow">Descobrir</p><h1 id="search-title">Buscar músicas</h1><p>Pesquise por título, artista ou estilo.</p></div></div>
+        <form id="search-form" class="search-form" role="search">
+          <label for="search-query">Termo de pesquisa</label>
+          <div class="search-fields">
+            <input id="search-query" type="search" maxlength="80" placeholder="Ex.: lo-fi, piano, chill" required>
+            <button class="button primary" type="submit"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+          </div>
+        </form>
+        <p id="search-status" class="status" role="status" aria-live="polite">Digite uma busca para encontrar músicas.</p>
+        <div id="search-results" class="song-list" aria-label="Resultados da pesquisa"></div>
+        <button id="search-more" type="button" class="button secondary" hidden>Mostrar mais</button>
+      </section>
+
+      <section id="view-playlists" class="view" aria-labelledby="playlists-title" hidden>
+        <div class="section-head"><div><p class="eyebrow">Minha biblioteca</p><h1 id="playlists-title">Suas playlists</h1><p>Salvas somente neste navegador. Compartilhe por link, sem login.</p></div>
+          <button id="create-in-library" class="button primary" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nova playlist</button>
+        </div>
+        <div id="playlist-grid" class="category-grid" aria-label="Playlists criadas"></div>
+        <p id="playlists-empty" class="empty" hidden>Você ainda não criou playlists. Use “Nova playlist” para começar.</p>
+      </section>
+
+      <section id="view-playlist" class="view" aria-labelledby="playlist-title" hidden>
+        <button id="back-playlists" type="button" class="button link-button"><i class="bi bi-arrow-left" aria-hidden="true"></i> Todas as playlists</button>
+        <div class="section-head">
+          <div><p class="eyebrow">Minha seleção</p><h1 id="playlist-title">Playlist</h1><p id="playlist-count"></p></div>
+          <div class="heading-actions">
+            <button id="share-playlist" class="button primary" type="button"><i class="bi bi-share" aria-hidden="true"></i> Compartilhar</button>
+            <button id="rename-playlist" class="button secondary" type="button"><i class="bi bi-pencil" aria-hidden="true"></i> Renomear</button>
+            <button id="delete-playlist" class="button danger" type="button"><i class="bi bi-trash3" aria-hidden="true"></i> Excluir</button>
+          </div>
+        </div>
+        <p id="playlist-empty" class="empty" hidden>Esta playlist está vazia. Explore categorias e adicione músicas.</p>
+        <div id="playlist-songs" class="song-list" aria-label="Músicas da playlist"></div>
+      </section>
+
+      <section id="view-queue" class="view" aria-labelledby="queue-title" hidden>
+        <div class="section-head"><div><p class="eyebrow">Reprodução</p><h1 id="queue-title">Fila de reprodução</h1><p>Ordem atual das faixas disponíveis para tocar.</p></div></div>
+        <div id="queue-items" class="song-list"></div>
+      </section>
+
+      <section id="view-access" class="view" aria-labelledby="access-title" hidden>
+        <div class="section-head"><div><p class="eyebrow">Preferências</p><h1 id="access-title">Acessibilidade e aparência</h1><p>Personalize a leitura e os controles para seu conforto.</p></div></div>
+        <div class="settings card">
+          <button id="theme-toggle" class="setting" type="button" aria-pressed="true"><i class="bi bi-moon-stars" aria-hidden="true"></i><span>Modo escuro / claro</span><span id="theme-state">Escuro</span></button>
+          <button id="contrast-toggle" class="setting" type="button" aria-pressed="false"><i class="bi bi-circle-half" aria-hidden="true"></i><span>Alto contraste</span><span id="contrast-state">Desligado</span></button>
+          <button id="font-toggle" class="setting" type="button" aria-pressed="false"><i class="bi bi-type" aria-hidden="true"></i><span>Texto ampliado</span><span id="font-state">Padrão</span></button>
+          <button id="vlibras-trigger" class="setting" type="button"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Abrir VLibras</span><span>Tradução em Libras</span></button>
+        </div>
+        <div class="notice small-note"><strong>Sobre o catálogo</strong>
+          <p>A API FreeToUse disponibiliza informações, categorias e capas. A reprodução de gravações desse catálogo não está habilitada, pois sua licença exige autorização específica para determinados aplicativos. As trilhas originais do Foco.dev podem ser reproduzidas sem login.</p>
+          <a href="https://freetouse.com/license" rel="noopener noreferrer" target="_blank">Consultar licença da FreeToUse (nova aba)</a>
+        </div>
+        <div class="notice small-note"><strong>Sobre as playlists públicas</strong>
+          <p>Um link compartilhado pode ser aberto por qualquer pessoa, mas não há catálogo global de playlists. O conteúdo do link não deve incluir informações pessoais ou sensíveis. Sem armazenamento compartilhado, só o autor mantém sua própria versão editável no navegador.</p>
+        </div>
       </section>
     </main>
   </div>
 
-  <nav id="mobile-nav" class="mobile-nav" aria-label="Navegação inferior">
-    <button type="button" data-nav-target="home" aria-current="page"><i class="bi bi-house-door-fill" aria-hidden="true"></i><span>Início</span></button>
-    <button type="button" data-nav-target="tracks"><i class="bi bi-music-note-list" aria-hidden="true"></i><span>Trilhas</span></button>
-    <button type="button" data-nav-target="explore"><i class="bi bi-search" aria-hidden="true"></i><span>Explorar</span></button>
-    <button type="button" data-nav-target="queue"><i class="bi bi-list-ol" aria-hidden="true"></i><span>Fila</span></button>
-    <button type="button" data-nav-target="access"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Acesso</span></button>
-  </nav>
-
-  <footer class="player" aria-label="Controles de reprodução">
-    <div id="player-inner" class="player-inner">
-      <div class="now-playing">
-        <img src="/covers/noite-de-codigo.svg" id="playing-cover" width="56" height="56" alt="" class="playing-cover">
-        <div class="track-meta">
-          <strong id="playing-title">Selecione uma faixa</strong>
-          <span id="playing-artist">Foco.dev</span>
-        </div>
-        <button id="favorite-button" type="button" class="icon-button favorite-button" aria-label="Adicionar aos favoritos" aria-pressed="false" title="Favorito">
-          <i id="favorite-icon" class="bi bi-heart" aria-hidden="true"></i>
-        </button>
-        <button id="player-expand" type="button" class="icon-button player-expand" aria-controls="player-inner" aria-expanded="false" aria-label="Mostrar mais controles" title="Mais controles">
-          <i id="expand-icon" class="bi bi-sliders" aria-hidden="true"></i>
-        </button>
+  <footer class="player" aria-label="Controles do player">
+    <div class="player-inner">
+      <div class="current-track">
+        <img id="player-artwork" src="/covers/noite-de-codigo.svg" alt="" width="52" height="52">
+        <div class="current-text"><strong id="player-title">Noite de código</strong><span id="player-artist">Foco.dev</span></div>
+        <button id="expand-player" class="icon-button expand-player" type="button" aria-controls="player-advanced" aria-expanded="false" aria-label="Mais controles"><i id="expand-icon" class="bi bi-sliders" aria-hidden="true"></i></button>
       </div>
-      <div class="playback-center">
+      <div class="playback">
         <div class="transport">
-          <button id="shuffle-button" type="button" class="icon-button" aria-label="Ativar ordem aleatória" aria-pressed="false" title="Aleatório">
-            <i class="bi bi-shuffle" aria-hidden="true"></i>
-          </button>
-          <button id="previous-button" type="button" class="icon-button" aria-label="Faixa anterior" title="Anterior">
-            <i class="bi bi-skip-start-fill" aria-hidden="true"></i>
-          </button>
-          <button id="play-button" type="button" class="play-button" aria-label="Reproduzir" aria-pressed="false" title="Reproduzir">
-            <i id="play-icon" class="bi bi-play-fill" aria-hidden="true"></i>
-            <i id="pause-icon" class="bi bi-pause-fill" aria-hidden="true" hidden></i>
-          </button>
-          <button id="next-button" type="button" class="icon-button" aria-label="Próxima faixa" title="Próxima">
-            <i class="bi bi-skip-end-fill" aria-hidden="true"></i>
-          </button>
-          <button id="repeat-button" type="button" class="icon-button" aria-label="Repetição desligada" title="Repetição">
-            <i class="bi bi-repeat" aria-hidden="true"></i>
-            <span id="repeat-one" class="repeat-one" hidden>1</span>
-          </button>
+          <button id="shuffle" type="button" class="icon-button advanced-control" aria-label="Ativar ordem aleatória" aria-pressed="false"><i class="bi bi-shuffle" aria-hidden="true"></i></button>
+          <button id="previous" type="button" class="icon-button advanced-control" aria-label="Faixa anterior"><i class="bi bi-skip-start-fill" aria-hidden="true"></i></button>
+          <button id="play" type="button" class="play-button" aria-label="Reproduzir" aria-pressed="false"><i id="play-icon" class="bi bi-play-fill" aria-hidden="true"></i></button>
+          <button id="next" type="button" class="icon-button" aria-label="Próxima faixa"><i class="bi bi-skip-end-fill" aria-hidden="true"></i></button>
+          <button id="repeat" type="button" class="icon-button advanced-control" aria-label="Repetição desligada" aria-pressed="false"><i id="repeat-icon" class="bi bi-repeat" aria-hidden="true"></i></button>
         </div>
-        <div class="timeline">
-          <output id="current-time" for="seek">0:00</output>
-          <label for="seek" class="sr-only">Progresso da reprodução</label>
-          <input id="seek" type="range" min="0" max="1000" step="1" value="0" aria-valuetext="0 minutos e 0 segundos">
-          <output id="total-time" for="seek">0:00</output>
-        </div>
+        <div class="timeline"><output id="elapsed" for="seek">0:00</output><label class="sr-only" for="seek">Posição da reprodução</label><input id="seek" type="range" min="0" max="1000" value="0"><output id="duration" for="seek">0:00</output></div>
       </div>
-      <div class="volume-group">
-        <button id="mute-button" type="button" class="icon-button" aria-label="Silenciar" aria-pressed="false" title="Silenciar">
-          <i id="volume-icon" class="bi bi-volume-up-fill" aria-hidden="true"></i>
-        </button>
-        <label for="volume" class="sr-only">Volume</label>
-        <input id="volume" type="range" min="0" max="100" step="1" value="40" aria-valuetext="40 por cento">
-      </div>
+      <div id="player-advanced" class="volume-control"><button id="mute" class="icon-button" type="button" aria-label="Silenciar" aria-pressed="false"><i id="volume-icon" class="bi bi-volume-up-fill" aria-hidden="true"></i></button><label class="sr-only" for="volume">Volume</label><input id="volume" type="range" min="0" max="100" value="40"></div>
     </div>
   </footer>
 
-  <audio id="remote-audio" preload="metadata"></audio>
+  <nav class="mobile-nav" aria-label="Navegação inferior">
+    <button type="button" data-view="discover" aria-current="page"><i class="bi bi-grid-fill" aria-hidden="true"></i><span>Categorias</span></button>
+    <button type="button" data-view="search"><i class="bi bi-search" aria-hidden="true"></i><span>Buscar</span></button>
+    <button type="button" data-view="playlists"><i class="bi bi-music-note-list" aria-hidden="true"></i><span>Playlists</span></button>
+    <button type="button" data-view="queue"><i class="bi bi-list-ol" aria-hidden="true"></i><span>Fila</span></button>
+    <button type="button" data-view="access"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Acesso</span></button>
+  </nav>
+
+  <dialog id="name-dialog" aria-labelledby="name-dialog-title">
+    <form id="name-form"><h2 id="name-dialog-title">Criar playlist</h2><label for="playlist-name">Nome da playlist</label><input id="playlist-name" type="text" maxlength="48" required placeholder="Ex.: Programando com calma"><div class="dialog-actions"><button id="cancel-name" type="button" class="button secondary">Cancelar</button><button class="button primary" type="submit">Salvar</button></div></form>
+  </dialog>
+  <dialog id="add-dialog" aria-labelledby="add-dialog-title">
+    <form id="add-form"><h2 id="add-dialog-title">Adicionar à playlist</h2><p id="add-song-name"></p><label for="playlist-select">Escolha a playlist</label><select id="playlist-select" required></select><div class="dialog-actions"><button type="button" id="cancel-add" class="button secondary">Cancelar</button><button type="submit" class="button primary">Adicionar</button></div></form>
+  </dialog>
+  <dialog id="share-dialog" aria-labelledby="share-dialog-title">
+    <div><h2 id="share-dialog-title">Compartilhar playlist</h2><p>Qualquer pessoa com este link poderá abrir uma cópia, sem criar conta.</p><label for="share-link">Link público</label><textarea id="share-link" readonly rows="4"></textarea><div class="dialog-actions"><button id="close-share" type="button" class="button secondary">Fechar</button><button id="copy-share" type="button" class="button primary"><i class="bi bi-copy" aria-hidden="true"></i> Copiar link</button></div></div>
+  </dialog>
   <p id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 </body>
 </html>

@@ -1,45 +1,34 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { artistNames, safeHttpsUrl, playableTracks, searchTracks, LICENSED_STREAMING } from "../src/api.js";
-
-const track = (id) => ({
-  id, title: "Soft Coding", artists: [[1, { id: "artist1", name: "Someone" }]],
-  is_premium: false, duration: 120, files: { mp3: "https://cdn.example.org/audio.mp3" }
+import {artistNames,safeHttpsUrl,playableTracks,searchTracks,LICENSED_STREAMING,PAGE_SIZE} from "../src/api.js";
+const track=id=>({id,title:"Soft Coding",artists:[[1,{id:"artist",name:"Someone"}]],is_premium:false,duration:120,files:{mp3:"https://cdn.example.org/audio.mp3"}});
+test("MP3 externo permanece bloqueado sem licença",()=>assert.equal(LICENSED_STREAMING,false));
+test("artistas seguem pares da especificação",()=>{
+  assert.equal(artistNames(track("x")),"Someone");
+  assert.equal(artistNames({artists:[]}),"Artista não informado");
 });
-
-test("integração de MP3 não é liberada sem licença", () => {
-  assert.equal(LICENSED_STREAMING, false);
+test("URLs aceitam apenas HTTPS",()=>{
+  assert.equal(safeHttpsUrl("http://example.org/song.mp3"),"");
+  assert.equal(safeHttpsUrl("javascript:alert(1)"),"");
+  assert.equal(safeHttpsUrl("https://example.org/song.mp3"),"https://example.org/song.mp3");
 });
-test("artistas seguem o formato de pares da API", () => {
-  assert.equal(artistNames(track("1")), "Someone");
-  assert.equal(artistNames({ artists: [] }), "Artista não informado");
+test("filtragem auxilia seleção de faixas não premium",()=>{
+ const premium={...track("p"),is_premium:true};
+ const unsafe={...track("u"),files:{mp3:"javascript:alert(1)"}};
+ assert.deepEqual(playableTracks([track("a"),premium,unsafe]).map(x=>x.id),["a"]);
 });
-test("URLs aceitam exclusivamente HTTPS", () => {
-  assert.equal(safeHttpsUrl("http://example.org/a.mp3"), "");
-  assert.equal(safeHttpsUrl("javascript:alert(1)"), "");
-  assert.equal(safeHttpsUrl("https://example.org/a.mp3"), "https://example.org/a.mp3");
+test("busca envia query e faz paginação por proxy da Vercel",async()=>{
+ let request="";
+ const result=await searchTracks("lofi",{fetcher:async(url)=>{
+   request=url;return {ok:true,json:async()=>({data:[track("x")],pagination:{count:1}})};
+ }});
+ assert.equal(result.tracks.length,1);
+ assert.equal(result.count,1);
+ assert.equal(result.offset,PAGE_SIZE);
+ const parsed=new URL(request,"https://foco.test");
+ assert.equal(parsed.pathname,"/catalog-api/music/tracks/search");
+ assert.equal(parsed.searchParams.get("query"),"lofi");
 });
-test("filtra faixas premium ou sem áudio seguro", () => {
-  const premium = { ...track("2"), is_premium: true };
-  const broken = { ...track("3"), files: { mp3: "javascript:alert(1)" } };
-  assert.deepEqual(playableTracks([track("1"), premium, broken]).map((t) => t.id), ["1"]);
-});
-test("consulta busca sem chave com paginação e ordem", async () => {
-  let requestUrl = "";
-  const result = await searchTracks("lofi", {
-    fetcher: async (url) => {
-      requestUrl = url;
-      return { ok: true, json: async () => ({ data: [track("1")], pagination: { count: 1 } }) };
-    }
-  });
-  assert.equal(result.tracks.length, 1);
-  assert.equal(result.count, 1);
-  assert.equal(result.offset, 24);
-  assert.equal(new URL(requestUrl).searchParams.get("query"), "lofi");
-});
-test("rejeita estrutura inesperada da resposta", async () => {
-  await assert.rejects(
-    searchTracks("lofi", { fetcher: async () => ({ ok: true, json: async () => ({ data: null }) }) }),
-    /Resposta inesperada/
-  );
+test("falha com estrutura inválida da API",async()=>{
+ await assert.rejects(searchTracks("test",{fetcher:async()=>({ok:true,json:async()=>({data:null})})}),/Resposta inválida/);
 });
