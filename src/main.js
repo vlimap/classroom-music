@@ -287,7 +287,6 @@ async function removeAudioFile(id){
   }catch(error){say("Falha ao excluir arquivo: "+error.message);}
 }
 function initAudioImport(){
-  $("import-audio").addEventListener("click",()=>$("audio-picker").click());
   $("audio-picker").addEventListener("change",event=>{
     void importAudioSelection(event.target.files);
     event.target.value="";
@@ -514,32 +513,43 @@ function setVolume(){
 }
 
 function styleVLibrasButton(){
-  // API oficial: initBtn expõe o botão para ajustes de estilo.
+  // VLibras v7 tem múltiplas builds: initBtn pode não existir na versão carregada.
+  // Alteramos somente o controle de acesso, sem interferir no avatar ou no popup.
   const native=window.VLibrasWidget?.initBtn;
-  if(!native)return false;
+  const candidates=[
+    native,
+    document.getElementById("vlibras-button"),
+    document.querySelector('[data-testid="vlibras-access-button"]'),
+    document.querySelector('[vw-access-button] .access-button')
+  ].filter(Boolean);
+  if(!candidates.length)return false;
   const highContrast=document.documentElement.dataset.contrast==="high";
-  const color=highContrast ? "#000000" : "#315d49";
-  const border=highContrast ? "#ffffff" : "#d7b98a";
-  const paint=element=>{
-    if(!element?.style)return;
-    element.style.setProperty("background-color",color,"important");
-    element.style.setProperty("border","2px solid "+border,"important");
-    element.style.setProperty("border-radius","12px","important");
-  };
-  paint(native);
-  // Algumas versões renderizam o controle numa shadow root.
-  const shadowButton=native.shadowRoot?.querySelector("button");
-  if(shadowButton)paint(shadowButton);
-  native.title="VLibras — tradução em Libras";
+  const color=highContrast?"#000000":"#315d49";
+  const border=highContrast?"#ffffff":"#d7b98a";
+  for(const candidate of new Set(candidates)){
+    const button=candidate.matches?.("button")?candidate:
+      candidate.shadowRoot?.querySelector("button") ||
+      candidate.querySelector?.("button") || candidate;
+    for(const target of [candidate,button]){
+      if(!target?.style)continue;
+      target.style.setProperty("background-color",color,"important");
+      target.style.setProperty("border","2px solid "+border,"important");
+      target.style.setProperty("border-radius","12px","important");
+    }
+  }
   return true;
 }
 function initVLibrasBrand(){
-  if(styleVLibrasButton())return;
+  styleVLibrasButton();
+  // O widget é injetado assincronamente; observar o host atende a novas versões.
+  const observer=new MutationObserver(()=>styleVLibrasButton());
+  observer.observe(document.body,{childList:true,subtree:true});
   let attempts=0;
   const timer=window.setInterval(()=>{
     attempts++;
-    if(styleVLibrasButton()||attempts>=80)window.clearInterval(timer);
-  },250);
+    styleVLibrasButton();
+    if(attempts>=60){window.clearInterval(timer);observer.disconnect();}
+  },350);
 }
 
 function initPreferences(){
