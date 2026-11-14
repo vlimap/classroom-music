@@ -230,67 +230,16 @@ async function doSearch({more=false}={}){
   }
 }
 
-function renderImportedAudio(){
-  const tracks=[...state.audioFiles.values()].map(toPlaylistTrack);
-  renderSongs("local-audio-list",tracks,{mode:"imported"});
-  $("local-audio-status").textContent=tracks.length
-    ?tracks.length+" músicas guardadas neste navegador. Não serão compartilhadas ao criar um link."
-    :"Nenhum arquivo importado. Selecione seus arquivos MP3, OGG ou outros formatos de áudio.";
-  renderCategories();
-}
+// Preserva arquivos anteriormente importados para playlists existentes,
+// sem exibir o importador ou alterar dados já salvos pelo usuário.
 async function initAudioLibrary(){
   try{
     audioDb=await openAudioDb();
     const records=await listStoredAudio(audioDb);
     state.audioFiles=new Map(records.map(record=>[record.id,record]));
-    renderImportedAudio();
   }catch(error){
-    $("local-audio-status").textContent="Não foi possível acessar a biblioteca local: "+error.message;
+    console.info("Biblioteca local anterior indisponível:",error);
   }
-}
-async function importAudioSelection(files){
-  if(!audioDb){say("A biblioteca local não está disponível neste navegador.");return;}
-  const list=Array.from(files||[]);
-  if(!list.length)return;
-  let imported=0;
-  const errors=[];
-  for(const file of list){
-    try{
-      const record=await storeAudioFile(audioDb,file,[...state.audioFiles.values()]);
-      state.audioFiles.set(record.id,record);
-      imported++;
-    }catch(error){errors.push(file.name+": "+error.message);}
-  }
-  renderImportedAudio();
-  say(imported+" arquivos importados. "+(errors.length?errors.join(" "):""));
-  if(errors.length)$("local-audio-status").textContent+= " Alguns arquivos não foram importados: "+errors.join(" ");
-}
-async function removeAudioFile(id){
-  const record=state.audioFiles.get(id);
-  if(!record||!audioDb)return;
-  if(!window.confirm("Excluir o arquivo “"+record.title+"” deste navegador e removê-lo das playlists locais?"))return;
-  try{
-    await deleteStoredAudio(audioDb,id);
-    state.audioFiles.delete(id);
-    for(const playlist of state.playlists)
-      playlist.tracks=playlist.tracks.filter(track=>!(track.source==="local-file"&&track.id===id));
-    persist();
-    if(selected()?.id===id){
-      pause();
-      state.queue=[...ORIGINAL_TRACKS];state.index=0;prepareSelected();renderPlayer();renderQueue();
-    }
-    renderImportedAudio();
-    listPlaylists();
-    if(state.view==="playlist")openPlaylist(state.activePlaylist);
-    if(state.view==="category"&&state.category?.id==="personal")void openCategory(state.category);
-    say("Arquivo removido deste navegador.");
-  }catch(error){say("Falha ao excluir arquivo: "+error.message);}
-}
-function initAudioImport(){
-  $("audio-picker").addEventListener("change",event=>{
-    void importAudioSelection(event.target.files);
-    event.target.value="";
-  });
 }
 
 function currentPlaylist(){return state.playlists.find(p=>p.id===state.activePlaylist) || (state.shared?.id===state.activePlaylist?state.shared:null);}
@@ -682,7 +631,7 @@ function initPlayer(){
   renderPlayer();renderQueue();
 }
 function init(){
-  initPreferences();initVLibrasBrand();initNavigation();initPlaylists();initAudioImport();initPlayer();
+  initPreferences();initVLibrasBrand();initNavigation();initPlaylists();initPlayer();
   void initAudioLibrary();
   listPlaylists();renderCategories();void fetchCategories();
   readSharedLink();
