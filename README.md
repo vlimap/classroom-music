@@ -1,47 +1,67 @@
-# Foco.dev Sessions — vlimap
+# Foco.dev — música e podcasts autorais
 
-Player musical acessível para estudar e programar, com playlists compartilháveis sem login.
+Aplicativo estático, mobile-first e acessível. **Produção e curadoria: vlimap.** Não utiliza a API FreeToUse ou APIs de catálogo de terceiros; somente arquivos de mídia publicados pelo próprio projeto.
 
-**Produção e curadoria:** vlimap. Áudio gerado com auxílio de Adobe Firefly. Esse crédito editorial não garante, por si só, direitos autorais exclusivos sobre conteúdo gerado integralmente por IA.
+## Categorias próprias
+- Lo-fi & Focus
+- Ambient & Zen
+- Love & Romance
+- Rock & Indie
+- Jazz & Coffee
+- Electronic & Chill
+- Podcasts & Notícias (Foco.dev News)
 
-## Foco.dev Sessions — Volume 1
+As quatro primeiras gravações preparadas (Lo-fi/Ambient) estão **cadastradas**, mas seus MP3s e capas JPG ainda dependem de upload. O player verifica os arquivos com HEAD antes de habilitar reprodução. Não exponha controles de play para arquivos ausentes; o site continua navegável.
 
-| Faixa | Categoria | Duração |
-| --- | --- | --- |
-| Noite entre Commits | Lo-fi & Focus | 3:00 |
-| Jardim ao Amanhecer | Ambient & Zen | 3:00 |
-| Caminho da Floresta | Ambient & Zen | 3:00 |
-| Refúgio Zen | Ambient & Zen | 3:00 |
+## Podcast e transcrição
 
-Quatro faixas distintas: dois arquivos Track 2 eram cópias binariamente idênticas e foram deduplicados.
+O episódio piloto **Foco.dev News — 14/11/2026** consta em `src/podcasts.js`, com transcrição literal do Adobe Podcast em `content/podcasts/2026-11-14-transcricao-adobe.txt`.
 
-O catálogo é definido em src/music.js. A branch de desenvolvimento contém o código e os caminhos esperados; os **MP3/JPG precisam ser enviados separadamente**. Não faça merge para produção até que os oito arquivos estejam presentes em audio/ e covers/. Veja docs/IMPORTAR_MIDIAS.md.
+O texto original foi preservado. **A transcrição automática não foi revisada** e contém erros de reconhecimento em nomes próprios e termos técnicos. Ela é apresentada com aviso editorial e opção de baixar/copiar. São incluídas seis URLs de reportagens conferidas e datadas. Não marque uma transcrição como revisada sem validação contra o áudio.
 
-## Funcionalidades
+**O MP3 gerado no Adobe Podcast NÃO foi anexado e NÃO está no repositório**. O endereço reservado é `/audio/podcasts/focodev-news-2026-11-14.mp3`. Quando o arquivo for publicado, o player o reconhece automaticamente na próxima visita (HEAD com resposta de MIME de áudio).
 
-- Categorias próprias, capas individuais e catálogo sem APIs externas.
-- Reprodução real de MP3 com HTMLAudioElement, play/pausa, anterior/próxima, shuffle, repeat, seek, mute e avanço automático.
-- Metadados ID3 dos MP3s: artista e produção vlimap, álbum Foco.dev Sessions Vol. 1.
-- Playlists pessoais no armazenamento local e links para compartilhar cópias sem autenticação.
-- Importação opcional de áudios pessoais, mantidos exclusivamente no IndexedDB do navegador.
-- Barra mobile fixa, Bootstrap Icons, temas, alto contraste, ampliação de texto e VLibras oficial.
+## Organização
 
-## Publicação estática
+```text
+index.html
+src/
+  main.js            # Categorias, busca, playlists e player
+  music.js           # Gêneros e músicas próprias
+  podcasts.js        # Metadados editoriais do podcast, URLs e status de revisão
+  podcast-ui.js      # Lista de episódios e leitura acessível das transcrições
+  playlists.js       # Playlists locais compartilháveis por link
+  local-audio.js     # Compatibilidade de leitura com arquivos pessoais antigos
+  styles/
+covers/categories/   # Capas SVG limpas, sem textos
+content/podcasts/    # Transcrições TXT do Adobe Podcast
+audio/               # MP3s da produção própria (pendentes de publicação)
+docs/CODEX_HANDOFF.md
+AGENTS.md
+```
 
-No Windows 11, execute na raiz do clone:
+## Desenvolvimento e testes (Windows 11)
 
-~~~powershell
-npm test
+Node.js 20 ou superior. Sem dependências de produção e sem backend.
+
+```powershell
 npm run check
+npm test
 npx serve .
-~~~
+```
 
-Vercel: framework Other, sem build e sem backend. Os arquivos MP3 publicados em audio/ serão servidos estaticamente a partir do mesmo domínio.
+O CI usa Node.js 22 e valida sintaxe e testes.
 
-## Direitos e rastreabilidade
+## Publicação e limites
 
-Mantenha os WAVs masters, prompts, histórico da ferramenta, condições da licença na data de criação e os hashes SHA-256 registrados no pacote. O fato de uma música ser gerada por IA não garante exclusividade sobre a composição. Confirme que a assinatura e os termos do Adobe Firefly autorizam o uso específico de publicação como gravação independente em player público.
+Frontend na Vercel, sem banco, sem funções de escrita e sem API externa de música. As playlists ficam no `localStorage`, são compartilháveis por link autocontido, mas **não** são indexadas globalmente. Os arquivos de áudio publicados são baixados pelo navegador: não há DRM e não é correto prometer proteção anticópia. A Vercel contabiliza tráfego conforme as regras do plano; se necessário, mover os MP3s para object storage/CDN.
 
-Não é possível impedir tecnicamente o download de MP3s enviados para navegadores em um site público. Não utilizamos DRM; avisos e metadados ID3 são medidas de atribuição, não mecanismos anticópia.
+## Direitos e ética editorial
 
-Referências: docs/POLITICA_DE_MIDIAS.md e docs/IMPORTAR_MIDIAS.md.
+- Músicas geradas com auxílio de Adobe Firefly e selecionadas por vlimap; confirmar licença para publicar faixas autônomas.
+- Produção, seleção e curadoria vlimap não implicam direitos autorais exclusivos automáticos sobre geração integral de IA.
+- Podcasts exigem data, fontes originais verificadas e revisão dos nomes técnicos.
+- Não inventar fontes nem episódios; não modificar transcrições literalmente recebidas sem controle de versão.
+- Acessibilidade é requisito: navegação por teclado, texto alternativo adequado, transcrição em texto selecionável e VLibras oficial.
+
+Consulte `docs/CODEX_HANDOFF.md` para continuar a implementação com Codex.

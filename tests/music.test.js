@@ -15,8 +15,8 @@ test("fila: avanço, aleatório e repetição", () => {
  assert.equal(previousIndex(0,3),0);
  assert.equal(previousIndex(0,3,"all"),2);
 });
-test("quatro faixas vlimap e duas categorias próprias", () => {
- assert.equal(ORIGINAL_TRACKS.length,4);assert.equal(CATEGORIES.length,2);
+test("quatro faixas vlimap e sete categorias próprias", () => {
+ assert.equal(ORIGINAL_TRACKS.length,4);assert.equal(CATEGORIES.length,7);
  assert.equal(new Set(ORIGINAL_TRACKS.map(t=>t.id)).size,4);
  for(const t of ORIGINAL_TRACKS) {
   assert.equal(t.source,"published");assert.equal(t.artist,"vlimap");
@@ -25,4 +25,12 @@ test("quatro faixas vlimap e duas categorias próprias", () => {
   assert.equal(t.duration,180);
   assert.ok(CATEGORIES.some(c=>c.id===t.categoryId));
  }
+});
+
+test("as categorias próprias têm arte sem texto e tipo editorial",()=>{
+ for(const c of CATEGORIES){
+  assert.match(c.artwork,/^\/covers\/categories\/[a-z-]+\.svg$/);
+  assert.ok(["music","podcast"].includes(c.kind));
+ }
+ assert.ok(CATEGORIES.some(c=>c.id==="podcasts"));
 });
