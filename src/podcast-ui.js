@@ -48,7 +48,11 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
   function updateAudioAvailability() {
     const ready = Boolean(activeEpisode && isAvailable(activeEpisode.id));
     $("episode-play").disabled = !ready;
+    $("episode-play").hidden = !ready;
+    $("episode-play").setAttribute("aria-disabled", String(!ready));
     $("episode-add").disabled = !ready;
+    $("episode-add").hidden = !ready;
+    $("episode-add").setAttribute("aria-disabled", String(!ready));
     $("episode-audio-status").textContent = ready
       ? "Áudio pronto para reprodução no player Foco.dev."
       : "Áudio do Adobe Podcast ainda não enviado. A transcrição e as fontes já podem ser consultadas.";

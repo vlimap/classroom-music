@@ -48,3 +48,14 @@ test("páginas e componentes do podcast são acessíveis mesmo sem MP3",()=>{
  assert.match(main,/contentType\.startsWith\("audio\/"/);
  assert.doesNotMatch(main,/api\.freetouse|getCategoryTracks/);
 });
+
+test("controles de áudio ausente começam ocultos e são liberados somente após verificação",()=>{
+ const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
+ const ui=readFileSync(new URL("../src/podcast-ui.js",import.meta.url),"utf8");
+ const main=readFileSync(new URL("../src/main.js",import.meta.url),"utf8");
+ assert.match(html,/id="episode-play"[^>]*disabled hidden/);
+ assert.match(html,/id="episode-add"[^>]*disabled hidden/);
+ assert.match(html,/id="play"[^>]*disabled hidden/);
+ assert.match(ui,/\$\("episode-play"\)\.hidden = !ready/);
+ assert.match(main,/\$\("play"\)\.hidden=!t/);
+});

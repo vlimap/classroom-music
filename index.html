@@ -88,8 +88,8 @@
             <p id="episode-description"></p>
             <p id="episode-date" class="episode-meta"></p>
             <div class="heading-actions">
-              <button id="episode-play" type="button" class="button primary" disabled><i class="bi bi-play-fill" aria-hidden="true"></i> Ouvir episódio</button>
-              <button id="episode-add" type="button" class="button secondary" disabled><i class="bi bi-plus-circle" aria-hidden="true"></i> Adicionar à playlist</button>
+              <button id="episode-play" type="button" class="button primary" disabled hidden aria-disabled="true"><i class="bi bi-play-fill" aria-hidden="true"></i> Ouvir episódio</button>
+              <button id="episode-add" type="button" class="button secondary" disabled hidden aria-disabled="true"><i class="bi bi-plus-circle" aria-hidden="true"></i> Adicionar à playlist</button>
             </div>
             <p id="episode-audio-status" class="status" role="status" aria-live="polite">Áudio ainda não publicado.</p>
           </div>
@@ -169,7 +169,7 @@
         <div class="transport">
           <button id="shuffle" type="button" class="icon-button advanced-control" aria-label="Ativar ordem aleatória" aria-pressed="false"><i class="bi bi-shuffle" aria-hidden="true"></i></button>
           <button id="previous" type="button" class="icon-button advanced-control" aria-label="Faixa anterior"><i class="bi bi-skip-start-fill" aria-hidden="true"></i></button>
-          <button id="play" type="button" class="play-button" aria-label="Reproduzir" aria-pressed="false"><i id="play-icon" class="bi bi-play-fill" aria-hidden="true"></i></button>
+          <button id="play" type="button" class="play-button" aria-label="Reproduzir" aria-pressed="false" disabled hidden aria-disabled="true"><i id="play-icon" class="bi bi-play-fill" aria-hidden="true"></i></button>
           <button id="next" type="button" class="icon-button" aria-label="Próxima faixa"><i class="bi bi-skip-end-fill" aria-hidden="true"></i></button>
           <button id="repeat" type="button" class="icon-button advanced-control" aria-label="Repetição desligada" aria-pressed="false"><i id="repeat-icon" class="bi bi-repeat" aria-hidden="true"></i></button>
         </div>

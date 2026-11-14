@@ -334,6 +334,8 @@ function renderPlayer(){
   artwork.onerror=()=>{if(!artwork.src.endsWith(fallback))artwork.src=fallback;};
   artwork.src=t?.artwork||fallback;
   $("play").disabled=!t;
+  $("play").hidden=!t;
+  $("play").setAttribute("aria-disabled",String(!t));
   $("next").disabled=state.queue.length<2;
   $("previous").disabled=state.queue.length<2;
   $("play").setAttribute("aria-label",state.playing?"Pausar":"Reproduzir");
