@@ -247,3 +247,5 @@ body[data-expanded="true"] .volume-control input{min-height:32px}
  .vlibras-fab{right:10px;bottom:calc(175px + env(safe-area-inset-bottom,0px));width:46px;height:46px}
  body[data-expanded="true"] .vlibras-fab{bottom:calc(260px + env(safe-area-inset-bottom,0px))}
 }
+
+.vlibras-fab img{display:block;width:40px;height:40px;max-width:100%;object-fit:contain;border-radius:8px}
