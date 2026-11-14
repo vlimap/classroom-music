@@ -9,7 +9,7 @@ const LOCAL_CATEGORY={id:"original",name:"Ambientes originais",type:"Trilhas Foc
 const localTracks=ORIGINAL_TRACKS.map(t=>({id:t.id,source:"local",title:t.title,artist:t.artist,artwork:t.artwork,duration:t.duration}));
 const allLocal=new Map(localTracks.map(t=>[t.id,t]));
 const state={
-  view:"discover",categories:[],category:null,categoryResults:[],categoryOffset:0,categoryTotal:0,
+  view:"discover",categories:[],categoriesExpanded:false,category:null,categoryResults:[],categoryOffset:0,categoryTotal:0,
   searchResults:[],searchOffset:0,searchTotal:0,searchTerm:"",
   playlists:[],activePlaylist:null,shared:null,pending:null,
   queue:[...ORIGINAL_TRACKS],index:0,playing:false,shuffle:false,repeat:"off",
@@ -71,14 +71,19 @@ function card(title,caption,cover,handler,play=false){
 function renderCategories(){
   const container=$("category-grid");const fragment=document.createDocumentFragment();
   fragment.append(card(LOCAL_CATEGORY.name,"4 faixas · reprodução liberada",LOCAL_CATEGORY.artwork,()=>openCategory(LOCAL_CATEGORY),true));
-  for(const c of state.categories)fragment.append(card(c.name,c.type||"Catálogo FreeToUse",c.artwork,()=>openCategory(c)));
+  const items=state.categoriesExpanded ? state.categories : state.categories.slice(0,11);
+  for(const c of items)fragment.append(card(c.name,c.type||"Catálogo FreeToUse",c.artwork,()=>openCategory(c)));
   container.replaceChildren(fragment);
+  const more=$("show-categories");
+  more.hidden=state.categories.length<=11;
+  more.lastChild.textContent=state.categoriesExpanded?" Mostrar menos categorias":" Mostrar todas as categorias ("+state.categories.length+")";
+  more.setAttribute("aria-expanded",String(state.categoriesExpanded));
 }
 async function fetchCategories({force=false}={}){
   if(categoryLoaded&&!force)return;
   if(!force && storage){
     try{
-      const cached=JSON.parse(storage.getItem(KEY+"category-cache")||"null");
+      const cached=JSON.parse(storage.getItem(KEY+"category-cache-v2")||"null");
       if(cached?.saved && Date.now()-cached.saved<1800000 && Array.isArray(cached.data)){
         state.categories=cached.data;categoryLoaded=true;renderCategories();
         $("category-status").textContent=state.categories.length+" categorias disponíveis (cache local).";
@@ -92,7 +97,7 @@ async function fetchCategories({force=false}={}){
   if(state.request?.type==="categories")state.request.controller.abort();
   const controller=new AbortController();state.request={type:"categories",controller};
   try{
-    const categories=await getCategories({signal:controller.signal,limit:24});
+    const categories=await getCategories({signal:controller.signal,limit:100});
     if(controller.signal.aborted)return;
     state.categories=categories;
     categoryLoaded=true;
@@ -417,6 +422,11 @@ function initNavigation(){
     });
   }
   $("reload-categories").addEventListener("click",()=>void fetchCategories({force:true}));
+  $("show-categories").addEventListener("click",()=>{
+    state.categoriesExpanded=!state.categoriesExpanded;
+    renderCategories();
+    say(state.categoriesExpanded?"Todas as categorias exibidas.":"Exibindo as categorias mais populares.");
+  });
   $("back-categories").addEventListener("click",()=>setView("discover"));
   $("back-playlists").addEventListener("click",()=>{listPlaylists();setView("playlists");});
   $("category-more").addEventListener("click",()=>void loadCategoryTracks());
