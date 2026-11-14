@@ -518,11 +518,10 @@ function styleVLibrasButton(){
   const native=window.VLibrasWidget?.initBtn;
   if(!native)return false;
   const highContrast=document.documentElement.dataset.contrast==="high";
-  const color=highContrast ? (document.documentElement.dataset.theme==="light"?"#000000":"#ffffff") : "#315d49";
-  const border=highContrast ? (document.documentElement.dataset.theme==="light"?"#000000":"#ffffff") : "#d7b98a";
+  const color=highContrast ? (#000000) : "#315d49";
+  const border=highContrast ? (#ffffff) : "#d7b98a";
   const paint=element=>{
     if(!element?.style)return;
-    element.style.setProperty("background",color,"important");
     element.style.setProperty("background-color",color,"important");
     element.style.setProperty("border","2px solid "+border,"important");
     element.style.setProperty("border-radius","12px","important");
