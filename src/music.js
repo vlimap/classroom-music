@@ -2,8 +2,13 @@
 // MP3s e artes são entregues separadamente pelo pacote de mídias.
 // Produção/curadoria: vlimap. Geração assistida por Adobe Firefly.
 export const CATEGORIES = Object.freeze([
-  { id: "lofi-focus", name: "Lo-fi & Focus", description: "Para estudar, criar e programar.", artwork: "/covers/noite-entre-commits.jpg" },
-  { id: "ambient-zen", name: "Ambient & Zen", description: "Para relaxar e desacelerar.", artwork: "/covers/jardim-ao-amanhecer.jpg" }
+  { id: "lofi-focus", name: "Lo-fi & Focus", kind: "music", description: "Ritmos tranquilos para estudar, programar e criar.", artwork: "/covers/categories/lofi.svg" },
+  { id: "ambient-zen", name: "Ambient & Zen", kind: "music", description: "Texturas atmosféricas e ambientes relaxantes.", artwork: "/covers/categories/ambient.svg" },
+  { id: "love-romance", name: "Love & Romance", kind: "music", description: "Melodias românticas autorais em produção.", artwork: "/covers/categories/love.svg" },
+  { id: "rock-indie", name: "Rock & Indie", kind: "music", description: "Guitarras e composições originais em produção.", artwork: "/covers/categories/rock.svg" },
+  { id: "jazz-coffee", name: "Jazz & Coffee", kind: "music", description: "Jazz suave e harmonias aconchegantes em produção.", artwork: "/covers/categories/jazz.svg" },
+  { id: "electronic-chill", name: "Electronic & Chill", kind: "music", description: "Sintetizadores e eletrônica para concentração.", artwork: "/covers/categories/electronic.svg" },
+  { id: "podcasts", name: "Podcasts & Notícias", kind: "podcast", description: "Episódios do Foco.dev News com transcrições e fontes.", artwork: "/covers/categories/podcasts.svg" }
 ]);
 
 export const ORIGINAL_TRACKS = Object.freeze([
