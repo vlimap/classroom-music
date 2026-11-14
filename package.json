@@ -6,7 +6,7 @@
   "description": "Player de foco acessível para aulas de programação",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/main.js && node --check src/music.js && node --check src/audio.js && node --check src/api.js && node --check src/local-audio.js && node --check src/playlists.js"
+    "check": "node --check src/main.js && node --check src/music.js && node --check src/local-audio.js && node --check src/playlists.js && node --check src/podcasts.js && node --check src/podcast-ui.js"
   },
   "engines": {
     "node": ">=20"

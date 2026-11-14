@@ -7,7 +7,7 @@ export const MAX_SHARE_SIZE=5500;
 
 function text(value,max=80){return String(value??"").trim().slice(0,max);}
 export function cleanTrack(track) {
-  if(!track || !["local","remote","local-file"].includes(track.source) || !text(track.id,80) || !text(track.title,100)) return null;
+  if(!track || !["local","remote","local-file","published"].includes(track.source) || !text(track.id,80) || !text(track.title,100)) return null;
   return {
     source:track.source,id:text(track.id,80),title:text(track.title,100),
     artist:text(track.artist,80), artwork:text(track.artwork,300),
@@ -46,7 +46,7 @@ function fromB64(str) {
 }
 export function encodeShare(playlist) {
   const data=cleanPlaylist(playlist); if(!data) throw new Error("Playlist inválida.");
-  const payload={v:1,n:data.name,t:data.tracks.map(x=>[x.source==="local"?"l":x.source==="local-file"?"f":"r",x.id,x.title,x.artist,x.artwork,x.duration])};
+  const payload={v:1,n:data.name,t:data.tracks.map(x=>[x.source==="local"?"l":x.source==="local-file"?"f":x.source==="published"?"p":"r",x.id,x.title,x.artist,x.artwork,x.duration])};
   const encoded=toB64(new TextEncoder().encode(JSON.stringify(payload)));
   if(encoded.length>MAX_SHARE_SIZE) throw new Error("O link ficou longo. Use até 20 faixas com capas mais curtas.");
   return encoded;
@@ -58,7 +58,7 @@ export function decodeShare(encoded) {
   catch { throw new Error("Não foi possível ler a playlist compartilhada."); }
   if(obj?.v!==1 || !Array.isArray(obj.t) || obj.t.length>MAX_TRACKS) throw new Error("Versão de playlist não suportada.");
   const tracks=obj.t.map(row=>Array.isArray(row)?cleanTrack({
-    source:row[0]==="l"?"local":row[0]==="r"?"remote":row[0]==="f"?"local-file":"invalid",
+    source:row[0]==="l"?"local":row[0]==="r"?"remote":row[0]==="f"?"local-file":row[0]==="p"?"published":"invalid",
     id:row[1],title:row[2],artist:row[3],artwork:row[4],duration:row[5]
   }):null).filter(Boolean);
   if(tracks.length!==obj.t.length) throw new Error("Faixas inválidas no link.");

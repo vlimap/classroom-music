@@ -1,35 +1,26 @@
-# Foco.dev — arquitetura e decisões
+# Arquitetura — Foco.dev
 
-## Problema
+## Catálogo próprio
+- `src/music.js`: sete categorias editoriais e quatro faixas próprias (MP3s pendentes de publicação).
+- `covers/categories/*.svg`: artes vetoriais originais, sem textos.
+- `src/podcasts.js`: episódios e fontes jornalísticas conferidas.
+- `src/podcast-ui.js`: UI semântica, leitura assíncrona da transcrição, copiar e baixar TXT.
+- `content/podcasts/*.txt`: transcrições originais do Adobe Podcast, preservadas sem correções silenciosas.
 
-Alunos precisam explorar categorias musicais e montar playlists sem criar conta. O projeto deve permanecer uma aplicação de frontend estática na Vercel, com custo e complexidade reduzidos.
+## Áudio
+- `<audio>` HTML5, fonte estática em `audio/`.
+- `HEAD` verifica se o recurso existe e responde com MIME de áudio antes de liberar o botão Ouvir.
+- Faltando mídia, somente a transcrição e metadados aparecem: não há 404 reproduzível.
+- MediaSession fornece controles de mídia quando o navegador suporta.
+- Playlist local: `localStorage` + URL hash autocontida. Compatibilidade de leitura de `IndexedDB` para playlists antigas, sem painel de upload.
 
-## Fluxos
+## Hospedagem e privacidade
+- Vercel estática, sem funções serverless, autenticação, banco ou API FreeToUse.
+- Áudio próprio pode migrar para storage/CDN externo de leitura quando necessário; não há garantia de proteção contra cópia.
+- Transcrição pública é conteúdo editorial, não deve conter dados pessoais sensíveis.
+- Sites externos usados apenas como referências das notícias com links; não como fonte de streaming.
 
-1. **Explorar** → GET `/catalog-api/music/categories/all` → rewrite externo na borda → API FreeToUse → nomes e capas oficiais.
-2. **Categoria** → GET `/catalog-api/music/categories/{uuid}/tracks` → renderizar faixa com capa, título, duração e botão adicionar.
-3. **Playlist** → criar/renomear/apagar via `localStorage` → renderização na biblioteca.
-4. **Compartilhar** → serializar somente nome, títulos e identificadores em URL hash, sem gravar no servidor → qualquer pessoa pode abrir e salvar cópia local.
-5. **Reproduzir** → somente faixas originais via Web Audio sintetizado localmente. Catálogo FreeToUse apenas descoberta/organização até licença apropriada.
-
-## Escolhas
-
-- Não utilizar Vercel Blob/KV para contas desconhecidas sem autenticação: escrita pública indiscriminada poderia gerar spam, crescimento de custo e abuso.
-- Não chamar endpoints de dados dentro de loops com frequência elevada; busca manual e paginação limitada.
-- Não usar serviços externos anônimos de armazenamento não auditados.
-- O fragmento de URL é limitado em tamanho e faz validação defensiva de estruturas.
-- Categorias e covers reais são usados a partir da API. O fallback é o catálogo local de composições originais.
-- Sem prometer publicação pública pesquisável: isso exigiria armazenamento compartilhado e controles contra abuso.
-
-## Riscos conhecidos
-
-- API externa indisponível, fora do ar ou com novos limites; o proxy não corrige falhas do provedor.
-- Links longos podem não funcionar em alguns aplicativos de mensagens. Limite de 20 faixas e 5,5k caracteres Base64URL.
-- Exclusão do armazenamento do navegador elimina playlists pessoais; links compartilhados ainda podem recuperar as cópias.
-- Vercel CDN/rewrite pode consumir tráfego, sujeito ao plano e regras da plataforma.
-- Licença gratuita da FreeToUse não autoriza reprodução de suas gravações em qualquer app.
-- VLibras e fontes de ícones por CDN exigem conectividade.
-
-## Conformidade
-
-WCAG 2.2 AA como meta, testes manuais ainda necessários. Ao usar em aula, mantenha a opção de silêncio e evite iniciar sons automaticamente.
+## Acessibilidade
+- Interface mobile-first, foco por teclado, controle de contraste/fonte, landmarks e status aria-live.
+- Texto da transcrição selecionável, disponível mesmo sem mídia, sem timestamps artificiais.
+- Widget VLibras oficial integrado por acionador da marca.

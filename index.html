@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#151a18">
-  <meta name="description" content="Foco.dev: descubra músicas, explore categorias e compartilhe playlists sem cadastro.">
-  <title>Foco.dev — Música para se concentrar</title>
+  <meta name="description" content="Foco.dev Sessions: músicas produzidas por vlimap, playlists e categorias próprias.">
+  <title>Foco.dev Sessions — vlimap</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/src/styles/tokens.css">
@@ -19,11 +19,12 @@
     <header class="topbar">
       <a class="brand" href="/" aria-label="Foco.dev, página inicial">
         <img src="/logo.svg" width="46" height="46" alt="">
-        <span><strong>foco.dev</strong><small>Sua música, seu ritmo.</small></span>
+        <span><strong>foco.dev</strong><small>Música original por vlimap.</small></span>
       </a>
       <nav class="desktop-nav" aria-label="Menu principal">
         <button type="button" data-view="discover" aria-current="page"><i class="bi bi-grid" aria-hidden="true"></i> Categorias</button>
         <button type="button" data-view="search"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+        <button type="button" data-view="podcasts"><i class="bi bi-mic" aria-hidden="true"></i> Podcasts</button>
         <button type="button" data-view="playlists"><i class="bi bi-music-note-list" aria-hidden="true"></i> Playlists</button>
         <button type="button" data-view="queue"><i class="bi bi-list-ol" aria-hidden="true"></i> Fila</button>
       </nav>
@@ -42,36 +43,73 @@
 
       <section id="view-discover" class="view" aria-labelledby="discover-title">
         <div class="section-head">
-          <div><p class="eyebrow">Explorar</p><h1 id="discover-title">Categorias musicais</h1><p>Escolha um estilo para descobrir novas faixas.</p></div>
-          <button id="reload-categories" class="button secondary" type="button"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Atualizar</button>
+          <div><p class="eyebrow">Explorar</p><h1 id="discover-title">Músicas e podcasts</h1><p>Categorias próprias com produção vlimap, sem API de músicas de terceiros.</p></div>
+          <button id="open-search" class="button secondary" type="button"><i class="bi bi-search" aria-hidden="true"></i> Buscar no catálogo</button>
         </div>
-        <p id="category-status" class="status" role="status" aria-live="polite">Carregando categorias...</p>
+        <p id="category-status" class="status" role="status" aria-live="polite">Categorias próprias · faixas em preparação</p>
         <div id="category-grid" class="category-grid" aria-label="Categorias disponíveis"></div>
-        <div class="more-categories"><button id="show-categories" type="button" class="button secondary" hidden><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i> Mostrar todas as categorias</button></div>
       </section>
 
       <section id="view-category" class="view" aria-labelledby="category-title" hidden>
         <button id="back-categories" type="button" class="button link-button"><i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar às categorias</button>
         <div class="section-head">
-          <div><p class="eyebrow" id="category-type">Categoria</p><h1 id="category-title">Músicas</h1><p id="category-desc">Explore e adicione faixas às suas playlists.</p></div>
+          <div><p class="eyebrow" id="category-type">Categoria</p><h1 id="category-title">Músicas</h1><p id="category-desc">Ouça ou adicione músicas a uma playlist.</p></div>
         </div>
         <p id="category-tracks-status" class="status" role="status" aria-live="polite"></p>
         <div id="category-tracks" class="song-list" aria-label="Faixas da categoria"></div>
-        <button id="category-more" type="button" class="button secondary" hidden>Mostrar mais</button>
       </section>
 
       <section id="view-search" class="view" aria-labelledby="search-title" hidden>
-        <div class="section-head"><div><p class="eyebrow">Descobrir</p><h1 id="search-title">Buscar músicas</h1><p>Pesquise por título, artista ou estilo.</p></div></div>
+        <div class="section-head"><div><p class="eyebrow">Descobrir</p><h1 id="search-title">Buscar no Foco.dev</h1><p>Pesquise músicas e podcasts do catálogo próprio.</p></div></div>
         <form id="search-form" class="search-form" role="search">
           <label for="search-query">Termo de pesquisa</label>
           <div class="search-fields">
-            <input id="search-query" type="search" maxlength="80" placeholder="Ex.: lo-fi, piano, chill" required>
+            <input id="search-query" type="search" maxlength="80" placeholder="Ex.: Lo-fi, Zen, Commits" required>
             <button class="button primary" type="submit"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
           </div>
         </form>
-        <p id="search-status" class="status" role="status" aria-live="polite">Digite uma busca para encontrar músicas.</p>
+        <p id="search-status" class="status" role="status" aria-live="polite">Pesquise pelo título ou categoria.</p>
         <div id="search-results" class="song-list" aria-label="Resultados da pesquisa"></div>
-        <button id="search-more" type="button" class="button secondary" hidden>Mostrar mais</button>
+      </section>
+
+      <section id="view-podcasts" class="view" aria-labelledby="podcasts-title" hidden>
+        <div class="section-head"><div><p class="eyebrow">Informação e tecnologia</p><h1 id="podcasts-title">Foco.dev News</h1><p>Episódios com transcrição acessível e fontes verificáveis.</p></div></div>
+        <p id="podcasts-status" class="status" role="status" aria-live="polite"></p>
+        <div id="podcast-grid" class="podcast-grid" aria-label="Episódios do Foco.dev News"></div>
+      </section>
+
+      <section id="view-episode" class="view" aria-labelledby="episode-title" hidden>
+        <button id="back-podcasts" type="button" class="button link-button"><i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar aos podcasts</button>
+        <div class="episode-header">
+          <img id="episode-artwork" src="/covers/categories/podcasts.svg" width="180" height="135" alt="" loading="lazy">
+          <div>
+            <p class="eyebrow">Foco.dev News · vlimap</p>
+            <h1 id="episode-title">Episódio</h1>
+            <p id="episode-description"></p>
+            <p id="episode-date" class="episode-meta"></p>
+            <div class="heading-actions">
+              <button id="episode-play" type="button" class="button primary" disabled><i class="bi bi-play-fill" aria-hidden="true"></i> Ouvir episódio</button>
+              <button id="episode-add" type="button" class="button secondary" disabled><i class="bi bi-plus-circle" aria-hidden="true"></i> Adicionar à playlist</button>
+            </div>
+            <p id="episode-audio-status" class="status" role="status" aria-live="polite">Áudio ainda não publicado.</p>
+          </div>
+        </div>
+        <section class="episode-transcript" aria-labelledby="transcript-title">
+          <div class="section-head">
+            <div><h2 id="transcript-title">Transcrição</h2><p>Texto exportado pelo Adobe Podcast.</p></div>
+            <div class="heading-actions">
+              <button id="transcript-copy" type="button" class="button secondary" disabled><i class="bi bi-copy" aria-hidden="true"></i> Copiar</button>
+              <a id="transcript-download" href="#" class="button secondary" download><i class="bi bi-download" aria-hidden="true"></i> Baixar TXT</a>
+            </div>
+          </div>
+          <p class="transcript-caution"><i class="bi bi-info-circle" aria-hidden="true"></i> Transcrição automática não revisada. Pode conter erros em nomes, siglas e códigos de vulnerabilidade. O conteúdo abaixo preserva o arquivo original recebido.</p>
+          <pre id="episode-transcript" class="transcript-text" tabindex="0">Carregando transcrição...</pre>
+        </section>
+        <section class="episode-sources" aria-labelledby="sources-title">
+          <h2 id="sources-title">Fontes desta edição</h2>
+          <p>Reportagens publicadas em 14/11/2026. A data da reportagem pode ser diferente da data do fato noticiado.</p>
+          <ul id="episode-sources"></ul>
+        </section>
       </section>
 
       <section id="view-playlists" class="view" aria-labelledby="playlists-title" hidden>
@@ -110,11 +148,11 @@
           <button id="vlibras-trigger" class="setting" type="button"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Abrir VLibras</span><span>Tradução em Libras</span></button>
         </div>
         <div class="notice small-note"><strong>Sobre o catálogo</strong>
-          <p>A API FreeToUse disponibiliza informações, categorias e capas. A reprodução de gravações desse catálogo não está habilitada, pois sua licença exige autorização específica para determinados aplicativos. As trilhas originais do Foco.dev podem ser reproduzidas sem login.</p>
-          <a href="https://freetouse.com/license" rel="noopener noreferrer" target="_blank">Consultar licença da FreeToUse (nova aba)</a>
+          <p>Este catálogo contém somente músicas disponibilizadas pelo próprio projeto. Produção e curadoria: vlimap. Áudios gerados com auxílio de Adobe Firefly. Verifique os termos aplicáveis antes de redistribuir os arquivos.</p>
+
         </div>
         <div class="notice small-note"><strong>Sobre as playlists públicas</strong>
-          <p>Se adicionar arquivos importados, somente os metadados serão compartilhados: o áudio ficará neste dispositivo e não tocará em outros navegadores. Um link compartilhado pode ser aberto por qualquer pessoa, mas não há catálogo global de playlists. O conteúdo do link não deve incluir informações pessoais ou sensíveis. Sem armazenamento compartilhado, só o autor mantém sua própria versão editável no navegador.</p>
+          <p>Um link compartilhado pode ser aberto por qualquer pessoa, mas não há catálogo global de playlists. O conteúdo do link não deve incluir informações pessoais ou sensíveis. Sem armazenamento compartilhado, só o autor mantém sua própria versão editável no navegador.</p>
         </div>
       </section>
     </main>
@@ -123,8 +161,8 @@
   <footer class="player" aria-label="Controles do player">
     <div class="player-inner">
       <div class="current-track">
-        <img id="player-artwork" src="/covers/noite-de-codigo.svg" alt="" width="52" height="52">
-        <div class="current-text"><strong id="player-title">Noite de código</strong><span id="player-artist">Foco.dev</span></div>
+        <img id="player-artwork" src="/logo.svg" alt="" width="52" height="52">
+        <div class="current-text"><strong id="player-title">Áudio em preparação</strong><span id="player-artist">Foco.dev · vlimap</span></div>
         <button id="expand-player" class="icon-button expand-player" type="button" aria-controls="player-advanced" aria-expanded="false" aria-label="Mais controles"><i id="expand-icon" class="bi bi-sliders" aria-hidden="true"></i></button>
       </div>
       <div class="playback">
@@ -143,7 +181,7 @@
 
   <nav class="mobile-nav" aria-label="Navegação inferior">
     <button type="button" data-view="discover" aria-current="page"><i class="bi bi-grid-fill" aria-hidden="true"></i><span>Categorias</span></button>
-    <button type="button" data-view="search"><i class="bi bi-search" aria-hidden="true"></i><span>Buscar</span></button>
+    <button type="button" data-view="podcasts"><i class="bi bi-mic-fill" aria-hidden="true"></i><span>Podcasts</span></button>
     <button type="button" data-view="playlists"><i class="bi bi-music-note-list" aria-hidden="true"></i><span>Playlists</span></button>
     <button type="button" data-view="queue"><i class="bi bi-list-ol" aria-hidden="true"></i><span>Fila</span></button>
     <button type="button" data-view="access"><i class="bi bi-universal-access" aria-hidden="true"></i><span>Acesso</span></button>
@@ -156,13 +194,13 @@
     <form id="add-form"><h2 id="add-dialog-title">Adicionar à playlist</h2><p id="add-song-name"></p><label for="playlist-select">Escolha a playlist</label><select id="playlist-select" required></select><div class="dialog-actions"><button type="button" id="cancel-add" class="button secondary">Cancelar</button><button type="submit" class="button primary">Adicionar</button></div></form>
   </dialog>
   <dialog id="share-dialog" aria-labelledby="share-dialog-title">
-    <div><h2 id="share-dialog-title">Compartilhar playlist</h2><p>Qualquer pessoa com este link poderá abrir uma cópia, sem criar conta. Arquivos importados não são enviados: apenas os nomes das faixas são compartilhados e não poderão ser reproduzidos em outros dispositivos.</p><label for="share-link">Link público</label><textarea id="share-link" readonly rows="4"></textarea><div class="dialog-actions"><button id="close-share" type="button" class="button secondary">Fechar</button><button id="copy-share" type="button" class="button primary"><i class="bi bi-copy" aria-hidden="true"></i> Copiar link</button></div></div>
+    <div><h2 id="share-dialog-title">Compartilhar playlist</h2><p>Qualquer pessoa com este link poderá abrir uma cópia, sem criar conta. O link não inclui arquivos MP3, apenas identificadores e metadados.</p><label for="share-link">Link público</label><textarea id="share-link" readonly rows="4"></textarea><div class="dialog-actions"><button id="close-share" type="button" class="button secondary">Fechar</button><button id="copy-share" type="button" class="button primary"><i class="bi bi-copy" aria-hidden="true"></i> Copiar link</button></div></div>
   </dialog>
   <button id="vlibras-fab" class="vlibras-fab" type="button" aria-label="Abrir tradutor VLibras em Libras" title="Abrir VLibras" hidden>
     <img src="/assets/vlibras-access-foco.svg" width="40" height="40" alt="" aria-hidden="true">
     <span class="sr-only">Abrir VLibras</span>
   </button>
-  <audio id="file-player" preload="metadata"></audio>
+  <audio id="file-player" preload="none" controlslist="nodownload"></audio>
   <p id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 </body>
 </html>
