@@ -252,3 +252,14 @@ body[data-expanded="true"] .volume-control input{min-height:32px}
 
 .vlibras-fab{background-color:#315d49!important;border-radius:50%;}
 .vlibras-fab img{border-radius:50%}
+
+/* Some VLibras builds render an additional blue launcher under this access wrapper.
+   Hide only that access launcher once our accessible trigger is operational; never
+   hide #vlibras-extension or #vlibras-content (the translation panel). */
+:root[data-vlibras-branded="true"] #vlibras-access-wrapper,
+:root[data-vlibras-branded="true"] #vlibras-access,
+:root[data-vlibras-branded="true"] [vw-access-button] {
+ visibility:hidden!important;
+ opacity:0!important;
+ pointer-events:none!important;
+}

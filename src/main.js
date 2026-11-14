@@ -540,6 +540,11 @@ function syncVLibrasLauncher(){
   native.style?.setProperty("visibility","hidden","important");
   native.style?.setProperty("opacity","0","important");
   native.style?.setProperty("pointer-events","none","important");
+  const accessRoot=native.closest?.("#vlibras-access-wrapper, [vw-access-button]");
+  if(accessRoot){
+    accessRoot.style.setProperty("visibility","hidden","important");
+    accessRoot.style.setProperty("pointer-events","none","important");
+  }
   $("vlibras-fab").hidden=false;
   return true;
 }
