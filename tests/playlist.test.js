@@ -22,3 +22,15 @@ test("salva e lê armazenamento local",()=>{
  savePlaylists(storage,[playlist]);
  assert.equal(readPlaylists(storage)[0].name,"Sessão de estudo");
 });
+
+test("arquivo importado pode constar na playlist, mas o link não transporta o áudio",()=>{
+  const data={id:"local",name:"Áudios da turma",tracks:[{
+    source:"local-file",id:"audio-id",title:"Exemplo local",artist:"Aluno",artwork:"/logo.svg",duration:120,blob:{size:12000000}
+  }]};
+  const encoded=encodeShare(data);
+  const restored=decodeShare(encoded);
+  assert.equal(restored.tracks[0].source,"local-file");
+  assert.equal(restored.tracks[0].title,"Exemplo local");
+  assert.equal("blob" in restored.tracks[0],false);
+  assert.equal(encoded.includes("12000000"),false);
+});

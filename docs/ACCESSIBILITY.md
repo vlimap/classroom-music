@@ -46,3 +46,18 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 - https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
 - https://www.vlibras.gov.br/doc/widget/installation/webpageintegration.html
 - https://www.gov.br/governodigital/pt-br/acessibilidade-e-usuario/vlibras
+
+## Widget VLibras: cor e estabilidade
+
+- O botão oficial é estilizado em tempo de execução pelo elemento `window.VLibrasWidget.initBtn` exposto pela documentação oficial, com fundo verde da marca e contorno areia.
+- O símbolo e o tradutor não são substituídos, evitando adulterações e perdas de funcionalidade.
+- A preferência por alto contraste adapta o contorno; validação em navegadores reais é necessária.
+- Não substitui intérprete de Libras ou revisão por pessoa usuária de Libras.
+
+## Áudio importado
+
+- O botão **Importar arquivos** possui nome acessível; o seletor de arquivos é acionado por interação.
+- As gravações permanecem em IndexedDB, no navegador de origem. O compartilhamento não contém blobs, apenas metadados.
+- O player utiliza o elemento HTMLAudioElement para conteúdo importado e Web Audio para as composições originais.
+- Compatibilidade de codecs depende do navegador; não existe transcodificação.
+- O armazenamento pode ser descartado pelo navegador se limpar dados ou ultrapassar a quota. Guarde cópias dos arquivos originais.

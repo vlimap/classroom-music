@@ -189,3 +189,18 @@ body[data-expanded="true"] .volume-control input{min-height:32px}
 .more-categories{display:flex;justify-content:center;margin:26px 0 10px}
 .more-categories .button{min-width:220px}
 @media(max-width:640px){.more-categories{margin:18px 0}.more-categories .button{width:100%}}
+
+/* Biblioteca de áudio local: sem upload remoto. */
+.local-library{margin-top:30px;padding:24px}
+.local-library-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.local-library-head h2{margin:0 0 6px;font-size:1.2rem}
+.local-library-head p{max-width:650px;margin:0;color:var(--color-text-muted);font-size:.87rem}
+.local-library #local-audio-status{margin-top:13px}
+.local-library .song-list{margin-top:8px}
+.local-library .song-row{border-bottom:1px solid var(--color-border)}
+.local-library .song-row:last-child{border-bottom:0}
+@media(max-width:640px){
+ .local-library{padding:16px;margin-top:22px}
+ .local-library-head{align-items:stretch}
+ .local-library-head>.button{width:100%}
+}

@@ -79,6 +79,18 @@
           <button id="create-in-library" class="button primary" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nova playlist</button>
         </div>
         <div id="playlist-grid" class="category-grid" aria-label="Playlists criadas"></div>
+        <section class="local-library card" aria-labelledby="local-audio-title">
+          <div class="local-library-head">
+            <div>
+              <h2 id="local-audio-title">Meus arquivos de áudio</h2>
+              <p>Importe músicas que você criou ou tem autorização para ouvir. Arquivos armazenados apenas neste navegador; nenhum envio à Vercel.</p>
+            </div>
+            <button id="import-audio" class="button secondary" type="button"><i class="bi bi-file-earmark-music" aria-hidden="true"></i> Importar arquivos</button>
+            <input id="audio-picker" type="file" accept=".mp3,.m4a,.aac,.ogg,.opus,.wav,.webm,.flac,audio/*" multiple hidden>
+          </div>
+          <p id="local-audio-status" class="status" role="status" aria-live="polite">Carregando arquivos locais...</p>
+          <div id="local-audio-list" class="song-list" aria-label="Músicas deste navegador"></div>
+        </section>
         <p id="playlists-empty" class="empty" hidden>Você ainda não criou playlists. Use “Nova playlist” para começar.</p>
       </section>
 
@@ -114,7 +126,7 @@
           <a href="https://freetouse.com/license" rel="noopener noreferrer" target="_blank">Consultar licença da FreeToUse (nova aba)</a>
         </div>
         <div class="notice small-note"><strong>Sobre as playlists públicas</strong>
-          <p>Um link compartilhado pode ser aberto por qualquer pessoa, mas não há catálogo global de playlists. O conteúdo do link não deve incluir informações pessoais ou sensíveis. Sem armazenamento compartilhado, só o autor mantém sua própria versão editável no navegador.</p>
+          <p>Se adicionar arquivos importados, somente os metadados serão compartilhados: o áudio ficará neste dispositivo e não tocará em outros navegadores. Um link compartilhado pode ser aberto por qualquer pessoa, mas não há catálogo global de playlists. O conteúdo do link não deve incluir informações pessoais ou sensíveis. Sem armazenamento compartilhado, só o autor mantém sua própria versão editável no navegador.</p>
         </div>
       </section>
     </main>
@@ -156,8 +168,9 @@
     <form id="add-form"><h2 id="add-dialog-title">Adicionar à playlist</h2><p id="add-song-name"></p><label for="playlist-select">Escolha a playlist</label><select id="playlist-select" required></select><div class="dialog-actions"><button type="button" id="cancel-add" class="button secondary">Cancelar</button><button type="submit" class="button primary">Adicionar</button></div></form>
   </dialog>
   <dialog id="share-dialog" aria-labelledby="share-dialog-title">
-    <div><h2 id="share-dialog-title">Compartilhar playlist</h2><p>Qualquer pessoa com este link poderá abrir uma cópia, sem criar conta.</p><label for="share-link">Link público</label><textarea id="share-link" readonly rows="4"></textarea><div class="dialog-actions"><button id="close-share" type="button" class="button secondary">Fechar</button><button id="copy-share" type="button" class="button primary"><i class="bi bi-copy" aria-hidden="true"></i> Copiar link</button></div></div>
+    <div><h2 id="share-dialog-title">Compartilhar playlist</h2><p>Qualquer pessoa com este link poderá abrir uma cópia, sem criar conta. Arquivos importados não são enviados: apenas os nomes das faixas são compartilhados e não poderão ser reproduzidos em outros dispositivos.</p><label for="share-link">Link público</label><textarea id="share-link" readonly rows="4"></textarea><div class="dialog-actions"><button id="close-share" type="button" class="button secondary">Fechar</button><button id="copy-share" type="button" class="button primary"><i class="bi bi-copy" aria-hidden="true"></i> Copiar link</button></div></div>
   </dialog>
+  <audio id="file-player" preload="metadata"></audio>
   <p id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 </body>
 </html>
