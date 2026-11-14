@@ -76,6 +76,16 @@ function renderCategories(){
 }
 async function fetchCategories({force=false}={}){
   if(categoryLoaded&&!force)return;
+  if(!force && storage){
+    try{
+      const cached=JSON.parse(storage.getItem(KEY+"category-cache")||"null");
+      if(cached?.saved && Date.now()-cached.saved<1800000 && Array.isArray(cached.data)){
+        state.categories=cached.data;categoryLoaded=true;renderCategories();
+        $("category-status").textContent=state.categories.length+" categorias disponíveis (cache local).";
+        return;
+      }
+    }catch{}
+  }
   $("category-status").textContent="Carregando categorias...";
   $("reload-categories").disabled=true;
   renderCategories(); // fallback original always available
@@ -86,6 +96,7 @@ async function fetchCategories({force=false}={}){
     if(controller.signal.aborted)return;
     state.categories=categories;
     categoryLoaded=true;
+    if(storage){try{storage.setItem(KEY+"category-cache",JSON.stringify({saved:Date.now(),data:categories}));}catch{}}
     renderCategories();
     $("category-status").textContent=categories.length?categories.length+" categorias disponíveis no catálogo.":"Nenhuma categoria retornada pela API.";
   }catch(error){
@@ -297,7 +308,8 @@ function saveShared(){
 }
 function playFromTrack(track,collection=localTracks){
   const tracks=(Array.isArray(collection)?collection:localTracks)
-    .filter(t=>t.source==="local").map(t=>ORIGINAL_TRACKS.find(o=>o.id===t.id)).filter(Boolean);
+    .filter(t=>t.source==="local" || allLocal.has(t.id))
+    .map(t=>ORIGINAL_TRACKS.find(o=>o.id===t.id)).filter(Boolean);
   const idx=tracks.findIndex(t=>t.id===track.id);
   if(idx<0){say("Faixa externa indisponível para reprodução.");return;}
   synth.pause();state.queue=tracks;state.index=idx;state.playing=false;
