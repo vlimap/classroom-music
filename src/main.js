@@ -287,7 +287,6 @@ async function removeAudioFile(id){
   }catch(error){say("Falha ao excluir arquivo: "+error.message);}
 }
 function initAudioImport(){
-  $("import-audio").addEventListener("click",()=>$("audio-picker").click());
   $("audio-picker").addEventListener("change",event=>{
     void importAudioSelection(event.target.files);
     event.target.value="";

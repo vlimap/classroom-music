@@ -85,8 +85,10 @@
               <h2 id="local-audio-title">Meus arquivos de áudio</h2>
               <p>Importe músicas que você criou ou tem autorização para ouvir. Arquivos armazenados apenas neste navegador; nenhum envio à Vercel.</p>
             </div>
-            <button id="import-audio" class="button secondary" type="button"><i class="bi bi-file-earmark-music" aria-hidden="true"></i> Importar arquivos</button>
-            <input id="audio-picker" type="file" accept=".mp3,.m4a,.aac,.ogg,.opus,.wav,.webm,.flac,audio/*" multiple hidden>
+            <div class="audio-import-picker">
+              <input id="audio-picker" class="file-input" type="file" accept=".mp3,.m4a,.aac,.ogg,.opus,.wav,.webm,.flac,audio/*" aria-label="Selecionar arquivos de áudio deste dispositivo" multiple>
+              <label id="import-audio" class="button secondary" for="audio-picker"><i class="bi bi-file-earmark-music" aria-hidden="true"></i> Importar arquivos</label>
+            </div>
           </div>
           <p id="local-audio-status" class="status" role="status" aria-live="polite">Carregando arquivos locais...</p>
           <div id="local-audio-list" class="song-list" aria-label="Músicas deste navegador"></div>
