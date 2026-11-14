@@ -210,3 +210,15 @@ body[data-expanded="true"] .volume-control input{min-height:32px}
 .file-input:focus-visible+label{outline:3px solid var(--color-focus);outline-offset:3px}
 .audio-import-picker label{cursor:pointer}
 @media(max-width:640px){.audio-import-picker,.audio-import-picker label{width:100%}}
+
+/* Botão de acesso do VLibras v7: preservar o símbolo oficial em branco. */
+#vlibras-button,[data-testid="vlibras-access-button"]{
+ background-color:#315d49!important;
+ border:2px solid #d7b98a!important;
+ border-radius:12px!important;
+}
+:root[data-contrast="high"] #vlibras-button,
+:root[data-contrast="high"] [data-testid="vlibras-access-button"]{
+ background-color:#000!important;
+ border:2px solid #fff!important;
+}
