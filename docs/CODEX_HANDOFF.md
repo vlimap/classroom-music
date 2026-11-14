@@ -3,7 +3,7 @@
 ## Contexto
 
 Repositório: https://github.com/vlimap/classroom-music
-Branch desta implementação: `feat/vlimap-firefly-catalog` (PR #8).
+Implementação incorporada à `main` pelo [PR #10](https://github.com/vlimap/classroom-music/pull/10). Codex deve criar novas branches a partir da `main`.
 Frontend estático, JavaScript ES modules e CSS, sem backend.
 
 A interface foi reconstruída com sete categorias próprias, um catálogo de quatro faixas vlimap preparadas e a série de podcasts Foco.dev News. Não depende de API de catálogo de terceiros.
