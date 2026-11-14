@@ -1,0 +1,14 @@
+{
+  "name": "foco-dev",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Player de foco acessível para aulas de programação",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/main.js && node --check src/music.js && node --check src/audio.js && node --check src/api.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

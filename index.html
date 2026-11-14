@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151a18">
+  <meta name="description" content="Foco.dev: uma trilha sonora tranquila para estudar e programar, com acesso inclusivo.">
+  <title>Foco.dev — Música para programar</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/app.css">
+  <script type="module" src="/src/main.js"></script>
+  <script defer src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Ir para o conteúdo principal</a>
+  <div class="app-shell">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Foco.dev, início">
+        <img src="/logo.svg" width="52" height="52" alt="">
+        <span><strong>foco.dev</strong><small>Música para quem constrói.</small></span>
+      </a>
+      <nav class="preferences" aria-label="Preferências de acessibilidade">
+        <button class="btn btn-quiet" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" aria-pressed="false">Tema</button>
+        <button class="btn btn-quiet" id="contrast-toggle" type="button" aria-label="Ativar alto contraste" aria-pressed="false">Contraste</button>
+        <button class="btn btn-quiet" id="font-toggle" type="button" aria-label="Aumentar tamanho dos textos" aria-pressed="false">A+</button>
+        <button class="btn btn-quiet" id="vlibras-trigger" type="button" aria-label="Abrir tradução para Libras">Libras</button>
+      </nav>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <section class="intro" aria-labelledby="intro-title">
+        <div>
+          <p class="eyebrow">Seu espaço para concentrar</p>
+          <h1 id="intro-title">Entre no seu ritmo.</h1>
+          <p>Uma trilha tranquila para estudar, programar e manter o foco. Sem anúncios, sem distrações e sem cadastro.</p>
+        </div>
+        <div class="intro-mark" aria-hidden="true">
+          <span class="mark-code">&lt;/&gt;</span>
+          <span class="mark-wave">▂ ▄ ▆ ▃ ▅ ▂ ▄</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="listen-heading" class="workspace">
+        <div class="workspace-top">
+          <div>
+            <p class="eyebrow">Ouvir agora</p>
+            <h2 id="listen-heading">Trilhas para sua sessão</h2>
+          </div>
+          <p class="support-text">Inicie a reprodução manualmente. As próximas faixas avançam sozinhas.</p>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Bibliotecas musicais">
+          <button id="tab-original" role="tab" aria-selected="true" aria-controls="panel-original" tabindex="0" type="button" class="tab active">Ambientes originais</button>
+          <button id="tab-library" role="tab" aria-selected="false" aria-controls="panel-library" tabindex="-1" type="button" class="tab">Explorar catálogo</button>
+        </div>
+
+        <div class="workspace-grid">
+          <div class="primary-column">
+            <section id="panel-original" role="tabpanel" tabindex="0" aria-labelledby="tab-original" class="card library-card">
+              <div class="section-heading">
+                <div><h3>Ambientes instrumentais</h3><p>Composições geradas localmente. Funcionam sem conexão.</p></div>
+                <span class="pill">Áudio original</span>
+              </div>
+              <div id="original-list" class="track-list" aria-label="Faixas instrumentais originais"></div>
+            </section>
+
+            <section id="panel-library" role="tabpanel" tabindex="0" aria-labelledby="tab-library" class="card library-card" hidden>
+              <div class="section-heading"><div><h3>Catálogo FreeToUse</h3><p>Busca pública de faixas e artistas da FreeToUse.</p></div></div>
+              <form id="search-form" class="search-form" role="search">
+                <label for="search-input">Buscar música</label>
+                <div class="search-row"><input id="search-input" name="query" type="search" placeholder="lofi, chill, ambient..." minlength="1" maxlength="80" value="lofi" autocomplete="off"><button class="btn btn-primary" type="submit">Buscar</button></div>
+              </form>
+              <div id="catalog-license" class="notice" role="note"><strong>Licenciamento do catálogo</strong><p>Esta API é pública, mas suas gravações têm licença própria. A reprodução no aplicativo fica desativada até existir autorização apropriada. Você pode conhecer as faixas e os artistas por aqui.</p><a href="https://freetouse.com/license" target="_blank" rel="noopener noreferrer">Consultar termos da FreeToUse (nova aba)</a></div>
+              <p id="catalog-status" class="support-text" role="status" aria-live="polite">Utilize a busca para explorar as músicas.</p>
+              <div id="catalog-list" class="track-list" aria-label="Resultados do catálogo"></div>
+              <button id="load-more" class="btn btn-secondary" type="button" hidden>Carregar mais resultados</button>
+            </section>
+          </div>
+
+          <aside class="card queue-card" aria-labelledby="queue-title">
+            <div class="section-heading"><div><h3 id="queue-title">Próximas faixas</h3><p>Fila de reprodução</p></div></div>
+            <ol id="queue-list" class="queue-list"></ol>
+            <div class="queue-help">
+              <details>
+                <summary>Como usar o player</summary>
+                <p>Use Tab para navegar pelos botões. A barra de progresso e o volume podem ser alterados com as setas. Espaço ou Enter ativam os controles.</p>
+                <p>O áudio só começa após uma ação sua. Você pode pausar a qualquer momento.</p>
+              </details>
+            </div>
+          </aside>
+        </div>
+      </section>
+      <section class="bottom-note" aria-label="Informações do projeto">
+        <p>Uma experiência independente para uso pessoal e educacional. Faixas originais sintetizadas no navegador; catálogo de terceiros sujeito aos respectivos termos.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="player" aria-label="Controles de reprodução">
+    <div class="player-inner">
+      <div class="now-playing">
+        <img src="/logo.svg" id="playing-cover" width="56" height="56" alt="" class="playing-cover">
+        <div class="track-meta">
+          <strong id="playing-title">Selecione uma faixa</strong>
+          <span id="playing-artist">Foco.dev</span>
+        </div>
+        <button id="favorite-button" type="button" class="icon-button favorite-button" aria-label="Adicionar aos favoritos" aria-pressed="false" title="Favorito">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.9a5.6 5.6 0 0 0-7.9 0L12 5.8l-.9-.9a5.6 5.6 0 1 0-7.9 7.9L12 21l8.8-8.2a5.6 5.6 0 0 0 0-7.9Z"/></svg>
+        </button>
+      </div>
+      <div class="playback-center">
+        <div class="transport">
+          <button id="shuffle-button" type="button" class="icon-button" aria-label="Ativar ordem aleatória" aria-pressed="false" title="Aleatório">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3c5 0 5 10 10 10h3m-3-3 3 3-3 3M4 17h3c2 0 3-2 4-4m3-4c1-1 2-2 3-2h3m-3-3 3 3-3 3"/></svg>
+          </button>
+          <button id="previous-button" type="button" class="icon-button" aria-label="Faixa anterior" title="Anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14M19 5 8 12l11 7V5Z"/></svg>
+          </button>
+          <button id="play-button" type="button" class="play-button" aria-label="Reproduzir" aria-pressed="false" title="Reproduzir">
+            <svg id="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>
+            <svg id="pause-icon" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+          </button>
+          <button id="next-button" type="button" class="icon-button" aria-label="Próxima faixa" title="Próxima">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5v14M5 5l11 7-11 7V5Z"/></svg>
+          </button>
+          <button id="repeat-button" type="button" class="icon-button" aria-label="Repetição desligada" title="Repetição">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4M3 11V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14-1v3a2 2 0 0 1-2 2H3"/></svg>
+            <span id="repeat-one" class="repeat-one" hidden>1</span>
+          </button>
+        </div>
+        <div class="timeline">
+          <output id="current-time" for="seek">0:00</output>
+          <label for="seek" class="sr-only">Progresso da reprodução</label>
+          <input id="seek" type="range" min="0" max="1000" step="1" value="0" aria-valuetext="0 minutos e 0 segundos">
+          <output id="total-time" for="seek">0:00</output>
+        </div>
+      </div>
+      <div class="volume-group">
+        <button id="mute-button" type="button" class="icon-button" aria-label="Silenciar" aria-pressed="false" title="Silenciar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm4 4a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/></svg>
+        </button>
+        <label for="volume" class="sr-only">Volume</label>
+        <input id="volume" type="range" min="0" max="100" step="1" value="40" aria-valuetext="40 por cento">
+      </div>
+    </div>
+  </footer>
+
+  <audio id="remote-audio" preload="metadata"></audio>
+  <p id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+</body>
+</html>
