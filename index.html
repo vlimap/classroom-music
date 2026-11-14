@@ -79,20 +79,6 @@
           <button id="create-in-library" class="button primary" type="button"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nova playlist</button>
         </div>
         <div id="playlist-grid" class="category-grid" aria-label="Playlists criadas"></div>
-        <section class="local-library card" aria-labelledby="local-audio-title">
-          <div class="local-library-head">
-            <div>
-              <h2 id="local-audio-title">Meus arquivos de áudio</h2>
-              <p>Importe músicas que você criou ou tem autorização para ouvir. Arquivos armazenados apenas neste navegador; nenhum envio à Vercel.</p>
-            </div>
-            <div class="audio-import-picker">
-              <input id="audio-picker" class="file-input" type="file" accept=".mp3,.m4a,.aac,.ogg,.opus,.wav,.webm,.flac,audio/*" aria-label="Selecionar arquivos de áudio deste dispositivo" multiple>
-              <label id="import-audio" class="button secondary" for="audio-picker"><i class="bi bi-file-earmark-music" aria-hidden="true"></i> Importar arquivos</label>
-            </div>
-          </div>
-          <p id="local-audio-status" class="status" role="status" aria-live="polite">Carregando arquivos locais...</p>
-          <div id="local-audio-list" class="song-list" aria-label="Músicas deste navegador"></div>
-        </section>
         <p id="playlists-empty" class="empty" hidden>Você ainda não criou playlists. Use “Nova playlist” para começar.</p>
       </section>
 
