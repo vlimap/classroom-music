@@ -1,87 +1,88 @@
-# Foco.dev
+# Foco.dev — categorias e playlists compartilháveis
 
-Player de foco, simples e acessível, para estudar e programar. Deploy estático, sem servidor, banco de dados, credenciais ou cadastro.
+Aplicação estática, mobile-first, sem cadastro, sem servidor próprio e sem banco de dados. [Produção](https://classroommusic.vercel.app/) · [Código](https://github.com/vlimap/classroom-music).
 
-**Identidade:** Foco.dev (repositório técnico: `classroom-music`). A marca é independente do Spotify, do Senac e da FreeToUse.
+## Funcionalidades
 
-## Recursos
+- Categorias e respectivas capas da [API oficial FreeToUse](https://freetouse.com/api).
+- Busca de músicas por título, artista ou estilo; paginação acionada manualmente.
+- Quatro faixas instrumentais originais sintetizadas no próprio navegador, sem streaming externo.
+- Player com play/pausa, faixa anterior/próxima, repetição, aleatório, progresso e volume.
+- Criação, renomeação e exclusão de playlists pessoais.
+- Inclusão e remoção de músicas nas playlists, até 20 faixas por playlist e 30 playlists locais.
+- Compartilhamento por **link autocontido**, incluindo metadados das músicas. Quem tiver o link abre uma cópia e pode salvá-la no próprio navegador, sem login.
+- Mobile com barra de navegação fixa, Bootstrap Icons e player compacto com controles expansíveis.
+- Tema claro/escuro, alto contraste, texto ampliado, atalhos de teclado nativos, regiões de anúncio e widget oficial VLibras.
+- Nenhum rastreador, nenhuma escrita remota de dados de usuários.
 
-- Quatro ambientes instrumentais **originais**, sintetizados no navegador (Web Audio API). Nenhuma gravação externa é distribuída pelo repositório.
-- Play/pausa, anterior, próxima, ordem aleatória, repetição (desligada/fila/faixa), progresso, volume, mute e favoritos locais.
-- Próxima faixa automática depois do primeiro Play; a reprodução inicial exige interação por política dos navegadores.
-- Catálogo pesquisável da API pública FreeToUse, com paginação e imagens/nomes de seus respectivos autores.
-- Capas individuais para cada ambiente instrumental original; faixas do catálogo apresentam as capas oficiais de cada música fornecidas em `thumbnails` pela API, com fallback seguro.
-- Bootstrap Icons 1.13.2 (fontes via CDN oficial), sem depender do framework visual Bootstrap.
-- Navegação inferior fixa em celulares: Início, Trilhas, Explorar, Fila e Acesso. Mini-player fixo acima da navegação, com controles avançados expansíveis.
-- Layout adaptativo, temas claro e escuro, modo alto contraste, ampliação do texto, teclas nativas de navegação, rótulos acessíveis e anúncio de mudanças importantes.
-- Integração oficial do VLibras, com botão auxiliar da própria marca e foco personalizável conforme as opções oficiais.
-- Preferências e favoritos salvos no armazenamento local do navegador, sem sincronização entre dispositivos.
+## Arquitetura
 
-## Uso local
-
-Com Node.js 20 ou superior, execute na raiz:
-
-```bash
-npm test
-npm run check
+```text
+Browser (JavaScript + localStorage)
+ ├── HTML/CSS/Bootstrap Icons
+ ├── Synth Web Audio (faixas originais)
+ ├── Playlists locais
+ ├── URL #p=<payload> para compartilhar
+ └── GET /catalog-api/music/*   ──> Vercel rewrite ──> api.freetouse.com/v3/music/*
 ```
 
-Para visualizar com um servidor HTTP estático, por exemplo:
+O `vercel.json` encaminha somente as rotas de leitura ao catálogo externo. **Não há Vercel Functions, Redis, Blob, KV nem um backend de escrita**. O proxy externo evita problemas de CORS no navegador, mas ainda depende da disponibilidade do servidor upstream e consome tráfego da Vercel. Nenhuma plataforma oferece garantia de cota ilimitada ou de que um projeto nunca será suspenso: acompanhe as métricas de uso e observe as condições dos serviços.
 
-```bash
+### Playlists públicas: o que é possível sem backend
+
+- **Compartilhamento público por link:** disponível. Dados estão dentro do fragmento `#p=` da URL, transmitido de forma explícita pelo próprio usuário; o fragmento não é enviado ao servidor HTTP.
+- **Persistência pessoal:** localStorage. Pode ser apagada ao limpar o navegador, no modo privado ou ao mudar de dispositivo.
+- **Catálogo global de playlists pesquisável, avaliações e edições simultâneas:** não implementados, pois exigem armazenamento compartilhado, moderação e mecanismos contra spam. Não há banco persistente no deploy estático.
+
+Não insira nomes completos, telefones, dados pessoais ou conteúdo sensível nos títulos de playlists. O link pode ser encaminhado por terceiros. O payload usa Base64URL e **não criptografa** os dados.
+
+## Licenças de áudio
+
+A API pública da FreeToUse permite consultar o catálogo, mas o acesso gratuito à API **não é uma autorização genérica para reproduzir, distribuir ou integrar suas gravações em um produto digital**. A [Free To Use License](https://freetouse.com/license) proíbe determinados usos sob a Free License; confira a autorização específica antes de ativar áudio remoto. As músicas do catálogo ficam disponíveis para explorar e organizar em playlists, porém o aplicativo **não reproduz seus arquivos MP3**. Essa restrição é deliberada.
+
+As quatro faixas originais são geradas localmente em `src/audio.js`, utilizando sequências desenvolvidas para o projeto. O app não hospeda gravações protegidas de terceiros.
+
+## Arquivos
+
+- `index.html` — página, player, diálogos e VLibras
+- `src/main.js` — navegação, categorias, player e playlists
+- `src/api.js` — consultas e normalização do catálogo
+- `src/playlists.js` — persistência e links compartilháveis
+- `src/music.js`, `src/audio.js` — faixas e sintetizador
+- `src/styles/tokens.css`, `src/styles/app.css` — design system e layouts
+- `vercel.json` — proxy externo declarativo
+- `covers/` — capas SVG das faixas originais
+- `tests/` — testes unitários e regressão
+
+## Desenvolvimento no Windows 11
+
+Instale Node.js 22 ou superior.
+
+```powershell
+npm test
+npm run check
 npx serve .
 ```
 
-Também funciona com extensões de servidor estático do VS Code. Evite abrir o `index.html` via `file://` porque módulos ES podem ser bloqueados pelo navegador.
+Use um servidor HTTP para importar módulos ES. A instalação de dependências de produção não é necessária.
 
 ## Deploy na Vercel
 
-1. Importe `vlimap/classroom-music` na Vercel.
-2. Selecione **Other** como framework.
-3. Deixe o projeto na raiz (`./`) e a publicação estática sem build.
-4. Faça o deploy. O arquivo `index.html` é a entrada.
-
-Os arquivos podem ser publicados diretamente pela Vercel; não há endpoints próprios, secrets nem banco de dados.
-
-## API musical: separação entre metadados e execução
-
-A API `https://api.freetouse.com/v3` é pública e não requer chave, mas isso **não significa licença irrestrita para integrar e redistribuir suas gravações em aplicativos**. A licença gratuita das obras cobre determinados conteúdos de usuários e veda seu uso em produtos digitais e determinadas outras modalidades.
-
-Por segurança, `src/api.js` tem `LICENSED_STREAMING = false`. Isso mantém as buscas e metadados disponíveis, mas **impede a reprodução do MP3 pela aplicação**. Só altere esta opção após obter autorização formal compatível com a finalidade concreta do projeto, incluindo eventual reprodução coletiva em aula. A API pode também impor CORS ou limites não documentados; verifique no navegador de destino.
-
-As quatro faixas de ambiente disponíveis no app são geradas localmente pelo código original `src/audio.js`, sem acesso a gravações de terceiros. São demonstrações sintéticas leves, não masters de músicas existentes. Nenhuma alegação de licença de terceiros é feita sobre elas.
-
-Referências: https://freetouse.com/api e https://freetouse.com/license
+- Importe o repositório do GitHub.
+- Framework preset: **Other**; build command: vazio; output: raiz do projeto.
+- O `vercel.json` aplica o rewrite do catálogo.
+- Verifique depois do deploy o endpoint `/catalog-api/music/categories/all?limit=1`. Ele deve retornar JSON, não HTML.
+- Teste o player em navegadores reais e consulte os logs/consumo de bandwidth na Vercel.
 
 ## Acessibilidade
 
-Meta de projeto: WCAG 2.2 AA. Foram implementados mecanismos básicos de acessibilidade, mas **não se afirma conformidade plena sem auditoria humana**. Consulte `docs/ACCESSIBILITY.md` para um checklist de validação com teclado, NVDA e pessoas usuárias de tecnologias assistivas.
+Objetivo: WCAG 2.2 AA. Design com nomes acessíveis, navegação nativa, foco visível, controles de volume e contraste. **Ainda é necessária uma auditoria manual** com NVDA, VoiceOver, teclado, zoom e pessoas usuárias de tecnologias assistivas. VLibras é opcional e requer conectividade.
 
-O widget do VLibras é uma ferramenta de apoio, não substitui intérprete humano em atividades educacionais. A personalização integral de seu avatar é restrita a instituições parceiras; esta implementação não altera indevidamente o avatar oficial.
+## Referências
 
-Referências: https://www.vlibras.gov.br/doc/widget/installation/webpageintegration.html e https://www.vlibras.gov.br/doc/widget/functionalities/customize-avatar.html
-
-## Estrutura
-
-- `index.html`: semântica, navegação, controles e widget VLibras.
-- `logo.svg`: marca vetorial original.
-- `src/styles/tokens.css`: design tokens, temas e acessibilidade cromática.
-- `src/styles/app.css`: layouts e componentes.
-- `src/main.js`: estado e interações da interface.
-- `src/music.js`: faixas e regras puras de navegação.
-- `src/audio.js`: sintetizador original via Web Audio.
-- `src/api.js`: client público com filtragem e busca.
-- `docs/`: design system e roteiro de avaliação de acessibilidade.
-- `tests/`: testes unitários de lógica, sanitização e integração do client.
-
-## Observações
-
-- Sem backend, não há playlists compartilhadas multiusuário ou moderação persistente. Favoritos são locais.
-- A reprodução pode depender de gestos do usuário e das políticas de economia de bateria de cada navegador.
-- A ferramenta é independente, sem afiliação comercial a plataformas de streaming.
-
-## Experiência móvel
-
-Em telas de até 640px, a navegação inferior permanece fixa e utiliza ícones e rótulos visíveis. O mini-player fica acima da barra, com play/pausa e próxima como ações prioritárias. O botão **Mais controles** expande anterior, ordem aleatória, repetição, volume e favorito. O rodapé respeita o safe-area dos dispositivos compatíveis. Para um funcionamento confiável, as capas de trilhas originais ficam em `covers/` como SVGs independentes; imagens da API são consultadas diretamente, sem download nem cópias locais.
-
-O deploy depende da integração GitHub → Vercel já configurada no projeto; mudanças na branch principal normalmente ativam nova publicação, que deve ser confirmada no painel da Vercel.
+- [API FreeToUse](https://freetouse.com/api)
+- [Licença FreeToUse](https://freetouse.com/license)
+- [Rewrites externos da Vercel](https://vercel.com/docs/routing/rewrites)
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
+- [Bootstrap Icons](https://icons.getbootstrap.com/)
+- [VLibras](https://www.vlibras.gov.br/doc/widget/installation/webpageintegration.html)

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/catalog-api/:path*",
+      "destination": "https://api.freetouse.com/v3/:path*"
+    }
+  ]
+}
