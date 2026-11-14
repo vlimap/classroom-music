@@ -278,7 +278,7 @@ async function fetchCatalog(more) {
 }
 function initPreferences() {
   const root = document.documentElement;
-  const theme = readJsonStorage(KEY + "theme", "auto");
+  const theme = readJsonStorage(KEY + "theme", "dark");
   if (theme === "dark" || theme === "light") root.dataset.theme = theme;
   const contrast = readJsonStorage(KEY + "contrast", false) === true;
   const large = readJsonStorage(KEY + "large", false) === true;
