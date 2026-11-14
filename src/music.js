@@ -11,7 +11,8 @@ export function formatTime(seconds) {
 }
 export function timeDescription(seconds) {
   const n = Number.isFinite(Number(seconds)) ? Math.max(0, Math.floor(Number(seconds))) : 0;
-  return Math.floor(n / 60) + " minutos e " + n % 60 + " segundos";
+  const minutes = Math.floor(n / 60); const seconds = n % 60;
+  return minutes + (minutes === 1 ? " minuto" : " minutos") + " e " + seconds + (seconds === 1 ? " segundo" : " segundos");
 }
 export function nextIndex(index, count, repeatMode = "off", shuffle = false, random = Math.random) {
   if (count < 1) return -1;
