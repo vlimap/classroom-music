@@ -83,6 +83,16 @@ npm run dev
 Abrir `http://127.0.0.1:4173`. Sem as credenciais e o segredo, a API retorna HTTP 503;
 a interface mostra `—` (indisponível), **nunca inventa contagens**.
 
+## Ordenação por popularidade
+
+Os cards da página Explorar (inclusive após filtrar pela busca) e da lista de podcasts são priorizados pelas métricas reais armazenadas no Redis:
+
+1. Maior soma de curtidas e ouvintes únicos por navegador.
+2. Em caso de empate, maior número de ouvintes.
+3. Persistindo o empate ou sem métricas disponíveis, ordem editorial do catálogo.
+
+A ordem é recalculada no carregamento da página e após uma interação confirmada (curtida, descurtida ou novo ouvinte contabilizado). Os elementos já renderizados são movidos sem perder ações e foco. Não há polling constante entre navegadores, para respeitar a quota gratuita do Redis: interações de outras pessoas aparecerão quando a página for reaberta ou atualizada. A fila do player não é modificada.
+
 ## Regras de contabilização
 
 - `GET /api/social`: retorna `stats[id].likes` e `stats[id].listeners`.

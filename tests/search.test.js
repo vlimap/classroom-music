@@ -44,7 +44,8 @@ test("descoberta filtra cards na mesma página, sem trocar o foco para outra vie
   const submit = main.split('$("discover-search-form").addEventListener("submit"')[1]?.split('$("search-form").addEventListener')[0];
   assert.ok(submit);
   assert.doesNotMatch(submit, /setView\("search"\)/);
-  assert.match(ui, /const matches = filterPodcastEpisodes\(PODCAST_EPISODES, query\)/);
+  assert.match(ui, /const matches = filterPodcastEpisodes\(sorted, query\)/);
+  assert.match(ui, /const sorted = sortPodcastsByEngagement\(PODCAST_EPISODES, id => social\.snapshot\(id\)\)/);
   assert.match(ui, /discoverGrid\.replaceChildren\(makeFragment\(matches\)\)/);
   assert.match(ui, /\$\("discover-search-empty"\)\.hidden = matches\.length !== 0/);
   assert.match(html, /id="discover-search-empty"[^>]*hidden/);
