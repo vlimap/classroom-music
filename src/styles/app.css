@@ -177,7 +177,7 @@ body[data-expanded="true"] .volume-control input{min-height:32px}
 
 /* Acionador próprio, acessível, conectado à API do widget oficial VLibras. */
 .vlibras-fab{
- position:fixed;right:14px;bottom:135px;z-index:1300;
+ position:fixed;right:14px;top:50%;top:50dvh;bottom:auto;transform:translateY(-50%);z-index:1300;
  width:48px;height:48px;display:flex;align-items:center;justify-content:center;
  border:2px solid #d7b98a;border-radius:12px;
  background:#315d49;color:#ffffff;
@@ -196,8 +196,7 @@ body[data-expanded="true"] .volume-control input{min-height:32px}
  opacity:0!important;pointer-events:none!important;visibility:hidden!important;
 }
 @media(max-width:640px){
- .vlibras-fab{right:10px;bottom:calc(175px + env(safe-area-inset-bottom,0px));width:46px;height:46px}
- body[data-expanded="true"] .vlibras-fab{bottom:calc(260px + env(safe-area-inset-bottom,0px))}
+ .vlibras-fab{right:10px;width:46px;height:46px}
 }
 
 .vlibras-fab img{display:block;width:40px;height:40px;max-width:100%;object-fit:contain;border-radius:8px}
@@ -364,8 +363,7 @@ main{min-width:0;padding:48px 0 70px}
  body[data-expanded="true"] .transport .advanced-control{display:inline-flex}
  body[data-expanded="true"] .volume-control{grid-area:volume;display:flex}
  body[data-expanded="true"] .volume-control input{min-height:32px}
- .vlibras-fab{right:10px;bottom:calc(175px + env(safe-area-inset-bottom,0px))}
- body[data-expanded="true"] .vlibras-fab{bottom:calc(260px + env(safe-area-inset-bottom,0px))}
+ .vlibras-fab{right:10px}
 }
 @media(max-width:640px){
  .shell{padding-inline:15px}
