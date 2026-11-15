@@ -1,6 +1,7 @@
 import { PODCAST_EPISODES, getPodcast } from "./podcasts.js";
 import { filterPodcastEpisodes, normalizeSearchText } from "./search.js";
 import { sharePodcast } from "./share.js";
+import { sortPodcastsByEngagement, reorderPodcastCards } from "./ranking.js";
 
 const $ = id => document.getElementById(id);
 
@@ -42,6 +43,20 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
   }
 
   function updateSocial() {
+    const sorted = sortPodcastsByEngagement(PODCAST_EPISODES, id => social.snapshot(id));
+    const reorder = (grid, episodes) => {
+      if (!grid) return;
+      const focused = grid.contains(document.activeElement) ? document.activeElement : null;
+      reorderPodcastCards(grid, episodes);
+      // Mover o card com foco não deve interromper navegação por teclado.
+      if (focused && document.activeElement !== focused) focused.focus({preventScroll: true});
+    };
+    reorder($("podcast-grid"), sorted);
+    const discoverGrid = $("discover-podcast-grid");
+    if (discoverGrid) {
+      const query = $("discover-search-query").value;
+      reorder(discoverGrid, filterPodcastEpisodes(sorted, query));
+    }
     document.querySelectorAll(".podcast-card[data-podcast-id]").forEach(updateSocialCard);
   }
 
@@ -124,11 +139,12 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
       return fragment;
     };
 
-    $("podcast-grid").replaceChildren(makeFragment(PODCAST_EPISODES));
+    const sorted = sortPodcastsByEngagement(PODCAST_EPISODES, id => social.snapshot(id));
+    $("podcast-grid").replaceChildren(makeFragment(sorted));
     const discoverGrid = $("discover-podcast-grid");
     if (discoverGrid) {
       const query = $("discover-search-query").value;
-      const matches = filterPodcastEpisodes(PODCAST_EPISODES, query);
+      const matches = filterPodcastEpisodes(sorted, query);
       discoverGrid.replaceChildren(makeFragment(matches));
       const isSearching = Boolean(normalizeSearchText(query));
       $("category-status").textContent = isSearching
