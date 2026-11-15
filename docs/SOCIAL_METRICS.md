@@ -100,8 +100,13 @@ A ordem é recalculada no carregamento da página e após uma interação confir
   `unlike` ou `listen`.
 - Ações aplicadas atomicamente via Lua EVAL e conjuntos Redis para
   deduplicação. O mesmo identificador não aumenta o contador duas vezes.
-- O player envia `listen` após acumular 30 segundos de reprodução válida.
-  Pausas e saltos grandes de posição não contribuem com esse tempo.
+- O player envia `listen` após 30 segundos dos trechos efetivamente
+  reproduzidos segundo `HTMLMediaElement.played`. O navegador contabiliza
+  `TimeRanges` em vez de diferenças entre eventos `timeupdate`, que podem
+  ocorrer com menor frequência no Android. Avançar na barra não contribui.
+- O registro só atualiza o total após a confirmação da API. Se falhar,
+  o cliente informa o problema e tenta novamente após uma janela de 30s.
+  A lista **Fila** também apresenta a contagem e sinaliza a faixa em reprodução.
 - Uma nova instalação, navegador, perfil ou limpeza do armazenamento pode
   gerar outro identificador; usuários com a mesma máquina/navegador
   compartilham um identificador. **Não é uma medição de ouvintes únicos

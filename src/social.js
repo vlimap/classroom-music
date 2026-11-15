@@ -95,9 +95,10 @@ export function createSocial({onChange = () => {}, onError = () => {}} = {}) {
     }
   }
   async function recordListener(id) {
-    if (!visitor || wasCounted(id)) return;
+    if (!visitor) return false;
+    if (wasCounted(id)) return true;
     const key = "listen:" + id;
-    if (pending.has(key) || Date.now() < (retryAt.get(id) || 0)) return;
+    if (pending.has(key) || Date.now() < (retryAt.get(id) || 0)) return false;
     pending.add(key);
     try {
       const result = await send("listen", id);
@@ -106,8 +107,11 @@ export function createSocial({onChange = () => {}, onError = () => {}} = {}) {
       mark(LISTEN_PREFIX + id, "1");
       retryAt.delete(id);
       onChange();
+      return true;
     } catch {
       retryAt.set(id, Date.now() + 30000);
+      onError("Não foi possível contabilizar esta audição. O sistema tentará novamente.");
+      return false;
     } finally {
       pending.delete(key);
     }

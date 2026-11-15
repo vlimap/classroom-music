@@ -37,13 +37,16 @@ npm run dev
 npm test
 ```
 
-Coloque os áudios finais em `audio/podcasts/` usando os nomes definidos em `src/podcasts.js`. Ao publicar fontes editoriais, cadastre apenas links HTTPS conferidos para o episódio correspondente. Para contribuir, consulte [CONTRIBUTING.md](CONTRIBUTING.md). Para habilitar métricas sociais na Vercel, siga [docs/SOCIAL_METRICS.md](docs/SOCIAL_METRICS.md). A contagem de ouvintes considera navegadores que reproduziram pelo menos 30 segundos do episódio, não pessoas autenticadas.
+Coloque os áudios finais em `audio/podcasts/` usando os nomes definidos em `src/podcasts.js`. Ao publicar fontes editoriais, cadastre apenas links HTTPS conferidos para o episódio correspondente. Para contribuir, consulte [CONTRIBUTING.md](CONTRIBUTING.md). Para habilitar métricas sociais na Vercel, siga [docs/SOCIAL_METRICS.md](docs/SOCIAL_METRICS.md). A contagem de ouvintes considera navegadores com pelo menos 30 segundos de mídia efetivamente reproduzida, segundo `HTMLMediaElement.played`, não pessoas autenticadas. A fila agora mostra a contagem e atualiza o ícone para Pausa enquanto a faixa está tocando.
 
 ## Estrutura
 
 - `src/podcasts.js`: catálogo e créditos dos episódios
 - `src/podcast-ui.js`: cards, fontes e estado de publicação
-- `src/main.js`: player, fila, busca, navegação e registro de reprodução
+- `src/main.js`: controlador do player, navegação e sincronização da fila
+- `src/listening.js`: qualificação de 30 segundos de reprodução real
+- `src/track-rows.js`: componente reutilizável de faixa, estados de Play/Pause e ouvintes
+- `src/styles/tokens.css`: tokens semânticos de temas, dimensões e componentes
 - `src/social.js`: estado de curtidas e métricas
 - `api/social.js`: API Vercel com contagem persistente no Upstash Redis
 - `api/episode.js`: páginas públicas compartilháveis com SEO e GEO
