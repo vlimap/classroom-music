@@ -9,7 +9,9 @@ const visitorId = "123e4567-e89b-42d3-a456-426614174000";
 const oldEnv = {
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  secret: process.env.SOCIAL_ID_SECRET
+  secret: process.env.SOCIAL_ID_SECRET,
+  kvUrl: process.env.KV_REST_API_URL,
+  kvToken: process.env.KV_REST_API_TOKEN
 };
 const oldFetch = globalThis.fetch;
 function configure(){
@@ -21,7 +23,9 @@ function restore(){
   for(const [key,value] of Object.entries({
     UPSTASH_REDIS_REST_URL: oldEnv.url,
     UPSTASH_REDIS_REST_TOKEN: oldEnv.token,
-    SOCIAL_ID_SECRET: oldEnv.secret
+    SOCIAL_ID_SECRET: oldEnv.secret,
+    KV_REST_API_URL: oldEnv.kvUrl,
+    KV_REST_API_TOKEN: oldEnv.kvToken
   })){
     if(value === undefined) delete process.env[key];
     else process.env[key] = value;
@@ -55,6 +59,8 @@ test("contabilização ocorre após reprodução real e nunca pelo clique no car
 test("API não retorna contagens inventadas sem Redis configurado",async()=>{
   delete process.env.UPSTASH_REDIS_REST_URL;
   delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  delete process.env.KV_REST_API_URL;
+  delete process.env.KV_REST_API_TOKEN;
   delete process.env.SOCIAL_ID_SECRET;
   try{
     const res = await handler.fetch(req());
@@ -114,4 +120,36 @@ test("POST registra like de forma atômica e devolve contagem persistida",async(
     assert.deepEqual(await res.json(),{id:"javascript-em-10-dias",kind:"likes",count:4,liked:true});
     assert.equal(calls,2);
   }finally{restore();}
+});
+
+test("integração Upstash pelo Vercel Marketplace aceita KV_REST_API_URL e KV_REST_API_TOKEN",async()=>{
+  delete process.env.UPSTASH_REDIS_REST_URL;
+  delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  process.env.KV_REST_API_URL = "https://marketplace.upstash.io";
+  process.env.KV_REST_API_TOKEN = "marketplace-token";
+  process.env.SOCIAL_ID_SECRET = "v".repeat(32);
+  globalThis.fetch = async (url,options) => {
+    assert.equal(url,"https://marketplace.upstash.io/pipeline");
+    assert.equal(options.headers.authorization,"Bearer marketplace-token");
+    const commands=JSON.parse(options.body);
+    return Response.json(commands.map(()=>({result:0})));
+  };
+  try {
+    const response=await handler.fetch(req());
+    assert.equal(response.status,200);
+    const {stats}=await response.json();
+    assert.deepEqual(stats["javascript-em-10-dias"],{likes:0,listeners:0});
+  } finally { restore(); }
+});
+
+test("segredo de identidade continua obrigatório mesmo com Redis vinculado",async()=>{
+  delete process.env.UPSTASH_REDIS_REST_URL;
+  delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  process.env.KV_REST_API_URL = "https://marketplace.upstash.io";
+  process.env.KV_REST_API_TOKEN = "marketplace-token";
+  delete process.env.SOCIAL_ID_SECRET;
+  try {
+    const response=await handler.fetch(req());
+    assert.equal(response.status,503);
+  } finally { restore(); }
 });
