@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node scripts/dev-server.js",
     "test": "node --test",
-    "check": "node --check src/main.js && node --check src/music.js && node --check src/podcasts.js && node --check src/podcast-ui.js && node --check src/social.js && node --check api/social.js && node --check src/search.js && node --check src/share.js && node --check api/episode.js && node --check api/sitemap.js && node --check api/feed.js && node --check scripts/dev-server.js && node --check src/ranking.js"
+    "check": "node --check src/main.js && node --check src/music.js && node --check src/podcasts.js && node --check src/podcast-ui.js && node --check src/social.js && node --check api/social.js && node --check src/search.js && node --check src/share.js && node --check api/episode.js && node --check api/sitemap.js && node --check api/feed.js && node --check scripts/dev-server.js && node --check src/ranking.js && node --check src/listening.js && node --check src/track-rows.js"
   },
   "engines": {
     "node": ">=20"
