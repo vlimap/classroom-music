@@ -1,5 +1,8 @@
 import { createServer } from 'node:http';
 import socialApi from '../api/social.js';
+import episodeApi from '../api/episode.js';
+import sitemapApi from '../api/sitemap.js';
+import feedApi from '../api/feed.js';
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { createGzip } from 'node:zlib';
@@ -24,6 +27,17 @@ const types = {
 };
 
 createServer(async (req, res) => {
+  // Replica as rotas públicas da Vercel no servidor de desenvolvimento.
+  const url=new URL(req.url,'http://127.0.0.1:4173');
+  const slug=url.pathname.startsWith('/podcasts/')?url.pathname.slice('/podcasts/'.length).replace(/\/$/,''):null;
+  const seoRoute=slug!==null?episodeApi:url.pathname==='/sitemap.xml'?sitemapApi:url.pathname==='/feed.xml'?feedApi:null;
+  if(seoRoute){
+    const requestUrl=slug===null?url.href:'http://127.0.0.1:4173/api/episode?slug='+encodeURIComponent(slug);
+    const response=await seoRoute.fetch(new Request(requestUrl,{method:req.method}));
+    res.writeHead(response.status,Object.fromEntries(response.headers));
+    res.end(req.method==='HEAD'?'':await response.text());
+    return;
+  }
   if (new URL(req.url, 'http://127.0.0.1:4173').pathname === '/api/social') {
     if (req.method !== 'GET' && req.method !== 'POST') {
       res.writeHead(405, {Allow:'GET, POST'}).end();
