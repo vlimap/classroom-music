@@ -62,41 +62,80 @@ function saveSelection(){
   try{saveJsonStorage(KEY+"volume",state.volume);}catch{}
 }
 
-function renderSongs(target,tracks,{mode="catalog"}={}){
+function syncTrackRows() {
+  const selectedId=selected()?.id??null;
+  for(const row of document.querySelectorAll(".song-row[data-podcast-id]")) {
+    updateTrackRow(row,{
+      selectedId,
+      isPlaying:state.playing,
+      stats:social?.snapshot(row.dataset.podcastId),
+      formatNumber:value=>social?.formatNumber(value)??String(value)
+    });
+  }
+}
+
+function renderSongs(target,tracks,{mode="catalog"}={}) {
   const container=$(target);
   const fragment=document.createDocumentFragment();
-  for(const [index,track] of tracks.entries()){
-    const row=document.createElement("div");row.className="song-row";
-    if(state.queue[state.index]?.id===track.id&&mode==="queue")row.setAttribute("aria-current","true");
+  for(const track of tracks) {
+    const row=document.createElement("div");
+    row.className="song-row";
+    row.dataset.podcastId=track.id;
+    row.dataset.podcastTitle=track.title;
     const category=CATEGORIES.find(c=>c.id===track.categoryId);
     row.append(image(track.artwork,"","",category?.artwork||"/logo.svg"));
-    const info=document.createElement("div");info.className="song-details";
-    const name=document.createElement("strong");name.textContent=track.title;
+    const info=document.createElement("div");
+    info.className="song-details";
+    const name=document.createElement("strong");
+    name.textContent=track.title;
     const audioAvailable=state.playableIds.has(canonicalPodcastId(track.id));
-    const artist=document.createElement("small");
-    artist.textContent=(track.artist||"vlimap")+(audioAvailable?"":" · Áudio em preparação");
-    info.append(name,artist);row.append(info);
-    const time=document.createElement("span");time.className="song-time";
+    const meta=document.createElement("small");
+    meta.className="song-meta";
+    const author=document.createElement("span");
+    author.className="song-author";
+    author.textContent=(track.artist||"Foco.dev")+(audioAvailable?"":" · Áudio em preparação");
+    const playbackStatus=document.createElement("span");
+    playbackStatus.className="song-playback-status";
+    playbackStatus.textContent="Reproduzindo";
+    playbackStatus.hidden=true;
+    const listeners=document.createElement("span");
+    listeners.className="song-listeners";
+    meta.append(author,playbackStatus,listeners);
+    info.append(name,meta);
+    row.append(info);
+    const time=document.createElement("span");
+    time.className="song-time";
     time.textContent=track.duration>0?formatTime(track.duration):"—";
     row.append(time);
-    const actions=document.createElement("div");actions.className="song-actions";
+    const actions=document.createElement("div");
+    actions.className="song-actions";
     if(audioAvailable){
       const collection=mode==="queue"?state.queue:publishedCatalog;
-      const playButton=button("","play-fill",()=>playFromTrack(track,collection),"");
-      playButton.setAttribute("aria-label","Reproduzir "+track.title);
-      playButton.title="Reproduzir";
+      const playButton=button("","play-fill",()=>toggleTrackPlayback(track,collection),"song-play-toggle");
       actions.append(playButton);
     }
     if(PODCAST_EPISODES.some(episode=>episode.id===canonicalPodcastId(track.id))){
-      const episodeButton=button("","info-circle",()=>void podcastUI?.openEpisode(track.id),"");
+      const episodeButton=button("","info-circle",()=>void podcastUI?.openEpisode(track.id),"song-info-button");
       episodeButton.setAttribute("aria-label","Ver episódio "+track.title);
       episodeButton.title="Ver episódio";
       actions.append(episodeButton);
     }
-    row.append(actions);fragment.append(row);
+    row.append(actions);
+    fragment.append(row);
   }
   container.replaceChildren(fragment);
+  syncTrackRows();
 }
+
+function toggleTrackPlayback(track,collection) {
+  if(selected()?.id===canonicalPodcastId(track.id)){
+    if(state.playing)pause();
+    else void play();
+    return;
+  }
+  playFromTrack(track,collection);
+}
+
 function doSearch(value=$("search-query").value){
   const term=value.trim();
   const found=term?sortPodcastsByEngagement(
@@ -168,7 +207,7 @@ function renderPlayer(){
         artwork:[{src:new URL(t.artwork||"/logo.svg",location.href).href}]});
       navigator.mediaSession.playbackState=state.playing?"playing":"paused";
     }catch{}
-  }
+  }  syncTrackRows();
 }
 function updateTimeline(){
   const length=currentDuration()||0;
