@@ -170,9 +170,15 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
   function renderSources(episode) {
     const fragment = document.createDocumentFragment();
     for (const source of episode.sourceLinks) {
+      // Somente referências HTTPS editoriais, sem protocolos executáveis.
+      let sourceUrl;
+      try {
+        sourceUrl = new URL(source.url);
+        if (sourceUrl.protocol !== "https:") continue;
+      } catch { continue; }
       const item = document.createElement("li");
       const anchor = document.createElement("a");
-      anchor.href = source.url;
+      anchor.href = sourceUrl.href;
       anchor.rel = "noopener noreferrer";
       anchor.target = "_blank";
       anchor.textContent = source.publisher + " — " + source.label + " (nova aba)";

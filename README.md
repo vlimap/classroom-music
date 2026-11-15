@@ -14,6 +14,17 @@ As imagens de compartilhamento são JPEGs 1200×630, gerados a partir das capas 
 
 A implementação SEO/GEO inclui Open Graph, Twitter Card, `PodcastEpisode` JSON-LD, sitemap, RSS e conteúdo editorial renderizado no servidor. Consulte [docs/SEO_GEO.md](docs/SEO_GEO.md) para configuração e validação.
 
+## Segurança e privacidade
+
+A navegação, a reprodução e as curtidas permanecem públicas, sem login.
+A API de métricas usa validação de origem, rate limit Redis em GET/POST,
+limite de payload, HMAC-SHA256 e validação de dados. As páginas recebem
+CSP e cabeçalhos de proteção, com exceções específicas para o VLibras.
+
+Consulte [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md) para as regras,
+os controles operacionais, limitações dos contadores anônimos e riscos
+residuais. Não há promessa de segurança absoluta ou de proteção DRM.
+
 ## Desenvolvimento
 
 ```bash

@@ -34,7 +34,11 @@ function restore(){
 }
 function req(method = "GET", body, headers = {}){
   return new Request("https://foco.dev/api/social", {
-    method, headers: {...headers,...(body ? {"content-type":"application/json"} : {})},
+    method, headers: {
+      ...(method === "POST" ? {origin: "https://foco.dev"} : {}),
+      ...(body ? {"content-type":"application/json"} : {}),
+      ...headers
+    },
     body: body ? JSON.stringify(body) : undefined
   });
 }
@@ -71,8 +75,15 @@ test("API não retorna contagens inventadas sem Redis configurado",async()=>{
 test("GET consulta os totais reais de cada episódio em pipeline",async()=>{
   configure();
   globalThis.fetch = async (url, options) => {
-    assert.equal(url, "https://example.upstash.io/pipeline");
     assert.equal(options.method,"POST");
+    if (url === "https://example.upstash.io") {
+      const [name,script,keys] = JSON.parse(options.body);
+      assert.equal(name,"EVAL");
+      assert.equal(keys,"2");
+      assert.match(script,/EXPIRE/);
+      return Response.json({result:[1,1]});
+    }
+    assert.equal(url, "https://example.upstash.io/pipeline");
     const commands=JSON.parse(options.body);
     assert.equal(commands.length,14);
     assert.ok(commands.every(([name])=>name==="SCARD"));
@@ -102,12 +113,13 @@ test("POST registra like de forma atômica e devolve contagem persistida",async(
   globalThis.fetch = async (_url, options) => {
     const [name,script,numKeys,key,action,identifier]=JSON.parse(options.body);
     assert.equal(name,"EVAL");
-    assert.equal(numKeys,"1");
     calls++;
     if(calls===1){
-      assert.match(key,/foco:social:limit:/);
-      return Response.json({result:1});
+      assert.equal(numKeys,"2");
+      assert.match(key,/foco:social:rate:post:/);
+      return Response.json({result:[1,1]});
     }
+    assert.equal(numKeys,"1");
     assert.equal(action,"like");
     assert.equal(key,"foco:social:likes:javascript-em-10-dias");
     assert.match(identifier,/^[0-9a-f]{64}$/);
@@ -129,8 +141,11 @@ test("integração Upstash pelo Vercel Marketplace aceita KV_REST_API_URL e KV_R
   process.env.KV_REST_API_TOKEN = "marketplace-token";
   process.env.SOCIAL_ID_SECRET = "v".repeat(32);
   globalThis.fetch = async (url,options) => {
-    assert.equal(url,"https://marketplace.upstash.io/pipeline");
     assert.equal(options.headers.authorization,"Bearer marketplace-token");
+    if (url === "https://marketplace.upstash.io") {
+      return Response.json({result:[1,1]});
+    }
+    assert.equal(url,"https://marketplace.upstash.io/pipeline");
     const commands=JSON.parse(options.body);
     return Response.json(commands.map(()=>({result:0})));
   };
