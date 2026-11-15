@@ -2,6 +2,7 @@ import { CATEGORIES, formatTime, timeDescription, nextIndex, previousIndex, read
 import { PODCAST_EPISODES, canonicalPodcastId } from "./podcasts.js";
 import { createPodcastUI } from "./podcast-ui.js";
 import { createSocial } from "./social.js";
+import { filterPodcastEpisodes } from "./search.js";
 
 const $=id=>document.getElementById(id);
 function safeHttpsUrl(value){
@@ -65,7 +66,6 @@ function renderCategories(){
 }
 async function fetchCategories(){
   renderCategories();
-  $("category-status").textContent=PODCAST_EPISODES.length+" episódios de tecnologia · áudio em produção.";
 }
 function renderSongs(target,tracks,{mode="catalog"}={}){
   const container=$(target);
@@ -103,17 +103,15 @@ function renderSongs(target,tracks,{mode="catalog"}={}){
   container.replaceChildren(fragment);
 }
 async function doSearch(value=$("search-query").value){
-  const term=value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
-  const found=term?publishedCatalog.filter(t=>
-    [t.title,t.artist,t.description,t.date,...CATEGORIES.filter(c=>c.id===t.categoryId).map(c=>c.name)]
-    .some(value=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR").includes(term))
-  ):[];
+  const term=value.trim();
+  const found=term?filterPodcastEpisodes(publishedCatalog,term):[];
   state.searchResults=found;
   renderSongs("search-results",found);
   $("search-status").textContent=term
     ?found.length+" episódio(s) encontrado(s) no catálogo de tecnologia."
     :"Digite um título, tema ou palavra-chave para buscar.";
 }
+
 function stopFilePlayback(){
   fileAudio.pause();
   fileAudio.removeAttribute("src");
@@ -320,11 +318,9 @@ function initNavigation(){
   }
   $("discover-search-form").addEventListener("submit",event=>{
     event.preventDefault();
-    const value=$("discover-search-query").value;
-    $("search-query").value=value;
-    setView("search");
-    void doSearch(value);
+    podcastUI?.renderList();
   });
+  $("discover-search-query").addEventListener("input",()=>podcastUI?.renderList());
   $("search-form").addEventListener("submit",event=>{event.preventDefault();void doSearch();});
   $("search-query").addEventListener("input",event=>{void doSearch(event.currentTarget.value);});
 }
