@@ -4,10 +4,11 @@ import { readFileSync } from "node:fs";
 import { PODCAST_EPISODES, getPodcast } from "../src/podcasts.js";
 
 test("episódios de tecnologia ficam preparados para publicação",()=>{
- assert.equal(PODCAST_EPISODES.length,7);
+ assert.equal(PODCAST_EPISODES.length,12);
  assert.deepEqual(PODCAST_EPISODES.map(item=>item.id),[
   "javascript-em-10-dias","margaret-hamilton-apollo-11","da-apollo-11-ao-caos-do-javascript","morris-worm-1988",
-  "linus-torvalds-linux-e-git","bug-ariane-5","bug-do-milenio"
+  "linus-torvalds-linux-e-git","bug-ariane-5","bug-do-milenio","dez-dolares-wannacry",
+  "ada-lovelace-primeiro-algoritmo","eliza-ao-gpt-4o","alan-turing-enigma","grace-hopper-codigo-imperfeito"
  ]);
  for(const item of PODCAST_EPISODES){
   assert.equal(item.categoryId,"podcasts"); assert.equal(item.producer,"vlimap");

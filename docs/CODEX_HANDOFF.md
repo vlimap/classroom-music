@@ -16,7 +16,7 @@ O projeto foi reposicionado para um catálogo exclusivamente de podcasts sobre t
 
 ## Próximo passo editorial
 
-Os sete áudios M4A já estão versionados em `audio/podcasts/`. Conferir locução, duração, MIME, reprodução e fonte de cada episódio, além de registrar as datas reais de publicação e referências verificáveis antes de adicioná-las à página ou ao feed.
+Os áudios M4A estão versionados em `audio/podcasts/`. Conferir locução, duração, MIME, reprodução e fonte de cada episódio, além de registrar as datas reais de publicação e referências verificáveis antes de adicioná-las à página ou ao feed.
 
 ## Descoberta e compartilhamento
 

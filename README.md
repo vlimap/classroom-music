@@ -6,7 +6,7 @@ Na área Explorar e na listagem de podcasts, os cards são ordenados automaticam
 
 ## Conteúdo atual
 
-O catálogo tem **sete episódios publicados com áudio**, incluindo JavaScript, Margaret Hamilton e a Apollo 11, o Morris Worm, Linux/Git, o Ariane 5 e o Bug do Milênio. As datas informadas no catálogo são dos acontecimentos, não de lançamento.
+O catálogo tem **doze episódios publicados com áudio**, incluindo JavaScript, Margaret Hamilton e a Apollo 11, o Morris Worm, Linux/Git, o Ariane 5, o Bug do Milênio, WannaCry, Ada Lovelace, ELIZA/GPT-4o, Alan Turing e Grace Hopper. As datas informadas no catálogo são dos acontecimentos, não de lançamento.
 
 Cada episódio possui uma página pública própria para prévia em redes sociais e mecanismos de busca, como [Os 10 dias que criaram o JavaScript](https://classroommusic.vercel.app/podcasts/javascript-em-10-dias). Os cards e a página do episódio têm ações para compartilhar o permalink canônico.
 

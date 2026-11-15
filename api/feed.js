@@ -10,7 +10,12 @@ export const AUDIO_FILE_BYTES = Object.freeze({
   "morris-worm-1988": 13307850,
   "linus-torvalds-linux-e-git": 12205382,
   "bug-ariane-5": 9141767,
-  "bug-do-milenio": 16860759
+  "bug-do-milenio": 16860759,
+  "dez-dolares-wannacry": 27207244,
+  "ada-lovelace-primeiro-algoritmo": 13016679,
+  "eliza-ao-gpt-4o": 10148708,
+  "alan-turing-enigma": 13543274,
+  "grace-hopper-codigo-imperfeito": 19376250
 });
 
 function xml(value) {

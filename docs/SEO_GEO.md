@@ -17,7 +17,7 @@ Ações de compartilhamento nos cards e na tela de detalhes usam o endereço can
 - `<title>` e descrição únicos por episódio, canonical absoluta e `robots=index,follow,max-image-preview:large`.
 - Open Graph (título, tipo, URL, imagem JPEG, descrição e localidade) e Twitter/X Summary Large Image. As imagens sociais horizontais em `covers/social/` são derivadas das capas originais em `covers/podcasts/`, com resolução 1200×630, mantendo a arte editorial. A rotina `scripts/generate_social_covers.py` é executada pelo GitHub Actions quando capas são alteradas.
 - JSON-LD `WebSite`, `Organization`, `PodcastSeries`, `PodcastEpisode`, `AudioObject` e `BreadcrumbList`. `duration` é extraída do catálogo, com áudio M4A já versionado.
-- A página principal inclui links HTML rastreáveis para os sete episódios, mesmo que o navegador não execute JavaScript.
+- A página principal inclui links HTML rastreáveis para todos os episódios, mesmo que o navegador não execute JavaScript.
 - O sitemap é derivado automaticamente do catálogo; não inclui `lastmod` fabricado.
 - O RSS 2.0 possui `enclosure` com tamanho de arquivo verificado pelos testes. Ainda **não é um feed garantidamente aceito por diretórios comerciais**: falta registrar datas reais de publicação e outras exigências de cada plataforma.
 

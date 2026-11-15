@@ -2,7 +2,7 @@
 
 ## Catálogo próprio
 - `src/music.js`: utilitários do player e a categoria única de podcasts de tecnologia.
-- `src/podcasts.js`: sete episódios com créditos, resumos e arquivos M4A versionados.
+- `src/podcasts.js`: episódios com créditos, resumos e arquivos M4A versionados.
 - `covers/podcasts/*.webp`: capas otimizadas dos episódios, sem textos sobre a imagem.
 - `src/podcasts.js`: episódios e fontes jornalísticas conferidas.
 - `src/podcast-ui.js`: UI semântica para listas, detalhes e fontes dos episódios.

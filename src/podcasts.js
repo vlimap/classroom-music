@@ -7,7 +7,12 @@ const summaries = Object.freeze({
   "morris-worm-1988": "Em 1988, um programa experimental se espalhou por computadores conectados e revelou como uma rede ainda jovem podia ser afetada em escala global. A história do Morris Worm ajuda a entender os primeiros desafios de segurança, confiança e responsabilidade na internet.",
   "linus-torvalds-linux-e-git": "A trajetória de Linus Torvalds reúne duas respostas a problemas práticos: um sistema operacional aberto para estudar e experimentar, e uma ferramenta de controle de versão capaz de acompanhar projetos distribuídos. O episódio mostra como colaboração, escala e autonomia transformaram o desenvolvimento de software.",
   "bug-ariane-5": "O lançamento do Ariane 5 terminou em uma falha catastrófica poucos segundos depois da decolagem. Este episódio investiga como uma conversão numérica, uma decisão de reutilização de software e a ausência de uma proteção adequada transformaram um detalhe técnico em uma grande lição de engenharia.",
-  "bug-do-milenio": "Na virada para o ano 2000, empresas e governos revisaram sistemas que armazenavam anos com apenas dois dígitos. Este episódio explica por que o problema parecia ameaçador, como equipes se prepararam e o que essa mobilização ensinou sobre dependências antigas, testes e manutenção de software."
+  "bug-do-milenio": "Na virada para o ano 2000, empresas e governos revisaram sistemas que armazenavam anos com apenas dois dígitos. Este episódio explica por que o problema parecia ameaçador, como equipes se prepararam e o que essa mobilização ensinou sobre dependências antigas, testes e manutenção de software.",
+  "dez-dolares-wannacry": "Em 2017, uma vulnerabilidade conhecida e um pagamento de apenas dez dólares ajudaram a revelar a escala global do WannaCry. O episódio acompanha a cadeia de decisões, o impacto em hospitais e empresas e as lições sobre atualizações, resposta a incidentes e segurança por padrão.",
+  "ada-lovelace-primeiro-algoritmo": "Ada Lovelace percebeu que a máquina analítica poderia manipular símbolos e não apenas números. Este episódio apresenta a visão que levou ao primeiro algoritmo publicado para uma máquina e por que suas ideias continuam presentes na computação.",
+  "eliza-ao-gpt-4o": "Da conversa simulada de ELIZA aos modelos multimodais contemporâneos, este episódio percorre as mudanças na relação entre pessoas e computadores. A história mostra o que evoluiu, o que permanece igual e como a linguagem virou uma interface de computação.",
+  "alan-turing-enigma": "Alan Turing ajudou a transformar a quebra de códigos em um problema de computação sistemática. O episódio conecta a Enigma, as máquinas de criptoanálise e o legado de Turing para a computação moderna.",
+  "grace-hopper-codigo-imperfeito": "Grace Hopper defendeu que computadores deveriam se aproximar da linguagem humana e ajudou a popularizar compiladores. Este episódio usa sua trajetória para discutir código imperfeito, abstração, manutenção e o papel das pessoas na evolução do software."
 });
 
 // Episódios editoriais em produção. Os botões de reprodução só aparecem após
@@ -50,6 +55,26 @@ export const PODCAST_EPISODES = Object.freeze([
   Object.freeze({
     ...episode("bug-do-milenio", "O Bug do Milênio", "2000", "Como equipes de tecnologia se prepararam para o problema dos dois dígitos no ano e evitaram falhas em sistemas essenciais.", "bug-do-milenio.m4a", "/covers/podcasts/bug-do-milenio.webp"),
     duration: 1382.818
+  }),
+  Object.freeze({
+    ...episode("dez-dolares-wannacry", "Como dez dólares pararam o WannaCry", "2017", "Como uma vulnerabilidade e uma resposta de baixo custo ajudaram a conter um dos maiores ataques de ransomware da história.", "dez-dolares-wannacry.m4a", "/covers/podcasts/dez-dolares-wannacry.webp"),
+    duration: 2232.250
+  }),
+  Object.freeze({
+    ...episode("ada-lovelace-primeiro-algoritmo", "Como Ada Lovelace criou o primeiro algoritmo", "1843", "A visão de Ada Lovelace sobre a máquina analítica e o primeiro algoritmo publicado para uma máquina.", "ada-lovelace-primeiro-algoritmo.m4a", "/covers/podcasts/ada-lovelace-primeiro-algoritmo.webp"),
+    duration: 1067.212
+  }),
+  Object.freeze({
+    ...episode("eliza-ao-gpt-4o", "De ELIZA ao GPT-4o", "1966–2024", "Como a conversa entre pessoas e computadores evoluiu dos primeiros programas de linguagem aos modelos multimodais.", "eliza-ao-gpt-4o.m4a", "/covers/podcasts/eliza-ao-gpt-4o.webp"),
+    duration: 831.762
+  }),
+  Object.freeze({
+    ...episode("alan-turing-enigma", "Alan Turing: da Enigma à computação moderna", "1939–1950", "A história de Alan Turing, da criptoanálise da Enigma às ideias que ajudaram a fundar a computação moderna.", "alan-turing-enigma.m4a", "/covers/podcasts/alan-turing-enigma.webp"),
+    duration: 1110.448
+  }),
+  Object.freeze({
+    ...episode("grace-hopper-codigo-imperfeito", "Grace Hopper: a mulher que ensinou computadores a entender nossa linguagem", "1952–1969", "Como Grace Hopper ajudou a criar compiladores e aproximou os computadores da linguagem humana.", "grace-hopper-codigo-imperfeito.m4a", "/covers/podcasts/grace-hopper-codigo-imperfeito.webp"),
+    duration: 1589.336
   })
 ]);
 
