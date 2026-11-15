@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/social
+
+Sitemap: https://classroommusic.vercel.app/sitemap.xml

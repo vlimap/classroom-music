@@ -2,15 +2,45 @@
   "headers": [
     {
       "source": "/covers/podcasts/(.*)",
-      "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/audio/podcasts/(.*)",
-      "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/assets/(.*)",
-      "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
-  ]
+  ],
+  "rewrites": [
+    {
+      "source": "/podcasts/:slug",
+      "destination": "/api/episode?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/feed.xml",
+      "destination": "/api/feed"
+    }
+  ],
+  "trailingSlash": false
 }

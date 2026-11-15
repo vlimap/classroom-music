@@ -4,7 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#151a18">
-  <meta name="description" content="Foco.dev: podcasts sobre tecnologia, histórias de software e engenharia.">
+  <meta name="description" content="Foco.dev: histórias de software, engenharia, segurança digital e pessoas que mudaram a tecnologia.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="author" content="Foco.dev — Produção e curadoria: vlimap">
+  <link rel="canonical" href="https://classroommusic.vercel.app/">
+  <link rel="alternate" type="application/rss+xml" title="RSS dos podcasts Foco.dev" href="https://classroommusic.vercel.app/feed.xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Foco.dev">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://classroommusic.vercel.app/">
+  <meta property="og:title" content="Foco.dev — Podcasts sobre tecnologia">
+  <meta property="og:description" content="Ouça histórias de software, engenharia, segurança digital e pessoas que mudaram a tecnologia.">
+  <meta property="og:image" content="https://classroommusic.vercel.app/covers/podcasts/javascript-em-10-dias.webp">
+  <meta property="og:image:secure_url" content="https://classroommusic.vercel.app/covers/podcasts/javascript-em-10-dias.webp">
+  <meta property="og:image:type" content="image/webp">
+  <meta property="og:image:alt" content="Arte de capa do podcast sobre a criação do JavaScript">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Foco.dev — Podcasts sobre tecnologia">
+  <meta name="twitter:description" content="Histórias de software, engenharia e pessoas que mudaram a tecnologia.">
+  <meta name="twitter:image" content="https://classroommusic.vercel.app/covers/podcasts/javascript-em-10-dias.webp">
+  <meta name="twitter:image:alt" content="Arte de capa do podcast sobre a criação do JavaScript">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://classroommusic.vercel.app/#publisher","name":"Foco.dev","url":"https://classroommusic.vercel.app/","sameAs":["https://github.com/vlimap/classroom-music"]},{"@type":"WebSite","@id":"https://classroommusic.vercel.app/#website","name":"Foco.dev","url":"https://classroommusic.vercel.app/","inLanguage":"pt-BR","description":"Podcasts sobre tecnologia, histórias de software e engenharia.","publisher":{"@id":"https://classroommusic.vercel.app/#publisher"}},{"@type":"PodcastSeries","@id":"https://classroommusic.vercel.app/#podcast-series","name":"Foco.dev — Podcasts de tecnologia","url":"https://classroommusic.vercel.app/","description":"Histórias de software, engenharia e pessoas que mudaram a tecnologia.","inLanguage":"pt-BR","publisher":{"@id":"https://classroommusic.vercel.app/#publisher"}}]}</script>
   <title>Foco.dev — Podcasts de tecnologia</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -84,6 +104,7 @@
             <p id="episode-date" class="episode-meta"></p>
             <div class="heading-actions">
               <button id="episode-play" type="button" class="button primary" disabled hidden aria-disabled="true"><i class="bi bi-play-fill" aria-hidden="true"></i> Ouvir episódio</button>
+              <button id="episode-share" type="button" class="button secondary"><i class="bi bi-share" aria-hidden="true"></i> Compartilhar</button>
             </div>
             <p id="episode-audio-status" class="status" role="status" aria-live="polite">Áudio ainda não publicado.</p>
           </div>
@@ -131,6 +152,18 @@
       </section>
 
     </main>
+    <nav class="site-index-nav" aria-label="Links permanentes dos podcasts">
+      <h2>Todos os podcasts de tecnologia</h2>
+      <ul>
+        <li><a href="/podcasts/javascript-em-10-dias">Os 10 dias que criaram o JavaScript</a></li>
+        <li><a href="/podcasts/margaret-hamilton-apollo-11">Margaret Hamilton e a Apollo 11</a></li>
+        <li><a href="/podcasts/da-apollo-11-ao-caos-do-javascript">Da Apollo 11 ao caos do JavaScript</a></li>
+        <li><a href="/podcasts/morris-worm-1988">O Morris Worm</a></li>
+        <li><a href="/podcasts/linus-torvalds-linux-e-git">Linus Torvalds, Linux e Git</a></li>
+        <li><a href="/podcasts/bug-ariane-5">O bug que destruiu o Ariane 5</a></li>
+        <li><a href="/podcasts/bug-do-milenio">O Bug do Milênio</a></li>
+      </ul>
+    </nav>
     </div>
   </div>
 

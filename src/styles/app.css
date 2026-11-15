@@ -387,3 +387,22 @@ main{min-width:0;padding:48px 0 70px}
 @media(forced-colors:active){
  .desktop-nav button[aria-current="page"]{outline:2px solid Highlight}
 }
+
+/* Links internos rastreáveis no HTML, acessíveis mesmo com JavaScript desativado. */
+.site-index-nav{margin:20px 0 56px;padding:22px 0;border-top:1px solid var(--color-border)}
+.site-index-nav h2{font-size:1rem;font-weight:720;margin:0 0 14px}
+.site-index-nav ul{display:flex;flex-wrap:wrap;gap:8px 20px;list-style:none;margin:0;padding:0}
+.site-index-nav li{max-width:100%}
+.site-index-nav a{font-size:.83rem;color:var(--color-text-muted);text-decoration:none}
+.site-index-nav a:hover{text-decoration:underline;color:var(--color-accent)}
+/* Acionador de compartilhamento independente do botão de curtir. */
+.podcast-share{display:inline-flex;justify-content:center;align-items:center;flex:0 0 44px;
+  width:44px;height:44px;border:0;border-radius:10px;color:var(--color-sage);background:transparent}
+.podcast-share:hover{background:var(--color-accent-soft);color:var(--color-accent)}
+.podcast-share .bi{font-size:1.14rem}
+.podcast-like-count{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.podcast-listeners{margin-left:auto}
+@media(max-width:640px){
+  .site-index-nav{margin-bottom:32px;padding:18px 2px}
+  .site-index-nav ul{display:grid;grid-template-columns:1fr;gap:7px}
+}

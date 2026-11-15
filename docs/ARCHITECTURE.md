@@ -2,7 +2,7 @@
 
 ## Catálogo próprio
 - `src/music.js`: utilitários do player e a categoria única de podcasts de tecnologia.
-- `src/podcasts.js`: cinco episódios editoriais em produção, com créditos e caminhos de áudio.
+- `src/podcasts.js`: sete episódios com créditos, resumos e arquivos M4A versionados.
 - `covers/podcasts/*.webp`: capas otimizadas dos episódios, sem textos sobre a imagem.
 - `src/podcasts.js`: episódios e fontes jornalísticas conferidas.
 - `src/podcast-ui.js`: UI semântica para listas, detalhes e fontes dos episódios.
@@ -14,6 +14,7 @@
 - Faltando mídia, somente os metadados e as fontes aparecem: não há 404 reproduzível.
 - MediaSession fornece controles de mídia quando o navegador suporta.
 - O catálogo é estático: episódios e metadados ficam no repositório; a fila de reprodução é mantida apenas em memória.
+- Páginas de episódio renderizadas por Vercel Functions servem HTML inicial completo com Open Graph e JSON-LD. Sitemap e RSS são gerados por funções a partir do catálogo. Ver `docs/SEO_GEO.md`.
 
 ## Hospedagem e privacidade
 - Catálogo e áudios estáticos na Vercel; uma Function Node.js opcional em `api/social.js` gerencia métricas anônimas via Upstash Redis. Não existe autenticação nem integração com API FreeToUse.
