@@ -5,6 +5,9 @@ qualquer pessoa pode consultar, ouvir e interagir com os podcasts sem conta.
 
 ## Proteções implementadas
 
+- **CI/CD e previews:** configurações do `vercel.json` permitem deployments automáticos somente na `main`, evitando expor branches em Preview e ajudando a preservar a quota Hobby. Os PRs continuam testados pelo GitHub Actions. São possíveis deployments manuais conforme a política Vercel.
+
+
 - **TLS/HTTPS:** hospedagem Vercel; HSTS do domínio atual por 1 ano, sem
   `includeSubDomains` porque o projeto está em `vercel.app`.
 - **Content Security Policy (CSP) em modo de bloqueio:** scripts locais e
@@ -45,10 +48,12 @@ qualquer pessoa pode consultar, ouvir e interagir com os podcasts sem conta.
 2. **Limite por IP pode afetar redes compartilhadas.** Uma turma de máquinas
    sob um mesmo IP poderá atingir HTTP 429. Ajuste os limites com base em
    monitoramento real, evitando eliminar a proteção.
-3. **Rate limit de aplicação não substitui a borda.** Requisições rejeitadas
-   pela própria Function ainda consomem invocações e comandos Redis. Ativar
-   rate limit adicional no Vercel Firewall antes da função, se a conta
-   permitir. O plano Hobby oferece um limite de regra.
+3. **Rate limit de aplicação não substitui a borda.** Foi ativada no
+   Vercel Firewall do projeto `classroommusic` uma regra para `/api/social`
+   (GET e POST) de **120 requisições por 60 segundos por IP**, com resposta
+   HTTP 429 ao exceder. Essa regra atua antes da Function, complementando
+   a limitação mais restritiva por GET/POST existente na aplicação.
+   Ataques distribuídos e a quota da plataforma continuam sendo riscos.
 4. **Dependências externas:** VLibras executa código oficial de terceiros
    no navegador e Bootstrap Icons carrega CSS da CDN. A CSP limita os
    domínios, mas não elimina vulnerabilidades nos provedores; evitar

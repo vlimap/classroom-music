@@ -97,5 +97,12 @@
       "destination": "/api/feed"
     }
   ],
-  "trailingSlash": false
+  "trailingSlash": false,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  }
 }
