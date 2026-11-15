@@ -143,3 +143,8 @@ test("headers globais defendem contra framing, XSS e captura de sensores preserv
   assert.ok(!headers["Permissions-Policy"].includes("web-share=()"));
   assert.ok(config.headers.some(item=>item.source==="/api/social" && item.headers.some(h=>h.key==="Cache-Control" && h.value==="no-store")));
 });
+
+test("somente a main produz deployment automático no Vercel",()=>{
+  const config=JSON.parse(readFileSync(new globalThis.URL("../vercel.json",import.meta.url),"utf8"));
+  assert.deepEqual(config.git?.deploymentEnabled, {"**":false,main:true});
+});
