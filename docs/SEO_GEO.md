@@ -15,7 +15,7 @@ Ações de compartilhamento nos cards e na tela de detalhes usam o endereço can
 ## Metadados e dados estruturados
 
 - `<title>` e descrição únicos por episódio, canonical absoluta e `robots=index,follow,max-image-preview:large`.
-- Open Graph (título, tipo, URL, imagem, descrição e localidade) e Twitter/X Summary Large Image. URLs de imagens absolutas usam as **capas existentes** em `covers/podcasts/` sem inventar novas artes.
+- Open Graph (título, tipo, URL, imagem JPEG, descrição e localidade) e Twitter/X Summary Large Image. As imagens sociais horizontais em `covers/social/` são derivadas das capas originais em `covers/podcasts/`, com resolução 1200×630, mantendo a arte editorial. A rotina `scripts/generate_social_covers.py` é executada pelo GitHub Actions quando capas são alteradas.
 - JSON-LD `WebSite`, `Organization`, `PodcastSeries`, `PodcastEpisode`, `AudioObject` e `BreadcrumbList`. `duration` é extraída do catálogo, com áudio M4A já versionado.
 - A página principal inclui links HTML rastreáveis para os sete episódios, mesmo que o navegador não execute JavaScript.
 - O sitemap é derivado automaticamente do catálogo; não inclui `lastmod` fabricado.
@@ -41,7 +41,7 @@ Exemplos locais:
 - http://127.0.0.1:4173/sitemap.xml
 - http://127.0.0.1:4173/feed.xml
 
-Após o deployment de produção, conferir `HTTP 200` e a presença das tags `og:image` e `canonical` no **HTML recebido** (não apenas no DOM renderizado) para pelo menos dois episódios distintos. Conferir se cada imagem retorna `200` e conteúdo WebP válido.
+Após o deployment de produção, conferir `HTTP 200` e a presença das tags `og:image` e `canonical` no **HTML recebido** (não apenas no DOM renderizado) para pelo menos dois episódios distintos. Conferir se cada imagem social retorna `200`, `image/jpeg` e dimensões 1200×630.
 
 Em Windows PowerShell:
 
@@ -65,7 +65,7 @@ Validar em serviços externos:
 
 - Confirmar e registrar a data efetiva de lançamento de cada episódio; somente então adicionar `datePublished`, `pubDate` e campos de distribuidoras de podcast.
 - Publicar transcrições revisadas dos áudios, com trechos verificáveis e fontes jornalísticas efetivamente utilizadas na produção. Não publicar transcrições inventadas.
-- Conferir o suporte das redes a arquivos `image/webp` em prévias. Se alguma não exibir a imagem, disponibilizar também variantes JPEG/PNG públicas (idealmente 1200×630), antes de trocar `og:image`.
+- Conferir as prévias JPEG (1200×630) em WhatsApp, Facebook, LinkedIn e X usando os validadores oficiais. Depois de alterar uma capa, verificar a execução da workflow de geração das imagens sociais e solicitar atualização do cache dos provedores, se necessário.
 - Adicionar novos episódios em `src/podcasts.js` e atualizar o manifesto de tamanhos `AUDIO_FILE_BYTES` se houver novo áudio. Testes de CI impedem divergências entre o manifesto e os arquivos.
 
 ## Referências oficiais

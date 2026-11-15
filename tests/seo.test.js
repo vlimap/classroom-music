@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { PODCAST_EPISODES } from "../src/podcasts.js";
-import episodeApi, { episodeStructuredData, episodeUrl, renderEpisodeHtml, escapeHtml } from "../api/episode.js";
+import episodeApi, { episodeStructuredData, episodeUrl, socialCoverUrl, renderEpisodeHtml, escapeHtml } from "../api/episode.js";
 import sitemapApi, { renderSitemap } from "../api/sitemap.js";
 import feedApi, { renderFeed, AUDIO_FILE_BYTES } from "../api/feed.js";
 import { getEpisodeShareUrl } from "../src/share.js";
@@ -25,15 +25,22 @@ test("cada episódio tem URL canônica distinta, indexável e com capa própria 
     assert.ok(html.includes('rel="canonical" href="' + url + '"'));
     assert.ok(html.includes('<meta property="og:url" content="' + url + '">'));
     assert.ok(html.includes('property="og:title" content="' + escapeHtml(episode.title + " | Foco.dev") + '"'));
-    assert.ok(html.includes('property="og:image" content="' + origin + episode.artwork + '"'));
+    assert.ok(html.includes('property="og:image" content="' + socialCoverUrl(episode) + '"'));
     assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
-    assert.ok(html.includes('<meta name="twitter:image" content="' + origin + episode.artwork + '">'));
+    assert.ok(html.includes('<meta name="twitter:image" content="' + socialCoverUrl(episode) + '">'));
     assert.ok(html.includes("<h1>" + escapeHtml(episode.title) + "</h1>"));
     assert.ok(html.includes(escapeHtml(episode.summary)));
     assert.ok(html.includes('href="/?episode=' + episode.id + '"'));
     assert.match(html, /max-image-preview:large/);
     assert.doesNotMatch(html, /<meta name="keywords"/);
     assert.ok(statSync(fileURLToPath(new URL(".." + episode.artwork, import.meta.url))).isFile());
+    const jpegFile = readFileSync(new URL("../covers/social/" + episode.id + ".jpg", import.meta.url));
+    assert.equal(jpegFile[0], 0xff);
+    assert.equal(jpegFile[1], 0xd8);
+    assert.equal(jpegFile[2], 0xff);
+    assert.ok(jpegFile.length < 5_000_000);
+    assert.ok(html.includes('<meta property="og:image:width" content="1200">'));
+    assert.ok(html.includes('<meta property="og:image:height" content="630">'));
   }
 });
 test("JSON-LD relaciona PodcastSeries, PodcastEpisode, AudioObject e BreadcrumbList sem inventar datas", () => {

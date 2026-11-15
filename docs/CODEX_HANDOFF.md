@@ -23,6 +23,7 @@ Os sete áudios M4A já estão versionados em `audio/podcasts/`. Conferir locuç
 - Permalinks `/podcasts/:slug` renderizados por `api/episode.js` na Vercel.
 - `/sitemap.xml` e `/feed.xml` gerados automaticamente; manter o arquivo `AUDIO_FILE_BYTES` atualizado para novos áudios.
 - `src/share.js` abre o compartilhamento nativo/copia URLs canônicas; `/?episode=id` volta ao player.
+- `covers/social/*.jpg` fornece prévias JPEG horizontais; workflow `.github/workflows/social-covers.yml` mantém as imagens derivadas em sincronia com as capas WebP.
 - Consulte `docs/SEO_GEO.md` para validações de indexação e de card social.
 
 ## Validação
