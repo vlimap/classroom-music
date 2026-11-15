@@ -25,6 +25,10 @@ Consulte [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md) para as regras,
 os controles operacionais, limitações dos contadores anônimos e riscos
 residuais. Não há promessa de segurança absoluta ou de proteção DRM.
 
+O Vercel está configurado para publicar automaticamente apenas a branch `main`;
+PRs e branches de trabalho são validados pelo GitHub Actions sem gerar
+deployments de Preview. Isso ajuda a preservar a quota do plano Hobby.
+
 ## Desenvolvimento
 
 ```bash
