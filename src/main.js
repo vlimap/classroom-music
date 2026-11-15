@@ -409,11 +409,16 @@ function init(){
   podcastUI=createPodcastUI({
     showView:view=>setView(view),
     social,
+    announce:say,
     isAvailable:id=>state.playableIds.has(id),
     playEpisode:episode=>playFromTrack(episode,publishedCatalog.filter(track=>state.playableIds.has(track.id))),
   });
   initPreferences();initVLibrasBrand();initNavigation();initPlayer();
   renderCategories();void fetchCategories();
+  // Links públicos levam ao mesmo player e preservam a experiência de reprodução.
+  const initialEpisode=new URLSearchParams(window.location.search).get("episode");
+  if(initialEpisode && PODCAST_EPISODES.some(episode=>episode.id===initialEpisode))
+    podcastUI.openEpisode(initialEpisode);
   void social.refresh();
   void refreshPublishedMedia();
 }
