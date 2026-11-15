@@ -3,6 +3,7 @@ import { getPodcast, PODCAST_EPISODES } from "../src/podcasts.js";
 export const SITE_URL = "https://classroommusic.vercel.app";
 export const episodeUrl = id => SITE_URL + "/podcasts/" + encodeURIComponent(id);
 export const coverUrl = episode => SITE_URL + episode.artwork;
+export const socialCoverUrl = episode => SITE_URL + "/covers/social/" + encodeURIComponent(episode.id) + ".jpg";
 
 export function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -78,7 +79,7 @@ export function episodeStructuredData(episode) {
 export function renderEpisodeHtml(episode) {
   const e = escapeHtml;
   const url = episodeUrl(episode.id);
-  const image = coverUrl(episode);
+  const image = socialCoverUrl(episode);
   const isHistorical = /^\d/.test(episode.date);
   const context = isHistorical ? "Contexto histórico: " + episode.date : "Edição especial";
   const duration = Math.round(episode.duration || 0);
@@ -103,7 +104,9 @@ export function renderEpisodeHtml(episode) {
     makeMeta("og:url", url, true),
     makeMeta("og:image", image, true),
     makeMeta("og:image:secure_url", image, true),
-    makeMeta("og:image:type", "image/webp", true),
+    makeMeta("og:image:type", "image/jpeg", true),
+    makeMeta("og:image:width", "1200", true),
+    makeMeta("og:image:height", "630", true),
     makeMeta("og:image:alt", "Arte de capa do podcast " + episode.title, true),
     makeMeta("og:audio", SITE_URL + episode.audio, true),
     makeMeta("og:audio:type", "audio/mp4", true),
