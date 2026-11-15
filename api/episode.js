@@ -124,6 +124,7 @@ export function renderEpisodeHtml(episode) {
     "  <title>" + e(episode.title) + " | Foco.dev — Podcast</title>",
     "  " + tags,
     '  <link rel="canonical" href="' + e(url) + '">',
+    '  <link rel="alternate" type="application/rss+xml" title="RSS dos podcasts Foco.dev" href="/feed.xml">',
     '  <link rel="icon" type="image/svg+xml" href="/logo.svg">',
     '  <script type="application/ld+json">' + ld(episodeStructuredData(episode)) + '</script>',
     '  <link rel="stylesheet" href="/src/styles/tokens.css">',
