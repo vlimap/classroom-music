@@ -4,18 +4,11 @@ Catálogo acessível de podcasts sobre tecnologia, com player, fila e cards comp
 
 ## Conteúdo atual
 
-O catálogo editorial está organizado em oito episódios:
+O catálogo tem **sete episódios publicados com áudio**, incluindo JavaScript, Margaret Hamilton e a Apollo 11, o Morris Worm, Linux/Git, o Ariane 5 e o Bug do Milênio. As datas informadas no catálogo são dos acontecimentos, não de lançamento.
 
-- A criação do JavaScript em 10 dias (1995)
-- Margaret Hamilton e a Apollo 11 (1969)
-- Da Apollo 11 ao caos do JavaScript (especial)
-- O bug que destruiu o Ariane 5 (1996)
-- O Bug do Milênio (2000)
-- O Morris Worm (1988)
-- Linus Torvalds, Linux e Git
-- O bug da Knight Capital (2012)
+Cada episódio possui uma página pública própria para prévia em redes sociais e mecanismos de busca, como [Os 10 dias que criaram o JavaScript](https://classroommusic.vercel.app/podcasts/javascript-em-10-dias). Os cards e a página do episódio têm ações para compartilhar o permalink canônico.
 
-Os créditos de produção e curadoria são exibidos nos metadados do episódio e no player. Os controles de reprodução só são habilitados depois que o áudio correspondente existe em `audio/podcasts/`.
+A implementação SEO/GEO inclui Open Graph, Twitter Card, `PodcastEpisode` JSON-LD, sitemap, RSS e conteúdo editorial renderizado no servidor. Consulte [docs/SEO_GEO.md](docs/SEO_GEO.md) para configuração e validação.
 
 ## Desenvolvimento
 
@@ -34,5 +27,8 @@ Coloque os áudios finais em `audio/podcasts/` usando os nomes definidos em `src
 - `src/main.js`: player, fila, busca, navegação e registro de reprodução
 - `src/social.js`: estado de curtidas e métricas
 - `api/social.js`: API Vercel com contagem persistente no Upstash Redis
+- `api/episode.js`: páginas públicas compartilháveis com SEO e GEO
+- `api/sitemap.js`, `api/feed.js`: sitemap e feed RSS
+- `src/share.js`: Web Share API e cópia de permalink
 - `audio/podcasts/`: arquivos finais dos episódios
 - `docs/`: documentação editorial e de acessibilidade
