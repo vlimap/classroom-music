@@ -2,6 +2,7 @@ import { CATEGORIES, formatTime, timeDescription, nextIndex, previousIndex, read
 import { PODCAST_EPISODES, canonicalPodcastId } from "./podcasts.js";
 import { createPodcastUI } from "./podcast-ui.js";
 import { createSocial } from "./social.js";
+import { sortPodcastsByEngagement } from "./ranking.js";
 import { filterPodcastEpisodes } from "./search.js";
 
 const $=id=>document.getElementById(id);
@@ -104,7 +105,9 @@ function renderSongs(target,tracks,{mode="catalog"}={}){
 }
 async function doSearch(value=$("search-query").value){
   const term=value.trim();
-  const found=term?filterPodcastEpisodes(publishedCatalog,term):[];
+  const found=term?sortPodcastsByEngagement(
+    filterPodcastEpisodes(publishedCatalog,term), id=>social.snapshot(id)
+  ):[];
   state.searchResults=found;
   renderSongs("search-results",found);
   $("search-status").textContent=term
@@ -405,7 +408,10 @@ async function refreshPublishedMedia(){
   podcastUI?.updateAudioAvailability();
 }
 function init(){
-  social=createSocial({onChange:()=>podcastUI?.updateSocial(),onError:say});
+  social=createSocial({onChange:()=>{
+    podcastUI?.updateSocial();
+    if(state.view==="search")void doSearch();
+  },onError:say});
   podcastUI=createPodcastUI({
     showView:view=>setView(view),
     social,
