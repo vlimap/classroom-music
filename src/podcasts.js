@@ -12,7 +12,7 @@ const summaries = Object.freeze({
   "ada-lovelace-primeiro-algoritmo": "Ada Lovelace percebeu que a máquina analítica poderia manipular símbolos e não apenas números. Este episódio apresenta a visão que levou ao primeiro algoritmo publicado para uma máquina e por que suas ideias continuam presentes na computação.",
   "eliza-ao-gpt-4o": "Da conversa simulada de ELIZA aos modelos multimodais contemporâneos, este episódio percorre as mudanças na relação entre pessoas e computadores. A história mostra o que evoluiu, o que permanece igual e como a linguagem virou uma interface de computação.",
   "alan-turing-enigma": "Alan Turing ajudou a transformar a quebra de códigos em um problema de computação sistemática. O episódio conecta a Enigma, as máquinas de criptoanálise e o legado de Turing para a computação moderna.",
-  "grace-hopper-codigo-imperfeito": "Grace Hopper defendeu que computadores deveriam se aproximar da linguagem humana e ajudou a popularizar compiladores. Este episódio usa sua trajetória para discutir código imperfeito, abstração, manutenção e o papel das pessoas na evolução do software."
+  "leis-de-asimov": "As Leis de Asimov parecem simples, mas situações reais revelam conflitos entre ordens, segurança e autonomia. Este episódio discute por que regras bem-intencionadas falham quando não conseguem prever contexto, ambiguidades e consequências inesperadas."
 });
 
 // Episódios editoriais em produção. Os botões de reprodução só aparecem após
@@ -73,8 +73,8 @@ export const PODCAST_EPISODES = Object.freeze([
     duration: 1110.448
   }),
   Object.freeze({
-    ...episode("grace-hopper-codigo-imperfeito", "Grace Hopper: a mulher que ensinou computadores a entender nossa linguagem", "1952–1969", "Como Grace Hopper ajudou a criar compiladores e aproximou os computadores da linguagem humana.", "grace-hopper-codigo-imperfeito.m4a", "/covers/podcasts/grace-hopper-codigo-imperfeito.webp"),
-    duration: 1589.336
+    ...episode("leis-de-asimov", "Por que as Leis de Asimov falham", "1942–1985", "Por que regras simples para robôs entram em conflito quando enfrentam situações reais, ambiguidades e consequências inesperadas.", "leis-de-asimov.m4a", "/covers/podcasts/leis-de-asimov.webp"),
+    duration: 1301.293
   })
 ]);
 

@@ -15,7 +15,7 @@ export const AUDIO_FILE_BYTES = Object.freeze({
   "ada-lovelace-primeiro-algoritmo": 13016679,
   "eliza-ao-gpt-4o": 10148708,
   "alan-turing-enigma": 13543274,
-  "grace-hopper-codigo-imperfeito": 19376250
+  "leis-de-asimov": 15867744
 });
 
 function xml(value) {
