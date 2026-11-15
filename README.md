@@ -8,6 +8,8 @@ O catálogo tem **sete episódios publicados com áudio**, incluindo JavaScript,
 
 Cada episódio possui uma página pública própria para prévia em redes sociais e mecanismos de busca, como [Os 10 dias que criaram o JavaScript](https://classroommusic.vercel.app/podcasts/javascript-em-10-dias). Os cards e a página do episódio têm ações para compartilhar o permalink canônico.
 
+As imagens de compartilhamento são JPEGs 1200×630, gerados a partir das capas do catálogo e versionados em `covers/social/`. Alterações de arte executam a workflow de geração automaticamente.
+
 A implementação SEO/GEO inclui Open Graph, Twitter Card, `PodcastEpisode` JSON-LD, sitemap, RSS e conteúdo editorial renderizado no servidor. Consulte [docs/SEO_GEO.md](docs/SEO_GEO.md) para configuração e validação.
 
 ## Desenvolvimento
