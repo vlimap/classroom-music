@@ -1,9 +1,10 @@
 import { PODCAST_EPISODES, getPodcast } from "./podcasts.js";
 import { filterPodcastEpisodes, normalizeSearchText } from "./search.js";
+import { sharePodcast } from "./share.js";
 
 const $ = id => document.getElementById(id);
 
-export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable, social }) {
+export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable, social, announce = () => {} }) {
   let activeEpisode = null;
 
   function formatEpisodeDate(isoDate) {
@@ -98,9 +99,19 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     count.className = "podcast-like-count";
     like.append(icon, count);
     like.addEventListener("click", () => void social.toggleLike(episode.id));
+    const share = document.createElement("button");
+    share.className = "podcast-share";
+    share.type = "button";
+    share.title = "Compartilhar episódio";
+    share.setAttribute("aria-label", "Compartilhar " + episode.title);
+    const shareIcon = document.createElement("i");
+    shareIcon.className = "bi bi-share";
+    shareIcon.setAttribute("aria-hidden", "true");
+    share.append(shareIcon);
+    share.addEventListener("click", () => void sharePodcast(episode, announce));
     const listeners = document.createElement("span");
     listeners.className = "podcast-listeners";
-    socialBar.append(like, listeners);
+    socialBar.append(like, share, listeners);
     card.append(open, socialBar);
     updateSocialCard(card);
     return card;
@@ -178,6 +189,9 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
   $("back-podcasts").addEventListener("click", openPodcasts);
   $("episode-play").addEventListener("click", () => {
     if (activeEpisode && isAvailable(activeEpisode.id)) playEpisode(activeEpisode);
+  });
+  $("episode-share").addEventListener("click", () => {
+    if (activeEpisode) void sharePodcast(activeEpisode, announce);
   });
 
   return { openPodcasts, openEpisode, renderList, updateAudioAvailability, updateSocial };
