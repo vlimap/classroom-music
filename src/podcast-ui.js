@@ -1,4 +1,5 @@
 import { PODCAST_EPISODES, getPodcast } from "./podcasts.js";
+import { filterPodcastEpisodes, normalizeSearchText } from "./search.js";
 
 const $ = id => document.getElementById(id);
 
@@ -106,14 +107,24 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
   }
 
   function renderList() {
-    const makeFragment = () => {
+    const makeFragment = episodes => {
       const fragment = document.createDocumentFragment();
-      PODCAST_EPISODES.forEach((episode, index) => fragment.append(episodeCard(episode, index === 0)));
+      episodes.forEach((episode, index) => fragment.append(episodeCard(episode, index === 0)));
       return fragment;
     };
-    $("podcast-grid").replaceChildren(makeFragment());
+
+    $("podcast-grid").replaceChildren(makeFragment(PODCAST_EPISODES));
     const discoverGrid = $("discover-podcast-grid");
-    if (discoverGrid) discoverGrid.replaceChildren(makeFragment());
+    if (discoverGrid) {
+      const query = $("discover-search-query").value;
+      const matches = filterPodcastEpisodes(PODCAST_EPISODES, query);
+      discoverGrid.replaceChildren(makeFragment(matches));
+      const isSearching = Boolean(normalizeSearchText(query));
+      $("category-status").textContent = isSearching
+        ? matches.length + (matches.length === 1 ? " episódio encontrado." : " episódios encontrados.")
+        : PODCAST_EPISODES.length + " episódios de tecnologia.";
+      $("discover-search-empty").hidden = matches.length !== 0;
+    }
     $("podcasts-status").textContent = PODCAST_EPISODES.length + " episódio(s).";
     updateSocial();
   }
