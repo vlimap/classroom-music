@@ -26,22 +26,28 @@ return redis.call("SCARD", KEYS[1])
 function send(value, status = 200) {
   return new Response(JSON.stringify(value), { status, headers: jsonHeaders });
 }
+// A integração Upstash do Vercel Marketplace pode injetar as credenciais
+// com nomes KV_REST_API_*. Mantemos os nomes UPSTASH_* para uso externo/local.
+function redisCredentials() {
+  return {
+    url: process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN
+  };
+}
 function isConfigured() {
-  return Boolean(
-    process.env.UPSTASH_REDIS_REST_URL &&
-    process.env.UPSTASH_REDIS_REST_TOKEN &&
-    process.env.SOCIAL_ID_SECRET?.length >= 32
-  );
+  const {url, token} = redisCredentials();
+  return Boolean(url && token && process.env.SOCIAL_ID_SECRET?.length >= 32);
 }
 function hash(value) {
   return createHmac("sha256", process.env.SOCIAL_ID_SECRET).update(value).digest("hex");
 }
 async function redis(commands, pipeline = false) {
-  const base = process.env.UPSTASH_REDIS_REST_URL.replace(/\/$/, "");
+  const credentials = redisCredentials();
+  const base = credentials.url.replace(/\/$/, "");
   const response = await fetch(base + (pipeline ? "/pipeline" : ""), {
     method: "POST",
     headers: {
-      authorization: "Bearer " + process.env.UPSTASH_REDIS_REST_TOKEN,
+      authorization: "Bearer " + credentials.token,
       "content-type": "application/json"
     },
     body: JSON.stringify(commands),

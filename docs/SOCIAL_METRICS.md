@@ -12,27 +12,64 @@ guarda um identificador aleatório (UUID v4) no localStorage. O servidor armazen
 apenas um hash HMAC-SHA256 desse identificador, sem nome ou e-mail.
 IP também é transformado em hash para limitação de requisições (TTL de 60s).
 
-## Ativar em produção (Vercel)
+## Ativar a persistência pela Vercel (recomendado)
 
-1. Criar um banco **Upstash Redis** em https://console.upstash.com/ ou pela
-   integração da Vercel. Copiar a **REST URL** e o **REST TOKEN**.
-2. No projeto Vercel que atende **classroommusic.vercel.app**, ir a
-   Settings > Environment Variables e cadastrar:
-   - `UPSTASH_REDIS_REST_URL`: URL HTTPS do Redis.
-   - `UPSTASH_REDIS_REST_TOKEN`: token REST secreto.
-   - `SOCIAL_ID_SECRET`: segredo aleatório com pelo menos 32 caracteres.
-3. Gerar segredo no PowerShell do Windows 11:
+O serviço é o **Upstash for Redis**, criado e gerenciado pelo Vercel
+Marketplace. Não usar `@vercel/kv`: o Vercel KV foi descontinuado.
+
+1. Acessar https://vercel.com/dashboard e selecionar o projeto que publica
+   `https://classroommusic.vercel.app` (verificar o domínio em Settings > Domains).
+2. Abrir **Infrastructure > Storage** (ou a aba **Storage**, dependendo do painel),
+   selecionar **Create Database** e escolher **Upstash for Redis**.
+   Link direto para o provedor: https://vercel.com/marketplace/upstash/upstash-kv
+3. Instalar a integração. É possível criar uma conta Upstash gerenciada pela
+   Vercel; escolher um nome como `focodev-social`, região próxima à função e
+   o plano Free enquanto o volume permitir. Para estatísticas históricas,
+   **não habilitar eviction**; se o limite de armazenamento for atingido,
+   aumentar o plano em vez de descartar dados antigos.
+4. Selecionar **Connect Project**, escolher o projeto que atende o domínio
+   `classroommusic.vercel.app` e habilitar **Production**. Se quiser
+   ambientes de preview, usar preferencialmente um banco separado para que
+   testes não contaminem as contagens de produção.
+5. Em **Settings > Environment Variables**, conferir que a integração
+   incluiu credenciais. Este código aceita um dos pares:
+   - `KV_REST_API_URL` e `KV_REST_API_TOKEN` (nomes do Marketplace);
+   - `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN` (nomes Upstash).
+
+   Nenhuma cópia manual desses valores é necessária quando o Marketplace
+   já os injeta no projeto.
+6. Adicionar manualmente **uma** variável de ambiente em Production:
+   `SOCIAL_ID_SECRET`, com no mínimo 32 caracteres aleatórios. Gerar
+   o valor no PowerShell (Windows 11):
 
    ```powershell
    node --input-type=module -e "import { randomBytes } from 'node:crypto'; console.log(randomBytes(32).toString('hex'))"
    ```
 
-4. Marcar as variáveis para o ambiente **Production** (e Preview, se desejado).
-5. Fazer um novo deployment para que a Function `/api/social` receba
-   as variáveis. Nunca incluir credenciais no GitHub ou em JavaScript público.
+   Manter esse segredo estável entre deploys: trocá-lo altera os hashes
+   de deduplicação dos navegadores.
+7. Fazer **Redeploy** da implantação de produção para carregar as variáveis
+   recém-adicionadas, caso a integração não crie um novo deployment.
+8. Acessar `https://classroommusic.vercel.app/api/social`. Com a conexão
+   ativa, a API deve responder HTTP 200 e devolver `{"stats":{...}}` com
+   os episódios; antes de configurar, devolve HTTP 503.
+   Abrir o site, curtir um episódio, atualizar e confirmar que a curtida
+   persiste; iniciar reprodução e acumular 30 segundos efetivos para
+   contabilizar um navegador ouvinte.
 
-As novas métricas começam em **zero**. Não é possível inferir reproduções
-ou curtidas anteriores à ativação do serviço.
+Para inspecionar os registros persistentes, o painel da Vercel oferece
+**Infrastructure > Storage > banco Redis > Browser / CLI** para proprietários
+da equipe. Chaves de exemplo: `foco:social:likes:javascript-em-10-dias`
+e `foco:social:listeners:javascript-em-10-dias`.
+
+As contagens começam em **zero** quando o banco é criado: não há como
+recuperar reproduções nem curtidas anteriores à sua ativação.
+
+Referências oficiais:
+- https://vercel.com/docs/marketplace-storage
+- https://vercel.com/docs/redis
+- https://upstash.com/docs/redis/howto/vercelintegration
+- https://upstash.com/docs/redis/features/durability
 
 ### Testar no Windows 11
 
@@ -43,7 +80,7 @@ $env:SOCIAL_ID_SECRET="SEGREDO-GERADO-ACIMA"
 npm run dev
 ```
 
-Abrir `http://127.0.0.1:4173`. Sem as variáveis, a API retorna HTTP 503;
+Abrir `http://127.0.0.1:4173`. Sem as credenciais e o segredo, a API retorna HTTP 503;
 a interface mostra `—` (indisponível), **nunca inventa contagens**.
 
 ## Regras de contabilização
