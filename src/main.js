@@ -5,13 +5,9 @@ import { createSocial } from "./social.js";
 import { sortPodcastsByEngagement } from "./ranking.js";
 import { filterPodcastEpisodes } from "./search.js";
 import { createListeningTracker } from "./listening.js";
-import { updateTrackRow } from "./track-rows.js";
+import { updateTrackRow, renderTrackList } from "./track-rows.js";
 
 const $=id=>document.getElementById(id);
-function safeHttpsUrl(value){
-  try{const url=new URL(value);return url.protocol==="https:"?url.href:"";}
-  catch{return "";}
-}
 const KEY="focodev:";
 const publishedCatalog=[...PODCAST_EPISODES];
 const state={
@@ -30,19 +26,6 @@ function say(message){$("announcer").textContent=message;}
 function safeStorage(){try{return window.localStorage;}catch{return null;}}
 const storage=safeStorage();
 if(storage)state.volume=Math.max(0,Math.min(100,Number(readJsonStorage(KEY+"volume",40))||40));
-function icon(name){const i=document.createElement("i");i.className="bi bi-"+name;i.setAttribute("aria-hidden","true");return i;}
-function button(text,iconName,handler,cls="button secondary"){
-  const b=document.createElement("button");b.type="button";b.className=cls;
-  if(iconName)b.append(icon(iconName));
-  if(text)b.append(document.createTextNode(text));
-  b.addEventListener("click",handler);return b;
-}
-function image(src,alt="",cls="",fallback="/logo.svg"){
-  const img=document.createElement("img");img.className=cls;img.alt=alt;img.loading="lazy";img.decoding="async";
-  img.src=src?.startsWith("/covers/")?src:safeHttpsUrl(src)||fallback;
-  img.addEventListener("error",()=>{if(!img.src.endsWith(fallback))img.src=fallback;});
-  return img;
-}
 function setView(view,{focus=true}={}){
   const names=["discover","search","podcasts","episode","about","queue"];
   if(!names.includes(view))return;
@@ -74,57 +57,19 @@ function syncTrackRows() {
   }
 }
 
-function renderSongs(target,tracks,{mode="catalog"}={}) {
-  const container=$(target);
-  const fragment=document.createDocumentFragment();
-  for(const track of tracks) {
-    const row=document.createElement("div");
-    row.className="song-row";
-    row.dataset.podcastId=track.id;
-    row.dataset.podcastTitle=track.title;
-    const category=CATEGORIES.find(c=>c.id===track.categoryId);
-    row.append(image(track.artwork,"","",category?.artwork||"/logo.svg"));
-    const info=document.createElement("div");
-    info.className="song-details";
-    const name=document.createElement("strong");
-    name.textContent=track.title;
-    const audioAvailable=state.playableIds.has(canonicalPodcastId(track.id));
-    const meta=document.createElement("small");
-    meta.className="song-meta";
-    const author=document.createElement("span");
-    author.className="song-author";
-    author.textContent=(track.artist||"Foco.dev")+(audioAvailable?"":" · Áudio em preparação");
-    const playbackStatus=document.createElement("span");
-    playbackStatus.className="song-playback-status";
-    playbackStatus.textContent="Reproduzindo";
-    playbackStatus.hidden=true;
-    const listeners=document.createElement("span");
-    listeners.className="song-listeners";
-    meta.append(author,playbackStatus,listeners);
-    info.append(name,meta);
-    row.append(info);
-    const time=document.createElement("span");
-    time.className="song-time";
-    time.textContent=track.duration>0?formatTime(track.duration):"—";
-    row.append(time);
-    const actions=document.createElement("div");
-    actions.className="song-actions";
-    if(audioAvailable){
-      const collection=mode==="queue"?state.queue:publishedCatalog;
-      const playButton=button("","play-fill",()=>toggleTrackPlayback(track,collection),"song-play-toggle");
-      actions.append(playButton);
-    }
-    if(PODCAST_EPISODES.some(episode=>episode.id===canonicalPodcastId(track.id))){
-      const episodeButton=button("","info-circle",()=>void podcastUI?.openEpisode(track.id),"song-info-button");
-      episodeButton.setAttribute("aria-label","Ver episódio "+track.title);
-      episodeButton.title="Ver episódio";
-      actions.append(episodeButton);
-    }
-    row.append(actions);
-    fragment.append(row);
-  }
-  container.replaceChildren(fragment);
-  syncTrackRows();
+function renderSongs(target, tracks, {mode="catalog"}={}) {
+  const collection = mode === "queue" ? state.queue : publishedCatalog;
+  renderTrackList({
+    container:$(target),
+    tracks,
+    canPlay:track=>state.playableIds.has(canonicalPodcastId(track.id)),
+    onToggle:track=>toggleTrackPlayback(track,collection),
+    hasDetails:track=>PODCAST_EPISODES.some(episode=>episode.id===canonicalPodcastId(track.id)),
+    onDetails:track=>void podcastUI?.openEpisode(track.id),
+    fallbackArtwork:track=>CATEGORIES.find(c=>c.id===track.categoryId)?.artwork||"/logo.svg",
+    formatDuration:formatTime,
+    onRendered:syncTrackRows
+  });
 }
 
 function toggleTrackPlayback(track,collection) {
