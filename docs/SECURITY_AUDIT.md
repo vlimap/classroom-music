@@ -5,6 +5,9 @@ qualquer pessoa pode consultar, ouvir e interagir com os podcasts sem conta.
 
 ## Proteções implementadas
 
+- **CI/CD e previews:** configurações do `vercel.json` permitem deployments automáticos somente na `main`, evitando expor branches em Preview e ajudando a preservar a quota Hobby. Os PRs continuam testados pelo GitHub Actions. São possíveis deployments manuais conforme a política Vercel.
+
+
 - **TLS/HTTPS:** hospedagem Vercel; HSTS do domínio atual por 1 ano, sem
   `includeSubDomains` porque o projeto está em `vercel.app`.
 - **Content Security Policy (CSP) em modo de bloqueio:** scripts locais e
