@@ -3,7 +3,7 @@
 ## Catálogo próprio
 - `src/music.js`: utilitários do player e a categoria única de podcasts de tecnologia.
 - `src/podcasts.js`: cinco episódios editoriais em produção, com créditos e caminhos de áudio.
-- `covers/categories/*.svg`: artes vetoriais originais, sem textos.
+- `covers/podcasts/*.webp`: capas otimizadas dos episódios, sem textos sobre a imagem.
 - `src/podcasts.js`: episódios e fontes jornalísticas conferidas.
 - `src/podcast-ui.js`: UI semântica para listas, detalhes e fontes dos episódios.
 
@@ -13,7 +13,7 @@
 - `HEAD` verifica se o recurso existe e responde com MIME de áudio antes de liberar o botão Ouvir.
 - Faltando mídia, somente os metadados e as fontes aparecem: não há 404 reproduzível.
 - MediaSession fornece controles de mídia quando o navegador suporta.
-- Playlist local: `localStorage` + URL hash autocontida. Compatibilidade de leitura de `IndexedDB` para playlists antigas, sem painel de upload.
+- O catálogo é estático: episódios e metadados ficam no repositório; a fila de reprodução é mantida apenas em memória.
 
 ## Hospedagem e privacidade
 - Vercel estática, sem funções serverless, autenticação, banco ou API FreeToUse.

@@ -14,15 +14,18 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     });
   }
 
-  function episodeCard(episode) {
+  function episodeCard(episode, priority = false) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "podcast-card";
-    button.setAttribute("aria-label", "Abrir " + episode.title);
     const image = document.createElement("img");
-    image.src = episode.artwork;
+    image.src = episode.cardArtwork || episode.artwork;
     image.alt = "";
-    image.loading = "lazy";
+    image.width = 320;
+    image.height = 180;
+    image.decoding = "async";
+    image.loading = priority ? "eager" : "lazy";
+    if (priority) image.fetchPriority = "high";
     const description = document.createElement("span");
     description.className = "podcast-card-body";
     const date = document.createElement("small");
@@ -41,7 +44,7 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
   function renderList() {
     const makeFragment = () => {
       const fragment = document.createDocumentFragment();
-      for (const episode of PODCAST_EPISODES) fragment.append(episodeCard(episode));
+      PODCAST_EPISODES.forEach((episode, index) => fragment.append(episodeCard(episode, index === 0)));
       return fragment;
     };
     $("podcast-grid").replaceChildren(makeFragment());

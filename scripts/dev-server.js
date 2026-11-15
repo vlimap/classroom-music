@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
+import { createGzip } from 'node:zlib';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -40,6 +41,11 @@ createServer(async (req, res) => {
     const headers = {
       'Content-Type': types[extname(file).toLowerCase()] || 'application/octet-stream',
       'Accept-Ranges': 'bytes',
+      'Cache-Control': pathname === '/' || pathname === '/index.html'
+        ? 'no-cache'
+        : /\/(covers|assets)\//.test(pathname)
+          ? 'public, max-age=31536000, immutable'
+          : 'no-cache',
     };
     let start = 0;
     let end = info.size - 1;
@@ -63,10 +69,24 @@ createServer(async (req, res) => {
       status = 206;
       headers['Content-Range'] = `bytes ${start}-${end}/${info.size}`;
     }
-    headers['Content-Length'] = Math.max(0, end - start + 1);
+    const isRange = status === 206;
+    const canCompress = !isRange
+      && req.method !== 'HEAD'
+      && /^(text\/|application\/(javascript|json|xml))/.test(headers['Content-Type'])
+      && /\bgzip\b/.test(req.headers['accept-encoding'] || '');
+    if (canCompress) {
+      headers['Content-Encoding'] = 'gzip';
+      headers['Vary'] = 'Accept-Encoding';
+    } else {
+      headers['Content-Length'] = Math.max(0, end - start + 1);
+    }
     res.writeHead(status, headers);
     if (req.method === 'HEAD' || info.size === 0) res.end();
-    else createReadStream(file, { start, end }).on('error', () => res.destroy()).pipe(res);
+    else {
+      const stream = createReadStream(file, { start, end }).on('error', () => res.destroy());
+      if (canCompress) stream.pipe(createGzip()).pipe(res);
+      else stream.pipe(res);
+    }
   } catch {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Arquivo não encontrado');
   }

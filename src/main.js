@@ -2,10 +2,6 @@ import { CATEGORIES, formatTime, timeDescription, nextIndex, previousIndex, read
 import { PODCAST_EPISODES, canonicalPodcastId } from "./podcasts.js";
 import { createPodcastUI } from "./podcast-ui.js";
 
-import { cleanPlaylist, readPlaylists, savePlaylists, shareUrl, decodeShare, MAX_PLAYLISTS, MAX_TRACKS } from "./playlists.js";
-
-import { openAudioDb, listStoredAudio, toPlaylistTrack } from "./local-audio.js";
-
 const $=id=>document.getElementById(id);
 function safeHttpsUrl(value){
   try{const url=new URL(value);return url.protocol==="https:"?url.href:"";}
@@ -13,34 +9,22 @@ function safeHttpsUrl(value){
 }
 const KEY="focodev:";
 const publishedCatalog=[...PODCAST_EPISODES];
-const localTracks=publishedCatalog.map(t=>({
-  id:t.id,source:"published",title:t.title,artist:t.artist,
-  artwork:t.artwork,duration:t.duration,categoryId:t.categoryId,credits:t.credits,
-  description:t.description,date:t.date
-}));
-const allLocal=new Map(localTracks.map(t=>[t.id,t]));
 const state={
-  view:"discover",categories:CATEGORIES,categoriesExpanded:false,category:null,categoryResults:[],categoryOffset:0,categoryTotal:0,
+  view:"discover",categories:CATEGORIES,
   searchResults:[],searchOffset:0,searchTotal:0,searchTerm:"",
-  playlists:[],activePlaylist:null,shared:null,pending:null,
   queue:[],index:0,playing:false,shuffle:false,repeat:"off",
-  volume:40,muted:false,expanded:false,request:null,audioFiles:new Map(),playableIds:new Set()
+  volume:40,muted:false,expanded:false,request:null,playableIds:new Set()
 };
-let categoryLoaded=false;
-let nameAction="create";
 let podcastUI=null;
 const fileAudio=$("file-player");
-let audioDb=null;
-let fileObjectUrl=null;
-const isImported=track=>track?.source==="local-file" || track?.source==="published";
+const isImported=track=>track?.source==="published";
 const currentPosition=()=>fileAudio.currentTime||0;
 const currentDuration=()=>Number.isFinite(fileAudio.duration)?fileAudio.duration:0;
 
 function say(message){$("announcer").textContent=message;}
 function safeStorage(){try{return window.localStorage;}catch{return null;}}
 const storage=safeStorage();
-if(storage){state.playlists=readPlaylists(storage);state.volume=Math.max(0,Math.min(100,Number(readJsonStorage(KEY+"volume",40))||40));}
-function persist(){try{if(storage) savePlaylists(storage,state.playlists);}catch{say("Sem espaço no navegador. Exporte suas playlists por link.");}}
+if(storage)state.volume=Math.max(0,Math.min(100,Number(readJsonStorage(KEY+"volume",40))||40));
 function icon(name){const i=document.createElement("i");i.className="bi bi-"+name;i.setAttribute("aria-hidden","true");return i;}
 function button(text,iconName,handler,cls="button secondary"){
   const b=document.createElement("button");b.type="button";b.className=cls;
@@ -55,12 +39,12 @@ function image(src,alt="",cls="",fallback="/logo.svg"){
   return img;
 }
 function setView(view,{focus=true}={}){
-  const names=["discover","category","search","podcasts","episode","playlists","playlist","queue"];
+  const names=["discover","search","podcasts","episode","about","queue"];
   if(!names.includes(view))return;
   state.view=view;
   for(const name of names)$("view-"+name).hidden=name!==view;
   for(const nav of document.querySelectorAll("[data-view]")){
-    if(nav.dataset.view===view || (view==="category" && nav.dataset.view==="discover") || (view==="episode" && nav.dataset.view==="podcasts") || (view==="playlist" && nav.dataset.view==="playlists"))
+    if(nav.dataset.view===view || (view==="episode" && nav.dataset.view==="podcasts"))
       nav.setAttribute("aria-current","page");
     else nav.removeAttribute("aria-current");
   }
@@ -73,17 +57,6 @@ function saveSelection(){
   try{saveJsonStorage(KEY+"volume",state.volume);}catch{}
 }
 
-function card(title,caption,cover,handler,play=false){
-  const b=document.createElement("button");b.type="button";b.className="category-card";
-  b.append(image(cover,""));
-  const info=document.createElement("span");info.className="category-content";
-  const labels=document.createElement("span");
-  const strong=document.createElement("strong");strong.textContent=title;
-  const small=document.createElement("small");small.textContent=caption;
-  labels.append(strong,small);info.append(labels,icon(play?"play-circle":"arrow-right"));
-  b.append(info);b.setAttribute("aria-label",title+". "+caption);
-  b.addEventListener("click",handler);return b;
-}
 function renderCategories(){
   podcastUI?.renderList();
 }
@@ -101,8 +74,7 @@ function renderSongs(target,tracks,{mode="catalog"}={}){
     row.append(image(track.artwork,"","",category?.artwork||"/logo.svg"));
     const info=document.createElement("div");info.className="song-details";
     const name=document.createElement("strong");name.textContent=track.title;
-    const audioAvailable=track.source==="published"?state.playableIds.has(canonicalPodcastId(track.id)):
-      track.source==="local-file"&&state.audioFiles.has(track.id);
+    const audioAvailable=state.playableIds.has(canonicalPodcastId(track.id));
     const artist=document.createElement("small");
     artist.textContent=(track.artist||"vlimap")+(audioAvailable?"":" · Áudio em preparação");
     info.append(name,artist);row.append(info);
@@ -111,8 +83,7 @@ function renderSongs(target,tracks,{mode="catalog"}={}){
     row.append(time);
     const actions=document.createElement("div");actions.className="song-actions";
     if(audioAvailable){
-      const collection=mode==="playlist"||mode==="shared"?currentPlaylist()?.tracks:
-        mode==="queue"?state.queue:localTracks;
+      const collection=mode==="queue"?state.queue:publishedCatalog;
       const playButton=button("","play-fill",()=>playFromTrack(track,collection),"");
       playButton.setAttribute("aria-label","Reproduzir "+track.title);
       playButton.title="Reproduzir";
@@ -124,149 +95,26 @@ function renderSongs(target,tracks,{mode="catalog"}={}){
       episodeButton.title="Ver episódio";
       actions.append(episodeButton);
     }
-    if(mode==="playlist"){
-      const remove=button("","x-lg",()=>removeTrack(index),"");
-      remove.setAttribute("aria-label","Remover "+track.title+" da playlist");
-      remove.title="Remover faixa";actions.append(remove);
-    }
     row.append(actions);fragment.append(row);
   }
   container.replaceChildren(fragment);
 }
-async function openCategory(category){
-  podcastUI?.openPodcasts();
-}
 async function doSearch(value=$("search-query").value){
   const term=value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
-  const found=term?localTracks.filter(t=>
+  const found=term?publishedCatalog.filter(t=>
     [t.title,t.artist,t.description,t.date,...CATEGORIES.filter(c=>c.id===t.categoryId).map(c=>c.name)]
     .some(value=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR").includes(term))
   ):[];
   state.searchResults=found;
   renderSongs("search-results",found);
-  $("search-status").textContent=found.length+" episódio(s) encontrado(s) no catálogo de tecnologia.";
+  $("search-status").textContent=term
+    ?found.length+" episódio(s) encontrado(s) no catálogo de tecnologia."
+    :"Digite um título, tema ou palavra-chave para buscar.";
 }
-// Compatibilidade: as playlists antigas ainda podem referenciar arquivos
-// previamente armazenados no dispositivo, sem exibir o importador removido.
-async function initAudioLibrary(){
-  try{
-    audioDb=await openAudioDb();
-    const records=await listStoredAudio(audioDb);
-    state.audioFiles=new Map(records.map(r=>[r.id,r]));
-  }catch{
-    state.audioFiles=new Map();
-  }
-}
-function currentPlaylist(){return state.playlists.find(p=>p.id===state.activePlaylist) || (state.shared?.id===state.activePlaylist?state.shared:null);}
-function listPlaylists(){
-  const grid=$("playlist-grid");const fragment=document.createDocumentFragment();
-  for(const p of state.playlists){
-    const picture=p.tracks.find(t=>t.artwork)?.artwork||"/logo.svg";
-    fragment.append(card(p.name,p.tracks.length+" faixas",picture,()=>openPlaylist(p.id)));
-  }
-  grid.replaceChildren(fragment);
-  $("playlists-empty").hidden=state.playlists.length>0;
-}
-function openPlaylist(id){
-  state.activePlaylist=id;
-  const playlist=currentPlaylist();
-  if(!playlist){setView("playlists");return;}
-  $("playlist-title").textContent=playlist.name;
-  $("playlist-count").textContent=playlist.tracks.length+" faixas · "+(playlist.id==="compartilhada"?"Compartilhada por link":"Salva neste dispositivo");
-  $("playlist-empty").hidden=playlist.tracks.length>0;
-  $("rename-playlist").hidden=playlist.id==="compartilhada";
-  $("delete-playlist").hidden=playlist.id==="compartilhada";
-  renderSongs("playlist-songs",playlist.tracks,{mode:playlist.id==="compartilhada"?"shared":"playlist"});
-  setView("playlist");
-}
-function uniqueId(){return globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+"-"+Math.random().toString(36).slice(2);}
-function showNameDialog(mode="create"){
-  if(mode==="create" && state.playlists.length>=MAX_PLAYLISTS){say("Limite de "+MAX_PLAYLISTS+" playlists atingido.");return;}
-  nameAction=mode;
-  $("name-dialog-title").textContent=mode==="rename"?"Renomear playlist":"Criar playlist";
-  $("playlist-name").value=mode==="rename"?currentPlaylist()?.name||"":"";
-  $("name-dialog").showModal();
-  $("playlist-name").focus();
-}
-function createPlaylist(name){
-  const playlist={id:uniqueId(),name,tracks:[]};
-  if(state.pending && playlist.tracks.length<MAX_TRACKS)playlist.tracks.push(state.pending);
-  state.playlists.unshift(playlist);
-  persist();listPlaylists();state.pending=null;openPlaylist(playlist.id);
-  say("Playlist criada.");
-}
-function addTrackDialog(track){
-  state.pending=track;
-  if(!state.playlists.length){showNameDialog();return;}
-  $("add-song-name").textContent=track.title;
-  const select=$("playlist-select");
-  select.replaceChildren();
-  for(const p of state.playlists){
-    const option=document.createElement("option");option.value=p.id;option.textContent=p.name;select.append(option);
-  }
-  $("add-dialog").showModal();
-  select.focus();
-}
-function addToPlaylist(track,playlistId){
-  const p=state.playlists.find(x=>x.id===playlistId);
-  if(!p || !track)return;
-  if(p.tracks.length>=MAX_TRACKS){say("Limite de "+MAX_TRACKS+" episódios por playlist.");return;}
-  if(p.tracks.some(t=>t.id===track.id && t.source===track.source)){say("Essa faixa já está na playlist.");return;}
-  p.tracks.push(track);persist();
-  if(state.view==="playlist"&&state.activePlaylist===p.id)openPlaylist(p.id);
-  say("Música adicionada à playlist "+p.name+".");
-}
-function removeTrack(index){
-  const p=currentPlaylist();if(!p)return;
-  if(p.id==="compartilhada"){say("Salve uma cópia da playlist antes de editar.");return;}
-  if(!p.tracks[index])return;
-  p.tracks.splice(index,1);persist();openPlaylist(p.id);
-  say("Música removida.");
-}
-function deleteCurrent(){
-  const p=currentPlaylist();if(!p || p.id==="compartilhada")return;
-  if(!window.confirm("Excluir a playlist “"+p.name+"” deste dispositivo?"))return;
-  state.playlists=state.playlists.filter(x=>x.id!==p.id);
-  persist();listPlaylists();setView("playlists");say("Playlist excluída.");
-}
-async function openShare(){
-  const p=currentPlaylist();if(!p)return;
-  try{
-    $("share-link").value=shareUrl(p,location.href);
-    $("share-dialog").showModal();$("share-link").focus();
-  }catch(error){say(error.message);}
-}
-async function copyShare(){
-  const val=$("share-link").value;
-  try{await navigator.clipboard.writeText(val);say("Link copiado. Você pode compartilhar com os colegas.");}
-  catch{$("share-link").select();say("Selecione e copie o link manualmente.");}
-}
-function readSharedLink(){
-  const hash=location.hash;
-  if(!hash.startsWith("#p="))return;
-  try{
-    state.shared=decodeShare(hash.slice(3));
-    $("shared-banner").hidden=false;
-    $("shared-message").textContent="Playlist compartilhada: "+state.shared.name+".";
-    state.activePlaylist=state.shared.id;
-    openPlaylist("compartilhada");
-  }catch(error){say(error.message);}
-}
-function saveShared(){
-  if(!state.shared)return;
-  if(state.playlists.length>=MAX_PLAYLISTS){say("Limite de playlists atingido.");return;}
-  const p={...state.shared,id:uniqueId(),tracks:[...state.shared.tracks]};
-  state.playlists.unshift(p);persist();listPlaylists();
-  $("shared-banner").hidden=true;state.shared=null;
-  history.replaceState(null,"",location.pathname+location.search);
-  openPlaylist(p.id);say("Cópia salva neste navegador.");
-}
-
 function stopFilePlayback(){
   fileAudio.pause();
   fileAudio.removeAttribute("src");
   fileAudio.load();
-  if(fileObjectUrl){URL.revokeObjectURL(fileObjectUrl);fileObjectUrl=null;}
 }
 function prepareSelected(){
   stopFilePlayback();
@@ -277,21 +125,15 @@ function prepareSelected(){
       const published=publishedCatalog.find(x=>x.id===canonicalPodcastId(track.id));
       if(!published||!state.playableIds.has(published.id)){say("Áudio ainda não publicado.");return false;}
       fileAudio.src=published.audio;
-    }else{
-      const record=state.audioFiles.get(track.id);
-      if(!record){say("Este arquivo não está disponível neste navegador.");return false;}
-      fileObjectUrl=URL.createObjectURL(record.blob);
-      fileAudio.src=fileObjectUrl;
     }
     fileAudio.load();
   }
   return true;
 }
-function playFromTrack(track,collection=localTracks){
-  const tracks=(Array.isArray(collection)?collection:localTracks).map(t=>{
-    if(t.source==="local-file")return state.audioFiles.has(t.id)?toPlaylistTrack(state.audioFiles.get(t.id)):null;
-    return t.source==="published" || allLocal.has(t.id) ? publishedCatalog.find(o=>o.id===canonicalPodcastId(t.id)&&state.playableIds.has(o.id)) : null;
-  }).filter(Boolean);
+function playFromTrack(track,collection=publishedCatalog){
+  const tracks=(Array.isArray(collection)?collection:publishedCatalog)
+    .map(t=>publishedCatalog.find(o=>o.id===canonicalPodcastId(t.id)&&state.playableIds.has(o.id)))
+    .filter(Boolean);
   const idx=tracks.findIndex(t=>t.id===canonicalPodcastId(track.id)&&Boolean(isImported(t))===Boolean(isImported(track)));
   if(idx<0){say("A gravação não está disponível para reprodução neste navegador.");return;}
   pause();state.queue=tracks;state.index=idx;state.playing=false;
@@ -469,7 +311,6 @@ function initNavigation(){
       if(view==="podcasts"){podcastUI?.openPodcasts();return;}
       setView(view);
       if(view==="discover")void fetchCategories();
-      if(view==="playlists")listPlaylists();
       if(view==="queue")renderQueue();
     });
   }
@@ -480,36 +321,8 @@ function initNavigation(){
     setView("search");
     void doSearch(value);
   });
-  $("back-categories").addEventListener("click",()=>setView("discover"));
-  $("explore-from-empty").addEventListener("click",()=>{setView("discover");void fetchCategories();});
-  $("back-playlists").addEventListener("click",()=>{listPlaylists();setView("playlists");});
   $("search-form").addEventListener("submit",event=>{event.preventDefault();void doSearch();});
-}
-function initPlaylists(){
-  $("create-top").addEventListener("click",()=>{state.pending=null;showNameDialog();});
-  $("create-in-library").addEventListener("click",()=>{state.pending=null;showNameDialog();});
-  $("cancel-name").addEventListener("click",()=>{$("name-dialog").close();state.pending=null;});
-  $("name-form").addEventListener("submit",e=>{
-    e.preventDefault();
-    const name=$("playlist-name").value.trim().slice(0,48);
-    if(!name)return;
-    $("name-dialog").close();
-    if(nameAction==="rename"){
-      const p=currentPlaylist();if(!p||p.id==="compartilhada")return;
-      p.name=name;persist();openPlaylist(p.id);say("Playlist renomeada.");
-    }else createPlaylist(name);
-  });
-  $("cancel-add").addEventListener("click",()=>{$("add-dialog").close();state.pending=null;});
-  $("add-form").addEventListener("submit",e=>{
-    e.preventDefault();addToPlaylist(state.pending,$("playlist-select").value);
-    $("add-dialog").close();state.pending=null;
-  });
-  $("share-playlist").addEventListener("click",()=>void openShare());
-  $("close-share").addEventListener("click",()=>$("share-dialog").close());
-  $("copy-share").addEventListener("click",()=>void copyShare());
-  $("save-shared").addEventListener("click",saveShared);
-  $("delete-playlist").addEventListener("click",deleteCurrent);
-  $("rename-playlist").addEventListener("click",()=>showNameDialog("rename"));
+  $("search-query").addEventListener("input",event=>{void doSearch(event.currentTarget.value);});
 }
 function initPlayer(){
   setVolume();
@@ -548,9 +361,9 @@ function initPlayer(){
   }
   fileAudio.addEventListener("loadedmetadata",updateTimeline);
   fileAudio.addEventListener("ended",()=>advance(true));
-  fileAudio.addEventListener("error",()=>{if(isImported(selected())){state.playing=false;renderPlayer();say("Arquivo indisponível. Confirme que os MP3s do catálogo foram enviados ao projeto ou que o arquivo pessoal ainda existe.");}});
+  fileAudio.addEventListener("error",()=>{if(isImported(selected())){state.playing=false;renderPlayer();say("Arquivo indisponível. Confirme que o áudio do catálogo foi enviado ao projeto.");}});
   window.setInterval(()=>{if(state.playing)updateTimeline();},300);
-  window.addEventListener("pagehide",()=>{stopFilePlayback();audioDb?.close();},{once:true});
+  window.addEventListener("pagehide",stopFilePlayback,{once:true});
   renderPlayer();renderQueue();
 }
 async function refreshPublishedMedia(){
@@ -568,9 +381,7 @@ async function refreshPublishedMedia(){
     if(state.queue.length)prepareSelected();
   }
   renderPlayer();renderCategories();renderQueue();
-  if(state.view==="category"&&state.category)void openCategory(state.category);
   if(state.view==="search"&&state.searchResults.length)renderSongs("search-results",state.searchResults);
-  if(state.view==="playlist"&&currentPlaylist())renderSongs("playlist-songs",currentPlaylist().tracks,{mode:"playlist"});
   podcastUI?.updateAudioAvailability();
 }
 function init(){
@@ -578,13 +389,9 @@ function init(){
     showView:view=>setView(view),
     isAvailable:id=>state.playableIds.has(id),
     playEpisode:episode=>playFromTrack(episode,publishedCatalog.filter(track=>state.playableIds.has(track.id))),
-    addEpisode:episode=>addTrackDialog(episode)
   });
   initPreferences();initVLibrasBrand();initNavigation();initPlayer();
-  void initAudioLibrary();
-  listPlaylists();renderCategories();void fetchCategories();
-  readSharedLink();
-  window.addEventListener("hashchange",readSharedLink);
+  renderCategories();void fetchCategories();
   void refreshPublishedMedia();
 }
 

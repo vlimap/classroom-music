@@ -4,10 +4,10 @@ import { readFileSync } from "node:fs";
 import { PODCAST_EPISODES, getPodcast } from "../src/podcasts.js";
 
 test("episódios de tecnologia ficam preparados para publicação",()=>{
- assert.equal(PODCAST_EPISODES.length,8);
+ assert.equal(PODCAST_EPISODES.length,7);
  assert.deepEqual(PODCAST_EPISODES.map(item=>item.id),[
   "javascript-em-10-dias","margaret-hamilton-apollo-11","da-apollo-11-ao-caos-do-javascript","morris-worm-1988",
-  "linus-torvalds-linux-e-git","bug-ariane-5","bug-do-milenio","knight-capital-2012"
+  "linus-torvalds-linux-e-git","bug-ariane-5","bug-do-milenio"
  ]);
  for(const item of PODCAST_EPISODES){
   assert.equal(item.categoryId,"podcasts"); assert.equal(item.producer,"vlimap");
@@ -20,8 +20,9 @@ test("episódios de tecnologia ficam preparados para publicação",()=>{
 test("páginas e componentes do podcast são acessíveis",()=>{
  const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
  const main=readFileSync(new URL("../src/main.js",import.meta.url),"utf8");
- for(const id of ["view-podcasts","view-episode","episode-play","episode-summary","episode-sources"]) assert.ok(html.includes('id="'+id+'"'),id);
+ for(const id of ["view-podcasts","view-episode","view-about","episode-play","episode-summary","episode-sources"]) assert.ok(html.includes('id="'+id+'"'),id);
  assert.match(main,/method:"HEAD"/); assert.match(main,/contentType\.startsWith\("audio\//);
+ assert.match(main,/search-query.*addEventListener\("input"/s);
  assert.doesNotMatch(main,/api\.freetouse|getCategoryTracks|ORIGINAL_TRACKS/);
 });
 

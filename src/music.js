@@ -4,7 +4,7 @@ export const PODCAST_CATEGORY = Object.freeze({
   name: "Podcasts de tecnologia",
   kind: "podcast",
   description: "Histórias, pessoas e decisões que mudaram a tecnologia.",
-  artwork: "/covers/categories/podcasts.svg"
+  artwork: "/logo.svg"
 });
 export const CATEGORIES = Object.freeze([PODCAST_CATEGORY]);
 export function formatTime(seconds) { const n = Number.isFinite(Number(seconds)) ? Math.max(0, Math.floor(Number(seconds))) : 0; return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0"); }

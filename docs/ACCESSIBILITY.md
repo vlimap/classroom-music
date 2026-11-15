@@ -36,7 +36,7 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 
 - VLibras funciona como conteúdo e código de terceiro. Sua aparência integral e experiência do avatar não são inteiramente controláveis pela aplicação.
 - Uma conexão é necessária para carregar o widget, os ícones e os áudios publicados.
-- Não existe autenticação nem sincronização entre alunos; favoritos são privados ao navegador e guardados localmente.
+- Não existe autenticação nem sincronização entre alunos; preferências de acessibilidade ficam privadas ao navegador.
 
 ## Referências
 
@@ -53,7 +53,7 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 - A preferência por alto contraste adapta o contorno; validação em navegadores reais é necessária.
 - Não substitui intérprete de Libras ou revisão por pessoa usuária de Libras.
 
-## Áudio local existente
+## Áudio dos episódios
 
 - A interface atual mantém a reprodução de arquivos que já estejam salvos em IndexedDB; não há controle para importar novos arquivos.
 - As gravações permanecem em IndexedDB no navegador de origem. O compartilhamento não contém blobs, apenas metadados.
@@ -61,8 +61,8 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 - Compatibilidade de codecs depende do navegador; não existe transcodificação.
 - O armazenamento pode ser descartado pelo navegador se limpar dados ou ultrapassar a quota. Guarde cópias dos arquivos originais.
 
-## Foco.dev News
+## Episódios
 
 - O podcast é acessível por navegação inferior e menu desktop.
 - Cada episódio possui página com título, data, áudio quando disponível e fontes editoriais.
-- Se o MP3 ainda não está publicado, o botão Ouvir fica desabilitado e as fontes continuam acessíveis.
+- Se o áudio ainda não está publicado, o botão Ouvir fica desabilitado e as fontes continuam acessíveis.

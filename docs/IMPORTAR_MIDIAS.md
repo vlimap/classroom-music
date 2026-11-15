@@ -5,9 +5,9 @@ O projeto trabalha somente com podcasts de tecnologia. Os áudios são gerados f
 ## Fluxo
 
 1. Gere e revise a locução do episódio.
-2. Exporte um MP3 com o nome exato definido em `src/podcasts.js`.
+2. Exporte um M4A, MP3 ou outro formato suportado com o nome exato definido em `src/podcasts.js`.
 3. Copie o arquivo para `audio/podcasts/`.
-4. Teste a reprodução no player e em uma playlist.
+4. Teste a reprodução no player e na fila.
 5. Adicione fontes editoriais HTTPS reais quando o roteiro estiver publicado.
 
 Enquanto o arquivo não existe, o episódio permanece visível como “Áudio em preparação” e não oferece controles de reprodução.

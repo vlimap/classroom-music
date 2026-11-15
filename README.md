@@ -1,6 +1,6 @@
 # Foco.dev
 
-Catálogo acessível de podcasts sobre tecnologia, com player, fila e playlists locais.
+Catálogo acessível de podcasts sobre tecnologia, com player e fila de reprodução.
 
 ## Conteúdo atual
 
@@ -15,7 +15,7 @@ O catálogo editorial está organizado em oito episódios:
 - Linus Torvalds, Linux e Git
 - O bug da Knight Capital (2012)
 
-Os créditos de produção e curadoria são exibidos nos metadados do episódio e no player. Os controles de reprodução só são habilitados depois que o MP3 correspondente existe em `audio/podcasts/`.
+Os créditos de produção e curadoria são exibidos nos metadados do episódio e no player. Os controles de reprodução só são habilitados depois que o áudio correspondente existe em `audio/podcasts/`.
 
 ## Desenvolvimento
 
@@ -25,12 +25,12 @@ npm run dev
 npm test
 ```
 
-Coloque os áudios finais em `audio/podcasts/` usando os nomes definidos em `src/podcasts.js`. Ao publicar fontes editoriais, cadastre apenas links HTTPS conferidos para o episódio correspondente.
+Coloque os áudios finais em `audio/podcasts/` usando os nomes definidos em `src/podcasts.js`. Ao publicar fontes editoriais, cadastre apenas links HTTPS conferidos para o episódio correspondente. Para contribuir, consulte [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Estrutura
 
 - `src/podcasts.js`: catálogo e créditos dos episódios
 - `src/podcast-ui.js`: cards, fontes e estado de publicação
-- `src/main.js`: player, fila, busca e playlists
+- `src/main.js`: player, fila, busca e navegação
 - `audio/podcasts/`: arquivos finais dos episódios
 - `docs/`: documentação editorial e de acessibilidade

@@ -70,7 +70,7 @@ O modo de alto contraste utiliza preto/branco e acentos de alto contraste; prefe
 
 ## Responsividade
 
-- Desktop: navegação e playlists salvas na lateral, conteúdo ao centro e player fixo inferior.
+- Desktop: navegação principal no topo, conteúdo ao centro e player fixo inferior.
 - Tablet e celular: navegação inferior, cabeçalho compacto e mini player acima do dock; controles secundários aparecem ao expandir.
 - A navegação móvel começa até 760px para manter acesso aos destinos em tablets estreitos.
 - O player e o VLibras respeitam a área segura do dispositivo; o conteúdo recebe espaço inferior para não ficar encoberto.

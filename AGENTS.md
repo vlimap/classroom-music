@@ -11,6 +11,6 @@ Contexto principal: leia README.md, docs/ARCHITECTURE.md e docs/CODEX_HANDOFF.md
 - Para podcasts, usar apenas metadados, áudio e fontes editoriais fornecidos pelo projeto.
 - Notícias e links de fontes devem ser reais, verificáveis e datados; não inventar.
 - Preservar o VLibras oficial, temas, foco visível e nav mobile.
-- Preservar playlist local e compartilhamento por URL sem backend.
+- Preservar a fila de reprodução local enquanto o catálogo permanecer estático.
 - Não adicionar DRM fictício ou afirmar proteção absoluta contra downloads.
 - No Windows 11, documentar PowerShell e npm (sem .cmd).

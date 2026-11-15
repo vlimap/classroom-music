@@ -8,20 +8,18 @@ const load=path=>readFileSync(resolve(root,path),"utf8");
 const html=load("index.html"),css=load("src/styles/app.css"),main=load("src/main.js");
 test("o catálogo visual usa a identidade de podcasts",()=>{
  assert.match(html,/Podcasts de tecnologia/);
- assert.match(html,/covers\/categories\/podcasts\.svg/);
+ assert.match(html,/src="\/logo\.svg"/);
 });
 test("navegação mobile: ícones, rótulos e safe-area",()=>{
  assert.match(html,/aria-label="Navegação inferior"/);
- for(const v of ["discover","podcasts","queue"])
+ for(const v of ["discover","queue","about"])
   assert.ok(html.includes('data-view="'+v+'"'),v);
  assert.match(css,/safe-area-inset-bottom/);
  assert.match(html,/bootstrap-icons@1\.13\.2/);
 });
-test("player, playlists e podcasts intactos",()=>{
- for(const id of ["discover-podcast-grid","category-tracks","playlist-grid","share-dialog","share-link","file-player"])
+test("player, podcasts e fila intactos",()=>{
+ for(const id of ["discover-podcast-grid","file-player","queue-items"])
   assert.ok(html.includes('id="'+id+'"'),id);
- assert.match(main,/function readSharedLink\(/);
- assert.match(main,/function openPlaylist\(/);
  assert.match(main,/published\.audio/);
  for(const id of ["view-podcasts","view-episode","episode-sources"])
   assert.ok(html.includes('id="'+id+'"'),id);
