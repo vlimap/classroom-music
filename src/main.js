@@ -207,7 +207,8 @@ function renderPlayer(){
         artwork:[{src:new URL(t.artwork||"/logo.svg",location.href).href}]});
       navigator.mediaSession.playbackState=state.playing?"playing":"paused";
     }catch{}
-  }  syncTrackRows();
+  }
+  syncTrackRows();
 }
 function updateTimeline(){
   const length=currentDuration()||0;
