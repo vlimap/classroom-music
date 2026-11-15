@@ -17,18 +17,18 @@ O logo SVG tem formas vetoriais próprias e não utiliza logotipos de terceiros.
 
 | Token | Escuro | Claro | Uso |
 | --- | --- | --- | --- |
-| `--color-bg` | `#151A18` | `#F6F4ED` | Plano de fundo |
-| `--color-surface` | `#202722` | `#FFFFFF` | Superfície de cartões |
-| `--color-surface-raised` | `#29332C` | `#EAECE5` | Fila, faixa ativa |
-| `--color-text` | `#F6F3E9` | `#1B2720` | Texto principal |
-| `--color-text-muted` | `#CED6CB` | `#46584D` | Texto secundário |
-| `--color-border` | `#728476` | `#728878` | Delimitação de componentes |
-| `--color-accent` | `#EACB97` | `#315D49` | Ação primária |
-| `--color-accent-content` | `#172019` | `#FFFFFF` | Texto sobre ação primária |
-| `--color-sage` | `#B9D8C5` | `#315D49` | Links e sinalizadores |
-| `--color-focus` | `#F4DCAE` | `#204E89` | Foco via teclado |
+| `--color-bg` | `#111714` | `#F3F6F0` | Plano de fundo |
+| `--color-surface` | `#1B241E` | `#FFFFFF` | Superfície de cartões |
+| `--color-surface-raised` | `#263129` | `#E6ECE5` | Fila, faixa ativa |
+| `--color-text` | `#F3F5EF` | `#18251D` | Texto principal |
+| `--color-text-muted` | `#C4D0C6` | `#41564A` | Texto secundário |
+| `--color-border` | `#68796D` | `#718678` | Delimitação de componentes |
+| `--color-accent` | `#B9E3A8` | `#23613F` | Ação primária |
+| `--color-accent-content` | `#152116` | `#FFFFFF` | Texto sobre ação primária |
+| `--color-sage` | `#D0E7D0` | `#245C3E` | Links e sinalizadores |
+| `--color-focus` | `#F2D785` | `#204E89` | Foco via teclado |
 
-Contrastes calculados em sRGB (aproximados): texto primário sobre superfície escura 13,76:1; texto secundário sobre superfície escura 10,26:1; texto claro principal sobre branco 15,47:1; texto claro secundário sobre branco 7,60:1; fundo da ação primária no modo claro com texto branco 7,52:1.
+Contrastes calculados em sRGB: texto principal/superfície escura 14,51:1; texto secundário/superfície escura 10,01:1; texto principal/fundo claro 14,57:1; texto secundário/superfície branca 7,91:1; texto/botão principal escuro 11,59:1 e claro 7,36:1; link verde no modo claro 7,85:1. A paleta reserva os acentos para ações e estados, com texto e ícones legíveis sobre as superfícies. Estados ativos e indisponíveis também recebem rótulos, contornos ou texto, para não depender somente da cor. Recalcular contrastes após qualquer ajuste e validar com ferramenta automatizada antes da publicação.
 
 O modo de alto contraste utiliza preto/branco e acentos de alto contraste; preferência `forced-colors` do sistema é preservada.
 
@@ -61,8 +61,8 @@ O modo de alto contraste utiliza preto/branco e acentos de alto contraste; prefe
 - **Button primary**: ação explícita de busca e reprodução.
 - **Button quiet**: preferências de visualização, sem aparência de CTA principal.
 - **Icon button**: ícone acompanhado de `aria-label`, `title`, estado `aria-pressed` quando apropriado.
-- **Track row**: botão com título e artista; sem `innerHTML` alimentado por dados externos.
-- **Tabs**: `tablist`, `tab`, `tabpanel`; teclas esquerda/direita/Home/End.
+- **Track row**: agrupamento de capa, título, artista, disponibilidade e ações; controles nativos com nomes acessíveis.
+- **Navegação**: navegação lateral no desktop e barra inferior no mobile, com `aria-current` sincronizado e botões nativos.
 - **Queue**: lista ordenada sem alteração surpresa do foco.
 - **Range**: nativo, com rótulos e descrições de valor.
 - **Notice**: aviso sem cor como único recurso informativo.
@@ -70,10 +70,20 @@ O modo de alto contraste utiliza preto/branco e acentos de alto contraste; prefe
 
 ## Responsividade
 
-- Desktop: biblioteca + fila lado a lado, player fixo inferior.
-- Tablet: fila abaixo da biblioteca, volume na segunda linha.
-- Celular: cabeçalho e preferências quebram linhas; controles prioritários preservados.
-- Sem rolagem horizontal deliberada e sem efeitos que conflitem com `prefers-reduced-motion`.
+- Desktop: navegação e playlists salvas na lateral, conteúdo ao centro e player fixo inferior.
+- Tablet e celular: navegação inferior, cabeçalho compacto e mini player acima do dock; controles secundários aparecem ao expandir.
+- A navegação móvel começa até 760px para manter acesso aos destinos em tablets estreitos.
+- O player e o VLibras respeitam a área segura do dispositivo; o conteúdo recebe espaço inferior para não ficar encoberto.
+- Grade de descoberta com três colunas em telas médias e duas em celulares; linhas de episódios preservam alvo de toque de pelo menos 44px.
+- Respeitar `prefers-reduced-motion`, zoom e `forced-colors`; não introduzir rolagem horizontal deliberada.
+
+## Organização visual
+
+- **Proximidade:** navegação agrupada à parte do conteúdo; capa, título, créditos e ações permanecem juntos em cada episódio.
+- **Similaridade:** os mesmos destinos mantêm ícone, nome e estado ativo entre desktop e mobile.
+- **Figura e fundo:** planos escalonados separam navegação, cartões, player e conteúdo sem adicionar divisórias em cada elemento.
+- **Continuidade:** o mini player permanece acima da navegação inferior e conserva a faixa selecionada ao trocar de tela.
+- **Hierarquia de cor:** verde claro/escuro destaca a ação principal conforme o tema; cores de perigo e foco têm papéis próprios.
 
 ## Aplicação do VLibras
 
@@ -85,7 +95,7 @@ Documentação: https://www.vlibras.gov.br/doc/widget/installation/webpageintegr
 
 - Ícones: Bootstrap Icons 1.13.2, publicados via jsDelivr; não exige importar o framework Bootstrap.
 - Conteúdo acessível: ícones decorativos com `aria-hidden`, botões com `aria-label` e textos na navegação inferior.
-- Capas: arquivos SVG originais individualizados por faixa sintética, e `thumbnails.sm/md` da FreeToUse para cada resultado de busca. Imagens externas são validadas como URLs HTTPS e possuem fallback.
-- Dock inferior com 5 destinos móveis: Início, Trilhas, Explorar, Fila e Acesso; destaque da seleção por contraste e `aria-current`.
+- Capas: SVGs próprios para a identidade de podcasts, com fallback para o logo.
+- Dock inferior com 5 destinos móveis: Categorias, Podcasts, Playlists, Fila e Ajustes; destaque da seleção por contraste e `aria-current`.
 - Mini-player acima do dock, com play/next de acesso imediato e modo expandido para os demais controles.
 - Safe-area: `env(safe-area-inset-bottom)`; alvos de toque priorizados, foco navegável e textos legíveis.

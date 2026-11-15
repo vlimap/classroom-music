@@ -2,13 +2,14 @@ import { PODCAST_EPISODES, getPodcast } from "./podcasts.js";
 
 const $ = id => document.getElementById(id);
 
-export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable, announce }) {
+export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable }) {
   let activeEpisode = null;
-  let loadedTranscript = "";
-  let loadSequence = 0;
 
   function formatEpisodeDate(isoDate) {
-    return new Date(isoDate + "T12:00:00").toLocaleDateString("pt-BR", {
+    if (/^\d{4}(?:[–-]\d{4})?$/.test(isoDate)) return isoDate;
+    const parsed = new Date(isoDate + "T12:00:00");
+    if (Number.isNaN(parsed.getTime())) return isoDate || "Episódio especial";
+    return parsed.toLocaleDateString("pt-BR", {
       timeZone: "UTC", day: "numeric", month: "long", year: "numeric"
     });
   }
@@ -17,7 +18,7 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     const button = document.createElement("button");
     button.type = "button";
     button.className = "podcast-card";
-    button.setAttribute("aria-label", "Abrir " + episode.title + " e sua transcrição");
+    button.setAttribute("aria-label", "Abrir " + episode.title);
     const image = document.createElement("img");
     image.src = episode.artwork;
     image.alt = "";
@@ -30,19 +31,23 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     title.textContent = episode.title;
     const status = document.createElement("span");
     status.className = "podcast-card-status";
-    status.textContent = isAvailable(episode.id)
-      ? "Ouvir e ler transcrição" : "Transcrição disponível · áudio em preparação";
+    status.textContent = isAvailable(episode.id) ? "Ouvir episódio" : "Áudio em preparação";
     description.append(date, title, status);
     button.append(image, description);
-    button.addEventListener("click", () => void openEpisode(episode.id));
+    button.addEventListener("click", () => openEpisode(episode.id));
     return button;
   }
 
   function renderList() {
-    const fragment = document.createDocumentFragment();
-    for (const episode of PODCAST_EPISODES) fragment.append(episodeCard(episode));
-    $("podcast-grid").replaceChildren(fragment);
-    $("podcasts-status").textContent = PODCAST_EPISODES.length + " episódio(s) com transcrição disponível.";
+    const makeFragment = () => {
+      const fragment = document.createDocumentFragment();
+      for (const episode of PODCAST_EPISODES) fragment.append(episodeCard(episode));
+      return fragment;
+    };
+    $("podcast-grid").replaceChildren(makeFragment());
+    const discoverGrid = $("discover-podcast-grid");
+    if (discoverGrid) discoverGrid.replaceChildren(makeFragment());
+    $("podcasts-status").textContent = PODCAST_EPISODES.length + " episódio(s).";
   }
 
   function updateAudioAvailability() {
@@ -50,17 +55,13 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     $("episode-play").disabled = !ready;
     $("episode-play").hidden = !ready;
     $("episode-play").setAttribute("aria-disabled", String(!ready));
-    $("episode-add").disabled = !ready;
-    $("episode-add").hidden = !ready;
-    $("episode-add").setAttribute("aria-disabled", String(!ready));
     $("episode-audio-status").textContent = ready
       ? "Áudio pronto para reprodução no player Foco.dev."
-      : "Áudio do Adobe Podcast ainda não enviado. A transcrição e as fontes já podem ser consultadas.";
+      : "Áudio ainda não disponível.";
     if ($("view-podcasts").hidden === false) renderList();
   }
 
   function renderSources(episode) {
-    const list = $("episode-sources");
     const fragment = document.createDocumentFragment();
     for (const source of episode.sourceLinks) {
       const item = document.createElement("li");
@@ -72,43 +73,22 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
       item.append(anchor);
       fragment.append(item);
     }
-    list.replaceChildren(fragment);
+    $("episode-sources").replaceChildren(fragment);
   }
 
-  async function loadTranscript(episode) {
-    const sequence = ++loadSequence;
-    loadedTranscript = "";
-    $("transcript-copy").disabled = true;
-    $("episode-transcript").textContent = "Carregando transcrição...";
-    try {
-      const response = await fetch(episode.transcript, { headers: { Accept: "text/plain" } });
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      const text = await response.text();
-      if (sequence !== loadSequence) return;
-      loadedTranscript = text;
-      $("episode-transcript").textContent = text;
-      $("transcript-copy").disabled = false;
-    } catch {
-      if (sequence !== loadSequence) return;
-      $("episode-transcript").textContent = "A transcrição está temporariamente indisponível.";
-      announce("Falha ao carregar a transcrição do episódio.");
-    }
-  }
-
-  async function openEpisode(id) {
+  function openEpisode(id) {
     const episode = getPodcast(id);
     if (!episode) return;
     activeEpisode = episode;
     $("episode-title").textContent = episode.title;
-    $("episode-date").textContent = formatEpisodeDate(episode.date) + " · produção e curadoria vlimap";
+    $("episode-date").textContent = formatEpisodeDate(episode.date) + " · " + episode.artist;
     $("episode-description").textContent = episode.description;
+    $("episode-summary").textContent = episode.summary || episode.description;
     $("episode-artwork").src = episode.artwork;
-    $("transcript-download").href = episode.transcript;
-    $("transcript-download").download = episode.transcript.split("/").pop();
+    $("episode-sources-section").hidden = !episode.sourceLinks.length;
     renderSources(episode);
     updateAudioAvailability();
     showView("episode");
-    await loadTranscript(episode);
   }
 
   function openPodcasts() {
@@ -119,18 +99,6 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
   $("back-podcasts").addEventListener("click", openPodcasts);
   $("episode-play").addEventListener("click", () => {
     if (activeEpisode && isAvailable(activeEpisode.id)) playEpisode(activeEpisode);
-  });
-  $("episode-add").addEventListener("click", () => {
-    if (activeEpisode && isAvailable(activeEpisode.id)) addEpisode(activeEpisode);
-  });
-  $("transcript-copy").addEventListener("click", async () => {
-    if (!loadedTranscript) return;
-    try {
-      await navigator.clipboard.writeText(loadedTranscript);
-      announce("Transcrição copiada.");
-    } catch {
-      announce("Não foi possível copiar automaticamente. Use o botão Baixar TXT.");
-    }
   });
 
   return { openPodcasts, openEpisode, renderList, updateAudioAvailability };

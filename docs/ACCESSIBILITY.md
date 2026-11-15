@@ -9,20 +9,20 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 - Link “Ir para o conteúdo principal”.
 - Hierarquia de títulos, instruções e status sem dependência exclusiva de cor.
 - Botões nativos com nomes acessíveis e estado `aria-pressed` onde pertinente.
-- `tablist` controlável com setas, Home e End; alternância não interrompe reprodução.
+- Navegação lateral no desktop e barra inferior no mobile com botões nativos, nomes visíveis e destino atual marcado com `aria-current`.
 - `input type=range` nativos, rotulados para progresso e volume.
 - Progresso sem notificações constantes ao leitor de telas.
-- Tamanho-alvo 44x44px, indicação visível de foco e texto expansível.
+- Tamanho-alvo de pelo menos 44x44px nos controles, indicação visível de foco e texto ampliável.
 - Temas claro, escuro e alto contraste; preferências persistidas localmente.
 - Ausência de animações essenciais, respeito a `prefers-reduced-motion`.
-- Reprodução inicial não automática. Som controlável, áudio original instrumental.
-- Formatação segura dos resultados de API com `textContent` e URLs HTTPS.
+- Reprodução inicial não automática e som controlável pelo usuário.
+- Texto de conteúdo exibido com `textContent` e imagens externas limitadas a URLs HTTPS.
 - VLibras oficial com realce de foco cromaticamente integrado à marca.
 
 ## Validações que exigem avaliação manual (não certificadas)
 
 1. Navegação apenas pelo teclado, do link de pular conteúdo até o fim do player, sem armadilhas.
-2. Com NVDA + Firefox/Chrome no Windows 11: sequência de leitura, lista de resultados, tabs, estados e mensagens.
+2. Com NVDA + Firefox/Chrome no Windows 11: sequência de leitura, lista de resultados, estados e mensagens.
 3. Refluxo de layout em zoom de 200% e 400% e largura equivalente a 320px.
 4. Testes com `prefers-contrast`, modo de alto contraste do Windows e `forced-colors`.
 5. Foco e sobreposição do VLibras em cada breakpoint, inclusive quando o widget externo falhar ou demorar para carregar.
@@ -30,19 +30,18 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 7. Verificação automatizada com axe-core e Lighthouse após publicação em HTTPS.
 8. Verificação com pessoas com deficiência visual, auditiva e motora, incluindo preferências de volume e períodos de silêncio.
 9. Testar a navegação com player fixo em smartphones e teclados virtuais.
-10. Checar CORS, falhas da API e indisponibilidade do serviço sem quebrar a navegação.
+10. Checar indisponibilidade dos arquivos de áudio sem quebrar a navegação.
 
 ## Limitações de terceiros
 
 - VLibras funciona como conteúdo e código de terceiro. Sua aparência integral e experiência do avatar não são inteiramente controláveis pela aplicação.
-- Uma conexão é necessária para carregar o widget e consultar FreeToUse.
-- Reprodução da biblioteca FreeToUse é desativada por padrão, devido às condições de licença. O sintetizador original não depende da rede.
+- Uma conexão é necessária para carregar o widget, os ícones e os áudios publicados.
 - Não existe autenticação nem sincronização entre alunos; favoritos são privados ao navegador e guardados localmente.
 
 ## Referências
 
 - https://www.w3.org/TR/WCAG22/
-- https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+- https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/
 - https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
 - https://www.vlibras.gov.br/doc/widget/installation/webpageintegration.html
 - https://www.gov.br/governodigital/pt-br/acessibilidade-e-usuario/vlibras
@@ -54,18 +53,16 @@ A presença de VLibras isoladamente **não** torna o projeto integralmente acess
 - A preferência por alto contraste adapta o contorno; validação em navegadores reais é necessária.
 - Não substitui intérprete de Libras ou revisão por pessoa usuária de Libras.
 
-## Áudio importado
+## Áudio local existente
 
-- O botão **Importar arquivos** possui nome acessível; o seletor de arquivos é acionado por interação.
-- As gravações permanecem em IndexedDB, no navegador de origem. O compartilhamento não contém blobs, apenas metadados.
-- O player utiliza o elemento HTMLAudioElement para conteúdo importado e Web Audio para as composições originais.
+- A interface atual mantém a reprodução de arquivos que já estejam salvos em IndexedDB; não há controle para importar novos arquivos.
+- As gravações permanecem em IndexedDB no navegador de origem. O compartilhamento não contém blobs, apenas metadados.
+- O player utiliza `HTMLAudioElement` para áudios publicados e arquivos locais legados.
 - Compatibilidade de codecs depende do navegador; não existe transcodificação.
 - O armazenamento pode ser descartado pelo navegador se limpar dados ou ultrapassar a quota. Guarde cópias dos arquivos originais.
 
-## Foco.dev News — transcrições
+## Foco.dev News
 
 - O podcast é acessível por navegação inferior e menu desktop.
-- Cada episódio possui página com título, data, transcrição em texto puro, opção de copiar/baixar e links de fontes abrindo em nova aba.
-- A transcrição do Adobe Podcast é automática e ainda não foi revisada; erros de reconhecimento são avisados explicitamente.
-- Se o MP3 ainda não está publicado, o botão Ouvir fica desabilitado; transcrição e fontes continuam acessíveis.
-- A transcrição original só contém o marcador 00:00:00. Não inventar timestamps ou alinhamento temporal entre áudio e texto.
+- Cada episódio possui página com título, data, áudio quando disponível e fontes editoriais.
+- Se o MP3 ainda não está publicado, o botão Ouvir fica desabilitado e as fontes continuam acessíveis.

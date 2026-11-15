@@ -13,12 +13,12 @@ export function validateAudioFile(file) {
   const size = Number(file?.size);
   if (!name || !AUDIO_EXT.test(name)) throw new Error("Aceitamos MP3, M4A, AAC, OGG, OPUS, WAV, WebM e FLAC.");
   if (!Number.isFinite(size) || size <= 0 || size > MAX_FILE_BYTES) {
-    throw new Error("Cada música precisa ter até 25 MB e não pode estar vazia.");
+    throw new Error("Cada episódio precisa ter até 25 MB e não pode estar vazio.");
   }
   if (file.type && !file.type.startsWith("audio/") && file.type !== "application/ogg") {
     throw new Error("O arquivo selecionado não é identificado como áudio.");
   }
-  return name.replace(AUDIO_EXT, "").slice(0, 100).trim() || "Minha música";
+  return name.replace(AUDIO_EXT, "").slice(0, 100).trim() || "Meu episódio";
 }
 
 export function openAudioDb(factory = globalThis.indexedDB) {

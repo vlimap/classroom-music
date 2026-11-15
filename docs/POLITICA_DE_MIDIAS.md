@@ -2,12 +2,12 @@
 
 Crédito editorial de **produção, seleção, curadoria e publicação: vlimap**.
 
-As gravações foram fornecidas pelo responsável pelo projeto após geração com auxílio de Adobe Firefly. As capas foram criadas para a coleção, sem texto sobre as imagens.
+O projeto publica somente podcasts de tecnologia. Os áudios são fornecidos pelo responsável pelo projeto e devem ser revisados antes da publicação. As capas são usadas sem texto sobre as imagens.
 
-Não se afirma exclusividade autoral automática sobre expressão gerada integralmente por IA. Os direitos e a capacidade de licenciamento dependem da lei aplicável, das contribuições humanas e dos termos da ferramenta no momento da geração.
+Os créditos exibidos no catálogo identificam composição, produção e curadoria de vlimap. A titularidade e a capacidade de licenciamento dependem das contribuições humanas e da lei aplicável.
 
 Usuários devem solicitar autorização antes de redistribuir arquivos quando existirem direitos reservados. Não adicione áudio ou imagens de terceiros sem permissão.
 
 Metadados ID3 e avisos de direitos auxiliam na atribuição, mas **não bloqueiam cópias**. Qualquer arquivo entregue publicamente a um navegador pode ser extraído. A ausência de botão Download não equivale a proteção DRM.
 
-Arquive WAVs, prompts, registros de edição e hashes. O arquivo docs/MEDIA-SHA256.json é distribuído junto ao pacote privado de mídias e não precisa ser publicado.
+Arquive os códigos-fonte, WAVs de origem, registros de edição e hashes quando necessário.

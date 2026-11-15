@@ -1,5 +1,5 @@
-import { CATEGORIES, ORIGINAL_TRACKS, formatTime, timeDescription, nextIndex, previousIndex, readJsonStorage, saveJsonStorage } from "./music.js";
-import { PODCAST_EPISODES } from "./podcasts.js";
+import { CATEGORIES, formatTime, timeDescription, nextIndex, previousIndex, readJsonStorage, saveJsonStorage } from "./music.js";
+import { PODCAST_EPISODES, canonicalPodcastId } from "./podcasts.js";
 import { createPodcastUI } from "./podcast-ui.js";
 
 import { cleanPlaylist, readPlaylists, savePlaylists, shareUrl, decodeShare, MAX_PLAYLISTS, MAX_TRACKS } from "./playlists.js";
@@ -12,10 +12,11 @@ function safeHttpsUrl(value){
   catch{return "";}
 }
 const KEY="focodev:";
-const publishedCatalog=[...ORIGINAL_TRACKS,...PODCAST_EPISODES];
+const publishedCatalog=[...PODCAST_EPISODES];
 const localTracks=publishedCatalog.map(t=>({
   id:t.id,source:"published",title:t.title,artist:t.artist,
-  artwork:t.artwork,duration:t.duration,categoryId:t.categoryId
+  artwork:t.artwork,duration:t.duration,categoryId:t.categoryId,credits:t.credits,
+  description:t.description,date:t.date
 }));
 const allLocal=new Map(localTracks.map(t=>[t.id,t]));
 const state={
@@ -54,7 +55,7 @@ function image(src,alt="",cls="",fallback="/logo.svg"){
   return img;
 }
 function setView(view,{focus=true}={}){
-  const names=["discover","category","search","podcasts","episode","playlists","playlist","queue","access"];
+  const names=["discover","category","search","podcasts","episode","playlists","playlist","queue"];
   if(!names.includes(view))return;
   state.view=view;
   for(const name of names)$("view-"+name).hidden=name!==view;
@@ -84,23 +85,11 @@ function card(title,caption,cover,handler,play=false){
   b.addEventListener("click",handler);return b;
 }
 function renderCategories(){
-  const fragment=document.createDocumentFragment();
-  for(const category of CATEGORIES){
-    const tracks=ORIGINAL_TRACKS.filter(t=>t.categoryId===category.id);
-    const ready=tracks.filter(t=>state.playableIds.has(t.id)).length;
-    const label=category.kind==="podcast"
-      ?PODCAST_EPISODES.length+" episódio · transcrição disponível"
-      :ready>0?ready+" música(s) disponível(is)"
-      :tracks.length?"Músicas aguardando publicação":"Novas faixas em produção";
-    const open=category.kind==="podcast"?()=>podcastUI?.openPodcasts():()=>void openCategory(category);
-    fragment.append(card(category.name,label,category.artwork,open,category.kind!=="podcast"&&ready>0));
-  }
-  $("category-grid").replaceChildren(fragment);
+  podcastUI?.renderList();
 }
 async function fetchCategories(){
   renderCategories();
-  $("category-status").textContent=CATEGORIES.length+" categorias próprias · "+
-    ORIGINAL_TRACKS.length+" faixas cadastradas · "+PODCAST_EPISODES.length+" podcast com transcrição.";
+  $("category-status").textContent=PODCAST_EPISODES.length+" episódios de tecnologia · áudio em produção.";
 }
 function renderSongs(target,tracks,{mode="catalog"}={}){
   const container=$(target);
@@ -112,7 +101,7 @@ function renderSongs(target,tracks,{mode="catalog"}={}){
     row.append(image(track.artwork,"","",category?.artwork||"/logo.svg"));
     const info=document.createElement("div");info.className="song-details";
     const name=document.createElement("strong");name.textContent=track.title;
-    const audioAvailable=track.source==="published"?state.playableIds.has(track.id):
+    const audioAvailable=track.source==="published"?state.playableIds.has(canonicalPodcastId(track.id)):
       track.source==="local-file"&&state.audioFiles.has(track.id);
     const artist=document.createElement("small");
     artist.textContent=(track.artist||"vlimap")+(audioAvailable?"":" · Áudio em preparação");
@@ -129,47 +118,33 @@ function renderSongs(target,tracks,{mode="catalog"}={}){
       playButton.title="Reproduzir";
       actions.append(playButton);
     }
-    if(PODCAST_EPISODES.some(episode=>episode.id===track.id)){
-      const transcriptButton=button("","file-earmark-text",()=>void podcastUI?.openEpisode(track.id),"");
-      transcriptButton.setAttribute("aria-label","Ver transcrição de "+track.title);
-      transcriptButton.title="Ver transcrição";
-      actions.append(transcriptButton);
+    if(PODCAST_EPISODES.some(episode=>episode.id===canonicalPodcastId(track.id))){
+      const episodeButton=button("","info-circle",()=>void podcastUI?.openEpisode(track.id),"");
+      episodeButton.setAttribute("aria-label","Ver episódio "+track.title);
+      episodeButton.title="Ver episódio";
+      actions.append(episodeButton);
     }
     if(mode==="playlist"){
       const remove=button("","x-lg",()=>removeTrack(index),"");
       remove.setAttribute("aria-label","Remover "+track.title+" da playlist");
       remove.title="Remover faixa";actions.append(remove);
-    }else if(mode!=="queue"&&mode!=="shared"&&audioAvailable){
-      const add=button("","plus-circle",()=>addTrackDialog(track),"");
-      add.setAttribute("aria-label","Adicionar "+track.title+" à playlist");
-      add.title="Adicionar à playlist";actions.append(add);
     }
     row.append(actions);fragment.append(row);
   }
   container.replaceChildren(fragment);
 }
 async function openCategory(category){
-  if(category.kind==="podcast"){podcastUI?.openPodcasts();return;}
-  state.category=category;
-  $("category-title").textContent=category.name;
-  $("category-type").textContent="Coleção autoral · vlimap";
-  $("category-desc").textContent=category.description;
-  state.categoryResults=localTracks.filter(t=>t.categoryId===category.id);
-  renderSongs("category-tracks",state.categoryResults);
-  $("category-tracks-status").textContent=state.categoryResults.length
-    ?state.categoryResults.length+" faixa(s) cadastrada(s). As gravações ficam disponíveis após publicação dos arquivos MP3."
-    :"Novas músicas em produção. Esta categoria ainda não possui faixas publicadas.";
-  setView("category");
+  podcastUI?.openPodcasts();
 }
-async function doSearch(){
-  const term=$("search-query").value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
+async function doSearch(value=$("search-query").value){
+  const term=value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
   const found=term?localTracks.filter(t=>
-    [t.title,t.artist,...CATEGORIES.filter(c=>c.id===t.categoryId).map(c=>c.name)]
+    [t.title,t.artist,t.description,t.date,...CATEGORIES.filter(c=>c.id===t.categoryId).map(c=>c.name)]
     .some(value=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR").includes(term))
   ):[];
   state.searchResults=found;
   renderSongs("search-results",found);
-  $("search-status").textContent=found.length+" resultado(s) no catálogo próprio.";
+  $("search-status").textContent=found.length+" episódio(s) encontrado(s) no catálogo de tecnologia.";
 }
 // Compatibilidade: as playlists antigas ainda podem referenciar arquivos
 // previamente armazenados no dispositivo, sem exibir o importador removido.
@@ -235,7 +210,7 @@ function addTrackDialog(track){
 function addToPlaylist(track,playlistId){
   const p=state.playlists.find(x=>x.id===playlistId);
   if(!p || !track)return;
-  if(p.tracks.length>=MAX_TRACKS){say("Limite de "+MAX_TRACKS+" músicas por playlist.");return;}
+  if(p.tracks.length>=MAX_TRACKS){say("Limite de "+MAX_TRACKS+" episódios por playlist.");return;}
   if(p.tracks.some(t=>t.id===track.id && t.source===track.source)){say("Essa faixa já está na playlist.");return;}
   p.tracks.push(track);persist();
   if(state.view==="playlist"&&state.activePlaylist===p.id)openPlaylist(p.id);
@@ -299,8 +274,8 @@ function prepareSelected(){
   if(!track)return false;
   if(isImported(track)){
     if(track.source==="published"){
-      const published=publishedCatalog.find(x=>x.id===track.id);
-      if(!published||!state.playableIds.has(track.id)){say("Áudio ainda não publicado.");return false;}
+      const published=publishedCatalog.find(x=>x.id===canonicalPodcastId(track.id));
+      if(!published||!state.playableIds.has(published.id)){say("Áudio ainda não publicado.");return false;}
       fileAudio.src=published.audio;
     }else{
       const record=state.audioFiles.get(track.id);
@@ -315,9 +290,9 @@ function prepareSelected(){
 function playFromTrack(track,collection=localTracks){
   const tracks=(Array.isArray(collection)?collection:localTracks).map(t=>{
     if(t.source==="local-file")return state.audioFiles.has(t.id)?toPlaylistTrack(state.audioFiles.get(t.id)):null;
-    return t.source==="published" || allLocal.has(t.id) ? publishedCatalog.find(o=>o.id===t.id&&state.playableIds.has(o.id)) : null;
+    return t.source==="published" || allLocal.has(t.id) ? publishedCatalog.find(o=>o.id===canonicalPodcastId(t.id)&&state.playableIds.has(o.id)) : null;
   }).filter(Boolean);
-  const idx=tracks.findIndex(t=>t.id===track.id&&Boolean(isImported(t))===Boolean(isImported(track)));
+  const idx=tracks.findIndex(t=>t.id===canonicalPodcastId(track.id)&&Boolean(isImported(t))===Boolean(isImported(track)));
   if(idx<0){say("A gravação não está disponível para reprodução neste navegador.");return;}
   pause();state.queue=tracks;state.index=idx;state.playing=false;
   if(!prepareSelected())return;
@@ -328,7 +303,7 @@ function selected(){return state.queue[state.index]||null;}
 function renderPlayer(){
   const t=selected();
   $("player-title").textContent=t?.title||"Áudios em preparação";
-  $("player-artist").textContent=t?.artist||"Foco.dev · vlimap";
+  $("player-artist").textContent=t?.credits||t?.artist||"Foco.dev · vlimap";
   const artwork=$("player-artwork");
   const fallback=CATEGORIES.find(c=>c.id===t?.categoryId)?.artwork||"/logo.svg";
   artwork.onerror=()=>{if(!artwork.src.endsWith(fallback))artwork.src=fallback;};
@@ -466,9 +441,9 @@ function initPreferences(){
   if(storage&&readJsonStorage(KEY+"large",false))root.dataset.font="large";
   const sync=()=>{
     const dark=root.dataset.theme==="dark";
-    $("theme-toggle").setAttribute("aria-pressed",String(dark));$("theme-state").textContent=dark?"Escuro":"Claro";
-    const contrast=root.dataset.contrast==="high";$("contrast-toggle").setAttribute("aria-pressed",String(contrast));$("contrast-state").textContent=contrast?"Ligado":"Desligado";
-    const font=root.dataset.font==="large";$("font-toggle").setAttribute("aria-pressed",String(font));$("font-state").textContent=font?"Ampliado":"Padrão";
+    $("theme-toggle").setAttribute("aria-pressed",String(dark));$("theme-toggle").setAttribute("aria-label",dark?"Mudar para tema claro":"Mudar para tema escuro");
+    const contrast=root.dataset.contrast==="high";$("contrast-toggle").setAttribute("aria-pressed",String(contrast));$("contrast-toggle").setAttribute("aria-label",contrast?"Desativar alto contraste":"Ativar alto contraste");
+    const font=root.dataset.font==="large";$("font-toggle").setAttribute("aria-pressed",String(font));$("font-toggle").setAttribute("aria-label",font?"Voltar ao tamanho de texto padrão":"Ampliar texto");
   };
   $("theme-toggle").addEventListener("click",()=>{
     root.dataset.theme=root.dataset.theme==="dark"?"light":"dark";
@@ -486,7 +461,6 @@ function initPreferences(){
     sync();
   });
   sync();
-  $("vlibras-trigger").addEventListener("click",openVLibras);
 }
 function initNavigation(){
   for(const button of document.querySelectorAll("[data-view]")){
@@ -499,8 +473,15 @@ function initNavigation(){
       if(view==="queue")renderQueue();
     });
   }
-  $("open-search").addEventListener("click",()=>setView("search"));
+  $("discover-search-form").addEventListener("submit",event=>{
+    event.preventDefault();
+    const value=$("discover-search-query").value;
+    $("search-query").value=value;
+    setView("search");
+    void doSearch(value);
+  });
   $("back-categories").addEventListener("click",()=>setView("discover"));
+  $("explore-from-empty").addEventListener("click",()=>{setView("discover");void fetchCategories();});
   $("back-playlists").addEventListener("click",()=>{listPlaylists();setView("playlists");});
   $("search-form").addEventListener("submit",event=>{event.preventDefault();void doSearch();});
 }
@@ -597,10 +578,9 @@ function init(){
     showView:view=>setView(view),
     isAvailable:id=>state.playableIds.has(id),
     playEpisode:episode=>playFromTrack(episode,publishedCatalog.filter(track=>state.playableIds.has(track.id))),
-    addEpisode:episode=>addTrackDialog(episode),
-    announce:say
+    addEpisode:episode=>addTrackDialog(episode)
   });
-  initPreferences();initVLibrasBrand();initNavigation();initPlaylists();initPlayer();
+  initPreferences();initVLibrasBrand();initNavigation();initPlayer();
   void initAudioLibrary();
   listPlaylists();renderCategories();void fetchCategories();
   readSharedLink();

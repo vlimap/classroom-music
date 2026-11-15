@@ -1,0 +1,4 @@
+node_modules/
+audio/*.wav
+audio/*.meta.mp3
+*.log
