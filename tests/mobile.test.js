@@ -29,11 +29,11 @@ test("sem consultas a FreeToUse na interface",()=>{
 });
 
 test("barra inferior ocupa toda a largura com uma coluna por destino",()=>{
- const nav=html.match(/<nav class="mobile-nav"[^>]*>([\\s\\S]*?)<\\/nav>/);
+ const nav=html.match(/<nav class="mobile-nav"[^>]*>([\s\S]*?)<\/nav>/);
  assert.ok(nav,"navegação mobile presente");
- const destinations=[...nav[1].matchAll(/<button\\b[^>]*data-view=/g)];
+ const destinations=[...nav[1].matchAll(/<button\b[^>]*data-view=/g)];
  assert.equal(destinations.length,3,"três destinos no menu inferior");
- const columns=[...css.matchAll(/\\.mobile-nav\\{[^}]*grid-template-columns:repeat\\((\\d+),minmax\\(0,1fr\\)\\)/g)];
+ const columns=[...css.matchAll(/\.mobile-nav\{[^}]*grid-template-columns:repeat\((\d+),minmax\(0,1fr\)\)/g)];
  assert.ok(columns.length>0,"grid responsivo definido para a barra inferior");
  for(const [,count] of columns)
   assert.equal(Number(count),destinations.length,"cada breakpoint deve distribuir igualmente os destinos");
