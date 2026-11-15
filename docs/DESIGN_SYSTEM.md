@@ -1,101 +1,123 @@
-# Design System — Foco.dev v1
+# Design system — Foco.dev v2
 
-## Princípios
+## Diretrizes
 
-1. **Foco antes de efeito**: sem carrosséis automáticos, banners animados ou reprodução involuntária.
-2. **Acolhimento e legibilidade**: tons quentes neutros e contraste mensurável.
-3. **Uma ação por controle**: botões com estados claros e rótulos acessíveis.
-4. **Áudio sob controle**: início sempre sob ação do usuário e volume inicial moderado.
-5. **Acessível por padrão**: sem depender exclusivamente de cores, gestos ou ícones.
+O Foco.dev é um catálogo de podcasts com reprodução controlada pelo usuário.
+O design deve facilitar descoberta, escuta e compartilhamento, com acessibilidade
+como comportamento padrão. Nunca iniciar áudio automaticamente.
 
-## Identidade
+- **Hierarquia:** título e capa do episódio primeiro, ação principal em destaque,
+  informações secundárias com contraste suficiente.
+- **Estados visíveis:** ícones, texto e atributos de acessibilidade transmitem
+  o mesmo estado. A cor sozinha nunca identifica reprodução ou seleção.
+- **Consistência:** a fila, a busca e o player observam a mesma faixa selecionada;
+  não criar estados de reprodução separados nos componentes.
+- **Sem dependências desnecessárias:** HTML, CSS com tokens e ES Modules nativos;
+  Bootstrap Icons para iconografia, VLibras oficial para acessibilidade.
 
-Nome: **foco.dev**. Logotipo: colchetes angulares de código e sinal sonoro minimalista, com bordas arredondadas.
-O logo SVG tem formas vetoriais próprias e não utiliza logotipos de terceiros.
+## Tokens: fonte única de verdade
 
-## Cores semânticas
+O arquivo `src/styles/tokens.css` define a paleta semântica e dimensões.
+Componentes usam `var(--token)` em vez de copiar valores hexadecimais.
 
 | Token | Escuro | Claro | Uso |
 | --- | --- | --- | --- |
-| `--color-bg` | `#111714` | `#F3F6F0` | Plano de fundo |
-| `--color-surface` | `#1B241E` | `#FFFFFF` | Superfície de cartões |
-| `--color-surface-raised` | `#263129` | `#E6ECE5` | Fila, faixa ativa |
+| `--color-bg` | `#111714` | `#F3F6F0` | Fundo |
+| `--color-surface` | `#1B241E` | `#FFFFFF` | Cartões |
+| `--color-surface-raised` | `#263129` | `#E6ECE5` | Faixa selecionada |
 | `--color-text` | `#F3F5EF` | `#18251D` | Texto principal |
-| `--color-text-muted` | `#C4D0C6` | `#41564A` | Texto secundário |
-| `--color-border` | `#68796D` | `#718678` | Delimitação de componentes |
-| `--color-accent` | `#B9E3A8` | `#23613F` | Ação primária |
-| `--color-accent-content` | `#152116` | `#FFFFFF` | Texto sobre ação primária |
-| `--color-sage` | `#D0E7D0` | `#245C3E` | Links e sinalizadores |
-| `--color-focus` | `#F2D785` | `#204E89` | Foco via teclado |
+| `--color-text-muted` | `#C4D0C6` | `#41564A` | Metadados |
+| `--color-accent` | `#B9E3A8` | `#23613F` | Ações e reprodução |
+| `--color-accent-soft` | `#263A2B` | `#DFEDE0` | Estado ativo |
+| `--color-focus` | `#F2D785` | `#204E89` | Foco de teclado |
 
-Contrastes calculados em sRGB: texto principal/superfície escura 14,51:1; texto secundário/superfície escura 10,01:1; texto principal/fundo claro 14,57:1; texto secundário/superfície branca 7,91:1; texto/botão principal escuro 11,59:1 e claro 7,36:1; link verde no modo claro 7,85:1. A paleta reserva os acentos para ações e estados, com texto e ícones legíveis sobre as superfícies. Estados ativos e indisponíveis também recebem rótulos, contornos ou texto, para não depender somente da cor. Recalcular contrastes após qualquer ajuste e validar com ferramenta automatizada antes da publicação.
+O alto contraste usa tokens próprios `[data-contrast="high"]`.
+Os espaçamentos variam de `--space-1` (4px) a `--space-7` (48px).
+Raio: `--radius-sm`, `--radius-md`, `--radius-lg` e
+`--radius-pill`. Mínimo de toque: `--tap-target` = 44px.
+Capas de faixas: `--track-artwork-size` = 54px,
+`--track-artwork-mobile-size` = 45px.
 
-O modo de alto contraste utiliza preto/branco e acentos de alto contraste; preferência `forced-colors` do sistema é preservada.
+A fonte utiliza apenas a pilha local do sistema
+(`system-ui`, Segoe UI, Roboto e equivalentes), com opção ampliada de 18px.
 
-## Tipografia
+## Componentes e estados
 
-- Fonte: pilha local de sistema (`system-ui`, Segoe UI, Roboto, Arial).
-- Base: 16px; opção ampliada: 18px.
-- Títulos: escala fluida `clamp` e peso 700/750.
-- Espaçamento entre linhas do corpo: 1,55.
-- Não depende de fontes externas ou carregamentos assíncronos.
+### Linha de episódio (`.song-row`)
 
-## Espaçamento e dimensões
+Compartilhada entre Fila e resultados da busca. O componente exibe capa,
+título, autor/estado, total de ouvintes e ações de reprodução/detalhes.
 
-| Token | Valor |
+| Estado | `data-playback` | Ícone | Ação do botão | Texto secundário |
+| --- | --- | --- | --- | --- |
+| Outra faixa | `idle` | Play | Selecionar e tocar | Foco.dev e ouvintes |
+| Faixa atual, pausada | `paused` | Play | Retomar do mesmo ponto | Foco.dev e ouvintes |
+| Faixa atual, tocando | `playing` | Pause | Pausar | **Reproduzindo** e ouvintes |
+
+A seleção tem `aria-current="true"`; o botão tem `aria-pressed` e
+`aria-label="Reproduzir…"/"Pausar…"`. O CSS utiliza apenas
+`data-playback` e `aria-pressed` para os destaques. O estado do ícone
+é aplicado em `src/track-rows.js` e sincronizado em `src/main.js` a partir
+do elemento `<audio>`, inclusive quando o sistema móvel pausa a reprodução.
+
+**Ouvintes:** a linha mostra `0 ouvintes`, `1 ouvinte`, etc., sem inventar
+dados. Se a API não estiver disponível, mostra `— ouvintes`. O valor é
+atualizado após a confirmação no servidor, sem reconstruir toda a fila.
+
+### Card editorial (`.podcast-card`)
+
+- Largura até 340px no celular, cabeçalho Foco.dev e arte 4:3.
+- Título com máximo de duas linhas e texto de disponibilidade.
+- Barra com **curtida**, **compartilhar** e **ouvintes**, independentes da
+  ação que abre o episódio.
+- Coração usa `aria-pressed`, título e estado de desabilitado quando a API
+  está indisponível.
+
+### Player
+
+- Mini player fixo na parte inferior, acima da navegação mobile.
+- Botão principal alterna **Play/Pause** com estado `aria-pressed`.
+- Linha de progresso e duração seguem `timeupdate` e `seeked` nativos,
+  sem timer de atualização contínuo.
+- `src/listening.js` contabiliza 30 segundos usando o total dos
+  `TimeRanges` de `HTMLMediaElement.played`, desconsiderando saltos por
+  seek. Redis mantém a deduplicação anônima por navegador.
+
+### Navegação e acessibilidade
+
+- No celular, três destinos iguais: **Explorar, Fila e Sobre**.
+- Na lateral direita, o botão VLibras fica na metade visível da tela e
+  aciona o widget oficial.
+- Respeitar `safe-area-inset-bottom`, `prefers-reduced-motion`, zoom,
+  `forced-colors` e navegação por teclado.
+- As ações devem manter alvo de toque de pelo menos 44px e foco visível.
+
+## Arquitetura dos componentes
+
+| Módulo | Responsabilidade |
 | --- | --- |
-| `--space-1` | 4px |
-| `--space-2` | 8px |
-| `--space-3` | 12px |
-| `--space-4` | 16px |
-| `--space-5` | 24px |
-| `--space-6` | 32px |
-| `--space-7` | 48px |
-| `--radius-sm` | 10px |
-| `--radius-md` | 16px |
-| `--radius-lg` | 24px |
-| `--tap-target` | 44px |
+| `src/styles/tokens.css` | Identidade, dimensões e temas |
+| `src/styles/app.css` | Layout responsivo e estilos dos componentes |
+| `src/main.js` | Orquestração do player, fila, navegação e preferências |
+| `src/listening.js` | Qualificação de reprodução por intervalos de áudio |
+| `src/track-rows.js` | Ícone, rótulo, seleção e métricas nas linhas |
+| `src/podcast-ui.js` | Cards editoriais, detalhe e compartilhamento |
+| `src/social.js` | Leitura e gravação dos contadores com API |
+| `api/social.js` | Persistência, validação e controles de segurança |
 
-## Componentes
+Não duplicar o tempo de reprodução em vários módulos nem atualizar o contador
+local antes de o Redis confirmar a gravação. Não usar `innerHTML` para dados
+de episódios. Novos controles devem reutilizar tokens e estados existentes.
 
-- **Button primary**: ação explícita de busca e reprodução.
-- **Button quiet**: preferências de visualização, sem aparência de CTA principal.
-- **Icon button**: ícone acompanhado de `aria-label`, `title`, estado `aria-pressed` quando apropriado.
-- **Track row**: agrupamento de capa, título, artista, disponibilidade e ações; controles nativos com nomes acessíveis.
-- **Navegação**: navegação lateral no desktop e barra inferior no mobile, com `aria-current` sincronizado e botões nativos.
-- **Queue**: lista ordenada sem alteração surpresa do foco.
-- **Range**: nativo, com rótulos e descrições de valor.
-- **Notice**: aviso sem cor como único recurso informativo.
-- **Live status**: mensagens esporádicas via região `role=status` (sem anunciar a passagem do tempo incessantemente).
+## Revisão e testes
 
-## Responsividade
-
-- Desktop: navegação principal no topo, conteúdo ao centro e player fixo inferior.
-- Tablet e celular: navegação inferior, cabeçalho compacto e mini player acima do dock; controles secundários aparecem ao expandir.
-- A navegação móvel começa até 760px para manter acesso aos destinos em tablets estreitos.
-- O player e o VLibras respeitam a área segura do dispositivo; o conteúdo recebe espaço inferior para não ficar encoberto.
-- Grade de descoberta com três colunas em telas médias e duas em celulares; linhas de episódios preservam alvo de toque de pelo menos 44px.
-- Respeitar `prefers-reduced-motion`, zoom e `forced-colors`; não introduzir rolagem horizontal deliberada.
-
-## Organização visual
-
-- **Proximidade:** navegação agrupada à parte do conteúdo; capa, título, créditos e ações permanecem juntos em cada episódio.
-- **Similaridade:** os mesmos destinos mantêm ícone, nome e estado ativo entre desktop e mobile.
-- **Figura e fundo:** planos escalonados separam navegação, cartões, player e conteúdo sem adicionar divisórias em cada elemento.
-- **Continuidade:** o mini player permanece acima da navegação inferior e conserva a faixa selecionada ao trocar de tela.
-- **Hierarquia de cor:** verde claro/escuro destaca a ação principal conforme o tema; cores de perigo e foco têm papéis próprios.
-
-## Aplicação do VLibras
-
-As variáveis `--vlibras-btn-focus-visible-outline`, `--vlibras-btn-focus-visible-shadow`, `--vlibras-btn-hover-filter` são suportadas oficialmente. O botão auxiliar “Libras” usa as cores da marca e aciona o controle oficial quando disponível. A personalização de cor/vestimenta do avatar oficial exige parceria formal, portanto não foi falsamente simulada.
-
-Documentação: https://www.vlibras.gov.br/doc/widget/installation/webpageintegration.html
-
-## Atualização mobile e iconografia
-
-- Ícones: Bootstrap Icons 1.13.2, publicados via jsDelivr; não exige importar o framework Bootstrap.
-- Conteúdo acessível: ícones decorativos com `aria-hidden`, botões com `aria-label` e textos na navegação inferior.
-- Capas: SVGs próprios para a identidade de podcasts, com fallback para o logo.
-- Dock inferior com 5 destinos móveis: Categorias, Podcasts, Playlists, Fila e Ajustes; destaque da seleção por contraste e `aria-current`.
-- Mini-player acima do dock, com play/next de acesso imediato e modo expandido para os demais controles.
-- Safe-area: `env(safe-area-inset-bottom)`; alvos de toque priorizados, foco navegável e textos legíveis.
+1. `npm run check` e `npm test`.
+2. No celular: tocar uma faixa da fila e verificar que seu botão muda para
+   **Pause**, a linha mostra **Reproduzindo**, e o player acompanha.
+3. Pausar na fila e retomar pelo mesmo botão, sem reiniciar o áudio.
+4. Ouvir 30 segundos reais, confirmar a contagem na fila e no Explorar.
+   Avançar a barra de progresso não deve aumentar o total.
+5. Conferir VLibras, busca, acessibilidade, tema claro/escuro, contraste,
+   compartilhamento e URLs de podcast.
+6. Validar visualmente Chrome Android e desktop antes de afirmar conformidade
+   WCAG 2.2 AA; testes automatizados não substituem auditoria manual.
