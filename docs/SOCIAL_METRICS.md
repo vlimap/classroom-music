@@ -108,3 +108,7 @@ Documentar no aviso de privacidade do projeto o UUID persistente e o uso
 do Redis para contagens agregadas. Não registrar o token, UUID bruto ou
 IP em logs da aplicação. Os conjuntos Redis não possuem expiração porque
 preservam contagens históricas; aplicar política de retenção se necessário.
+
+## Ativação inicial em produção
+
+Após conectar o banco `focodev-social` e adicionar `SOCIAL_ID_SECRET` no projeto Vercel `classroommusic`, uma nova implantação automática da branch `main` aplica as variáveis. Validar `GET /api/social` com HTTP 200 e confirmar os contadores no site. Não publicar nem registrar segredos no repositório.
