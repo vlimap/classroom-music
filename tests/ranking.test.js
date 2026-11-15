@@ -98,7 +98,9 @@ test("integração utiliza ranking nos dois catálogos e reage às alterações 
   assert.match(ui, /reorder\(discoverGrid, filterPodcastEpisodes\(sorted, query\)\)/);
   assert.match(ui, /discoverGrid\.replaceChildren\(makeFragment\(matches\)\)/);
   assert.match(ui, /focused\.focus\(\{preventScroll: true\}\)/);
-  assert.match(main, /onChange:\(\)=>podcastUI\?\.updateSocial\(\)/);
+  assert.match(main, /onChange:\(\)=>\{\s*podcastUI\?\.updateSocial\(\)/);
+  assert.match(main, /sortPodcastsByEngagement\(\s*filterPodcastEpisodes\(publishedCatalog,term\), id=>social\.snapshot\(id\)/);
+  assert.match(main, /if\(state\.view==="search"\)void doSearch\(\)/);
   assert.match(main, /void social\.refresh\(\)/);
   assert.match(social, /totals\.likes = result\.count/);
   assert.match(social, /totals\.listeners = result\.count/);
