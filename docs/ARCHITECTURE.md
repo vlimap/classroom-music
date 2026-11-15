@@ -16,7 +16,8 @@
 - O catálogo é estático: episódios e metadados ficam no repositório; a fila de reprodução é mantida apenas em memória.
 
 ## Hospedagem e privacidade
-- Vercel estática, sem funções serverless, autenticação, banco ou API FreeToUse.
+- Catálogo e áudios estáticos na Vercel; uma Function Node.js opcional em `api/social.js` gerencia métricas anônimas via Upstash Redis. Não existe autenticação nem integração com API FreeToUse.
+- UUID v4 do navegador persistido localmente; Redis armazena hashes HMAC de identificadores para deduplicar curtidas e ouvintes (reprodução efetiva de 30 segundos). Ver `docs/SOCIAL_METRICS.md`.
 - Áudio próprio pode migrar para storage/CDN externo de leitura quando necessário; não há garantia de proteção contra cópia.
 - Sites externos usados apenas como referências das notícias com links; não como fonte de streaming.
 

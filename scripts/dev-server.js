@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import socialApi from '../api/social.js';
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { createGzip } from 'node:zlib';
@@ -23,6 +24,30 @@ const types = {
 };
 
 createServer(async (req, res) => {
+  if (new URL(req.url, 'http://127.0.0.1:4173').pathname === '/api/social') {
+    if (req.method !== 'GET' && req.method !== 'POST') {
+      res.writeHead(405, {Allow:'GET, POST'}).end();
+      return;
+    }
+    let body;
+    if (req.method === 'POST') {
+      const chunks=[];
+      let size=0;
+      for await (const chunk of req) {
+        size+=chunk.length;
+        if(size>512){res.writeHead(413).end();return;}
+        chunks.push(chunk);
+      }
+      body=Buffer.concat(chunks);
+    }
+    const host=req.headers.host || '127.0.0.1:4173';
+    const response=await socialApi.fetch(new Request('http://' + host + '/api/social',{
+      method:req.method,headers:req.headers,body
+    }));
+    res.writeHead(response.status,Object.fromEntries(response.headers));
+    res.end(await response.text());
+    return;
+  }
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { Allow: 'GET, HEAD' }).end();
     return;

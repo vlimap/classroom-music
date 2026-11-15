@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node scripts/dev-server.js",
     "test": "node --test",
-    "check": "node --check src/main.js && node --check src/music.js && node --check src/podcasts.js && node --check src/podcast-ui.js"
+    "check": "node --check src/main.js && node --check src/music.js && node --check src/podcasts.js && node --check src/podcast-ui.js && node --check src/social.js && node --check api/social.js"
   },
   "engines": {
     "node": ">=20"

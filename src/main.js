@@ -1,6 +1,7 @@
 import { CATEGORIES, formatTime, timeDescription, nextIndex, previousIndex, readJsonStorage, saveJsonStorage } from "./music.js";
 import { PODCAST_EPISODES, canonicalPodcastId } from "./podcasts.js";
 import { createPodcastUI } from "./podcast-ui.js";
+import { createSocial } from "./social.js";
 
 const $=id=>document.getElementById(id);
 function safeHttpsUrl(value){
@@ -16,6 +17,8 @@ const state={
   volume:40,muted:false,expanded:false,request:null,playableIds:new Set()
 };
 let podcastUI=null;
+let social=null;
+let listening={id:null,seconds:0,previous:null};
 const fileAudio=$("file-player");
 const isImported=track=>track?.source==="published";
 const currentPosition=()=>fileAudio.currentTime||0;
@@ -117,6 +120,7 @@ function stopFilePlayback(){
   fileAudio.load();
 }
 function prepareSelected(){
+  listening={id:null,seconds:0,previous:null};
   stopFilePlayback();
   const track=selected();
   if(!track)return false;
@@ -324,6 +328,24 @@ function initNavigation(){
   $("search-form").addEventListener("submit",event=>{event.preventDefault();void doSearch();});
   $("search-query").addEventListener("input",event=>{void doSearch(event.currentTarget.value);});
 }
+function trackListeningTime(){
+  const track=selected();
+  if(!track || !social) return;
+  if(listening.id!==track.id) listening={id:track.id,seconds:0,previous:null};
+  const position=fileAudio.currentTime;
+  if(!Number.isFinite(position)) return;
+  if(fileAudio.seeking || fileAudio.paused || !state.playing){
+    listening.previous=position;
+    return;
+  }
+  if(listening.previous!==null){
+    const delta=position-listening.previous;
+    // Saltos no seek não representam tempo de áudio efetivamente reproduzido.
+    if(delta>0 && delta<=2.5) listening.seconds+=delta;
+  }
+  listening.previous=position;
+  if(listening.seconds>=30) void social.recordListener(track.id);
+}
 function initPlayer(){
   setVolume();
   prepareSelected();
@@ -360,6 +382,8 @@ function initPlayer(){
     }catch{}
   }
   fileAudio.addEventListener("loadedmetadata",updateTimeline);
+  fileAudio.addEventListener("timeupdate",trackListeningTime);
+  fileAudio.addEventListener("seeked",()=>{listening.previous=fileAudio.currentTime;});
   fileAudio.addEventListener("ended",()=>advance(true));
   fileAudio.addEventListener("error",()=>{if(isImported(selected())){state.playing=false;renderPlayer();say("Arquivo indisponível. Confirme que o áudio do catálogo foi enviado ao projeto.");}});
   window.setInterval(()=>{if(state.playing)updateTimeline();},300);
@@ -385,13 +409,16 @@ async function refreshPublishedMedia(){
   podcastUI?.updateAudioAvailability();
 }
 function init(){
+  social=createSocial({onChange:()=>podcastUI?.updateSocial(),onError:say});
   podcastUI=createPodcastUI({
     showView:view=>setView(view),
+    social,
     isAvailable:id=>state.playableIds.has(id),
     playEpisode:episode=>playFromTrack(episode,publishedCatalog.filter(track=>state.playableIds.has(track.id))),
   });
   initPreferences();initVLibrasBrand();initNavigation();initPlayer();
   renderCategories();void fetchCategories();
+  void social.refresh();
   void refreshPublishedMedia();
 }
 

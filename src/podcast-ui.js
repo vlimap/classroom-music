@@ -2,7 +2,7 @@ import { PODCAST_EPISODES, getPodcast } from "./podcasts.js";
 
 const $ = id => document.getElementById(id);
 
-export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable }) {
+export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable, social }) {
   let activeEpisode = null;
 
   function formatEpisodeDate(isoDate) {
@@ -14,31 +14,95 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     });
   }
 
+  function updateSocialCard(card) {
+    const id = card.dataset.podcastId;
+    const stats = social.snapshot(id);
+    const like = card.querySelector(".podcast-like");
+    const likeLabel = like.querySelector(".podcast-like-count");
+    const likeIcon = like.querySelector(".bi");
+    const listeners = card.querySelector(".podcast-listeners");
+    const formattedLikes = stats.likes === null ? "—" : social.formatNumber(stats.likes);
+    const formattedListeners = stats.listeners === null ? "—" : social.formatNumber(stats.listeners);
+    like.setAttribute("aria-pressed", String(stats.liked));
+    like.setAttribute("aria-label", (stats.liked ? "Descurtir" : "Curtir") + " " + card.dataset.podcastTitle);
+    like.title = stats.available ? (stats.liked ? "Remover curtida" : "Curtir episódio") : "Curtidas temporariamente indisponíveis";
+    like.disabled = !stats.available || stats.pending;
+    likeIcon.className = "bi " + (stats.liked ? "bi-heart-fill" : "bi-heart");
+    likeLabel.textContent = formattedLikes + " curtida" + (stats.likes === 1 ? "" : "s");
+    listeners.textContent = "";
+    const headphone = document.createElement("i");
+    headphone.className = "bi bi-headphones";
+    headphone.setAttribute("aria-hidden", "true");
+    const text = document.createElement("span");
+    text.textContent = formattedListeners + " ouvinte" + (stats.listeners === 1 ? "" : "s");
+    listeners.append(headphone, text);
+    listeners.title = "Navegadores distintos que ouviram pelo menos 30 segundos";
+  }
+
+  function updateSocial() {
+    document.querySelectorAll(".podcast-card[data-podcast-id]").forEach(updateSocialCard);
+  }
+
   function episodeCard(episode, priority = false) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "podcast-card";
+    const card = document.createElement("article");
+    card.className = "podcast-card";
+    card.dataset.podcastId = episode.id;
+    card.dataset.podcastTitle = episode.title;
+    const open = document.createElement("button");
+    open.type = "button";
+    open.className = "podcast-card-open";
+    open.setAttribute("aria-label", "Ver episódio: " + episode.title);
+    const header = document.createElement("span");
+    header.className = "podcast-card-header";
+    const avatar = document.createElement("img");
+    avatar.className = "podcast-card-avatar";
+    avatar.src = "/logo.svg";
+    avatar.width = 32;
+    avatar.height = 32;
+    avatar.alt = "";
+    const brand = document.createElement("strong");
+    brand.textContent = "foco.dev";
+    const date = document.createElement("small");
+    date.textContent = formatEpisodeDate(episode.date);
+    header.append(avatar, brand, date);
     const image = document.createElement("img");
+    image.className = "podcast-card-artwork";
     image.src = episode.cardArtwork || episode.artwork;
     image.alt = "";
     image.width = 320;
-    image.height = 180;
+    image.height = 240;
     image.decoding = "async";
     image.loading = priority ? "eager" : "lazy";
     if (priority) image.fetchPriority = "high";
     const description = document.createElement("span");
     description.className = "podcast-card-body";
-    const date = document.createElement("small");
-    date.textContent = formatEpisodeDate(episode.date);
     const title = document.createElement("strong");
     title.textContent = episode.title;
     const status = document.createElement("span");
     status.className = "podcast-card-status";
     status.textContent = isAvailable(episode.id) ? "Ouvir episódio" : "Áudio em preparação";
-    description.append(date, title, status);
-    button.append(image, description);
-    button.addEventListener("click", () => openEpisode(episode.id));
-    return button;
+    description.append(title, status);
+    open.append(header, image, description);
+    open.addEventListener("click", () => openEpisode(episode.id));
+
+    const socialBar = document.createElement("div");
+    socialBar.className = "podcast-social";
+    const like = document.createElement("button");
+    like.className = "podcast-like";
+    like.type = "button";
+    const icon = document.createElement("i");
+    icon.className = "bi bi-heart";
+    icon.setAttribute("aria-hidden", "true");
+    const count = document.createElement("span");
+    count.className = "podcast-like-count";
+    like.append(icon, count);
+    like.addEventListener("click", () => void social.toggleLike(episode.id));
+    const listeners = document.createElement("span");
+    listeners.className = "podcast-listeners";
+    socialBar.append(like, listeners);
+    card.append(open, socialBar);
+    updateSocialCard(card);
+    return card;
   }
 
   function renderList() {
@@ -51,6 +115,7 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     const discoverGrid = $("discover-podcast-grid");
     if (discoverGrid) discoverGrid.replaceChildren(makeFragment());
     $("podcasts-status").textContent = PODCAST_EPISODES.length + " episódio(s).";
+    updateSocial();
   }
 
   function updateAudioAvailability() {
@@ -104,5 +169,5 @@ export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable
     if (activeEpisode && isAvailable(activeEpisode.id)) playEpisode(activeEpisode);
   });
 
-  return { openPodcasts, openEpisode, renderList, updateAudioAvailability };
+  return { openPodcasts, openEpisode, renderList, updateAudioAvailability, updateSocial };
 }

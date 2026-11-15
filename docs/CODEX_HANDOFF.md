@@ -9,6 +9,11 @@ O projeto foi reposicionado para um catálogo exclusivamente de podcasts sobre t
 - `src/main.js`: busca, player HTMLAudioElement, fila e navegação.
 - `audio/podcasts/`: destino dos áudios finais.
 
+## Métricas sociais
+
+- Cards compactos com coração e ouvintes; totais reais dependem da configuração de Redis no Vercel.
+- `src/social.js` e `api/social.js` tratam curtidas e ouvintes anônimos. Ver `docs/SOCIAL_METRICS.md`.
+
 ## Próximo passo editorial
 
 Colocar os arquivos de áudio em `audio/podcasts/` com os nomes definidos no catálogo. Depois, conferir locução, duração, MIME, reprodução, fila e fontes HTTPS de cada episódio.
