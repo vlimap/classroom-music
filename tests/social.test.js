@@ -54,11 +54,13 @@ test("cards têm coração, métricas e destinos de clique independentes",()=>{
   assert.match(css,/max-width:min\(100%,340px\)/);
   assert.match(css,/color:var\(--color-accent\)/);
 });
-test("contabilização ocorre após reprodução real e nunca pelo clique no card",()=>{
+test("o player registra audições a partir dos intervalos reproduzidos, sem depender de delta curto",()=>{
   const main = load("../src/main.js");
-  assert.match(main,/fileAudio\.addEventListener\("timeupdate",trackListeningTime\)/);
-  assert.match(main,/listening\.seconds>=30/);
-  assert.match(main,/delta>0 && delta<=2\.5/);
+  const tracker = load("../src/listening.js");
+  assert.match(main,/createListeningTracker\(\{/);
+  assert.match(main,/onQualified:id=>social\.recordListener\(id\)/);
+  assert.match(tracker,/playedSeconds\(audio\.played\) < threshold/);
+  assert.doesNotMatch(main,/listening\.seconds|delta>0 && delta<=2\.5/);
 });
 test("API não retorna contagens inventadas sem Redis configurado",async()=>{
   delete process.env.UPSTASH_REDIS_REST_URL;
