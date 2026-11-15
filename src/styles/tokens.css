@@ -17,6 +17,9 @@
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
+  --radius-pill: 999px;
+  --track-artwork-size: 54px;
+  --track-artwork-mobile-size: 45px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
