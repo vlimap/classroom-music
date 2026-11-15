@@ -5,7 +5,7 @@ import { sortPodcastsByEngagement, reorderPodcastCards } from "./ranking.js";
 
 const $ = id => document.getElementById(id);
 
-export function createPodcastUI({ showView, playEpisode, addEpisode, isAvailable, social, announce = () => {} }) {
+export function createPodcastUI({ showView, playEpisode, isAvailable, social, announce = () => {} }) {
   let activeEpisode = null;
 
   function formatEpisodeDate(isoDate) {
