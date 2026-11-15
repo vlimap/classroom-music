@@ -19,6 +19,7 @@
 ## Hospedagem e privacidade
 - Catálogo e áudios estáticos na Vercel; uma Function Node.js opcional em `api/social.js` gerencia métricas anônimas via Upstash Redis. Não existe autenticação nem integração com API FreeToUse.
 - UUID v4 do navegador persistido localmente; Redis armazena hashes HMAC de identificadores para deduplicar curtidas e ouvintes (reprodução efetiva de 30 segundos). Ver `docs/SOCIAL_METRICS.md`.
+- `src/ranking.js` ordena os cards da descoberta e do catálogo pela soma de curtidas e ouvintes recebida via `src/social.js`; não modifica a sequência de reprodução. Empates usam mais ouvintes e, por fim, a ordem editorial. A mudança de classificação move os cards existentes, preservando eventos e foco.
 - Áudio próprio pode migrar para storage/CDN externo de leitura quando necessário; não há garantia de proteção contra cópia.
 - Sites externos usados apenas como referências das notícias com links; não como fonte de streaming.
 
