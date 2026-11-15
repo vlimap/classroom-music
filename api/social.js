@@ -3,15 +3,26 @@ import { PODCAST_EPISODES, getPodcast } from "../src/podcasts.js";
 
 const jsonHeaders = {
   "content-type": "application/json; charset=utf-8",
-  "cache-control": "no-store"
+  "cache-control": "no-store",
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "no-referrer"
 };
 const visitorPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const knownActions = new Set(["like", "unlike", "listen"]);
+// A limitação é atômica, por IP da borda Vercel, e inclui consultas (GET).
+// Limites separados por minuto e por dia protegem também a quota gratuita.
 const RATE_SCRIPT = `
-local hits = redis.call("INCR", KEYS[1])
-if hits == 1 then redis.call("EXPIRE", KEYS[1], 60) end
-return hits
+local minute = redis.call("INCR", KEYS[1])
+if minute == 1 then redis.call("EXPIRE", KEYS[1], 60) end
+local day = redis.call("INCR", KEYS[2])
+if day == 1 then redis.call("EXPIRE", KEYS[2], 86400) end
+return {minute, day}
 `;
+const RATE_LIMITS = Object.freeze({
+  get: Object.freeze({ minute: 30, day: 1000 }),
+  post: Object.freeze({ minute: 60, day: 1000 })
+});
+const BODY_LIMIT = 256;
 const REACTION_SCRIPT = `
 if ARGV[1] == "like" then
   redis.call("SADD", KEYS[1], ARGV[2])
@@ -69,52 +80,115 @@ async function getTotals() {
   if (values.length !== commands.length) throw new Error("Incomplete Redis pipeline");
   const stats = {};
   PODCAST_EPISODES.forEach(({id}, index) => {
-    stats[id] = {
-      likes: Number(values[2 * index]),
-      listeners: Number(values[2 * index + 1])
-    };
+    const likes = Number(values[2 * index]);
+    const listeners = Number(values[2 * index + 1]);
+    if (![likes, listeners].every(value => Number.isSafeInteger(value) && value >= 0))
+      throw new Error("Invalid Redis counter");
+    stats[id] = { likes, listeners };
   });
   return stats;
 }
-async function updateTotal({id, action, visitorId}, request) {
-  const ip = (request.headers.get("x-forwarded-for") || "unknown").split(",")[0].trim();
-  const minute = Math.floor(Date.now() / 60000);
-  const [rate] = await redis(["EVAL", RATE_SCRIPT, "1",
-    "foco:social:limit:" + hash(ip) + ":" + minute]);
-  if (Number(rate) > 60) return send({error: "Limite de solicitações excedido."}, 429);
+function clientIp(request) {
+  // A Vercel sobrescreve x-forwarded-for para evitar spoofing. Em produção,
+  // priorizamos o header da própria borda (https://vercel.com/docs/headers/request-headers).
+  const supplied = request.headers.get("x-vercel-forwarded-for") ||
+    request.headers.get("x-forwarded-for") || "unknown";
+  return supplied.split(",")[0].trim().slice(0, 64);
+}
 
+async function checkRateLimit(request, operation) {
+  const now = Date.now();
+  const limits = RATE_LIMITS[operation];
+  const identity = hash(clientIp(request));
+  const prefix = "foco:social:rate:" + operation + ":" + identity + ":";
+  const [values] = await redis([
+    "EVAL", RATE_SCRIPT, "2",
+    prefix + "minute:" + Math.floor(now / 60000),
+    prefix + "day:" + Math.floor(now / 86400000)
+  ]);
+  if (!Array.isArray(values) || values.length !== 2 ||
+      !values.every(item => Number.isSafeInteger(Number(item))))
+    throw new Error("Invalid rate-limit response");
+  return Number(values[0]) <= limits.minute && Number(values[1]) <= limits.day;
+}
+
+async function readLimitedBody(request) {
+  if (!request.body) return { text: "" };
+  const reader = request.body.getReader();
+  const chunks = [];
+  let received = 0;
+  while (true) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    received += value.byteLength;
+    if (received > BODY_LIMIT) {
+      await reader.cancel();
+      return {tooLarge: true};
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(received);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  try { return {text: new TextDecoder("utf-8", {fatal: true}).decode(bytes)}; }
+  catch { return {badEncoding: true}; }
+}
+
+async function updateTotal({id, action, visitorId}) {
   const kind = action === "listen" ? "listeners" : "likes";
   const key = "foco:social:" + kind + ":" + id;
-  const [count] = await redis(["EVAL", REACTION_SCRIPT, "1", key, action, hash(visitorId)]);
-  return send({ id, kind, count: Number(count), liked: action === "like" });
+  const [count] = await redis(["EVAL", REACTION_SCRIPT, "1",
+    key, action, hash(visitorId.toLowerCase())]);
+  const total = Number(count);
+  if (!Number.isSafeInteger(total) || total < 0)
+    throw new Error("Invalid reaction count");
+  return send({ id, kind, count: total, liked: action === "like" });
 }
 
 export default {
   async fetch(request) {
     if (request.method !== "GET" && request.method !== "POST")
-      return new Response(null, {status: 405, headers: {allow: "GET, POST"}});
+      return new Response(null, {status: 405, headers: {...jsonHeaders, allow: "GET, POST"}});
     if (!isConfigured()) return send({error: "Métricas não configuradas."}, 503);
     try {
-      if (request.method === "GET") return send({stats: await getTotals()});
+      if (request.method === "GET") {
+        if (!await checkRateLimit(request, "get"))
+          return send({error: "Muitas consultas. Tente novamente mais tarde."}, 429);
+        return send({stats: await getTotals()});
+      }
+      // Mutações são exclusivamente same-origin; sem Origin também é negado.
+      // A ausência de cookies evita dependência de login/sessão.
       const origin = request.headers.get("origin");
-      if (origin && origin !== new URL(request.url).origin)
+      if (!origin || origin !== new URL(request.url).origin ||
+          !["same-origin", null].includes(request.headers.get("sec-fetch-site")))
         return send({error: "Origem não autorizada."}, 403);
-      if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json"))
+      if (!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(
+        request.headers.get("content-type") || ""))
         return send({error: "Content-Type deve ser application/json."}, 415);
-      if (Number(request.headers.get("content-length") || 0) > 256)
+      const statedLength = request.headers.get("content-length");
+      if (statedLength !== null &&
+          (!/^\d+$/.test(statedLength) || Number(statedLength) > BODY_LIMIT))
         return send({error: "Requisição muito grande."}, 413);
-      const raw = await request.text();
-      if (raw.length > 256) return send({error: "Requisição muito grande."}, 413);
+      const body = await readLimitedBody(request);
+      if (body.tooLarge) return send({error: "Requisição muito grande."}, 413);
+      if (body.badEncoding) return send({error: "Codificação inválida."}, 400);
       let payload;
-      try { payload = JSON.parse(raw); }
+      try { payload = JSON.parse(body.text); }
       catch { return send({error: "JSON inválido."}, 400); }
-      if (!payload || typeof payload !== "object" ||
+      if (!payload || Array.isArray(payload) || typeof payload !== "object" ||
+          Object.keys(payload).length !== 3 ||
           !getPodcast(payload.id) || !knownActions.has(payload.action) ||
           typeof payload.visitorId !== "string" || !visitorPattern.test(payload.visitorId))
         return send({error: "Episódio, ação ou identificador inválido."}, 400);
-      return await updateTotal(payload, request);
+      if (!await checkRateLimit(request, "post"))
+        return send({error: "Limite de solicitações excedido."}, 429);
+      return await updateTotal(payload);
     } catch (error) {
-      console.error("Falha ao consultar métricas dos podcasts:", error.message);
+      // Sem tokens, UUIDs ou IPs nos logs.
+      console.error("Serviço de métricas indisponível:", error?.name || "Error");
       return send({error: "Serviço de métricas temporariamente indisponível."}, 503);
     }
   }
