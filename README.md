@@ -2,6 +2,8 @@
 
 Catálogo acessível de podcasts sobre tecnologia, com player, fila e cards compactos de estilo editorial. Os cards exibem curtidas compartilhadas e ouvintes anônimos quando o Redis está configurado.
 
+Na área Explorar e na listagem de podcasts, os cards são ordenados automaticamente pela **soma de curtidas e ouvintes** registrada no Redis. Os empates priorizam quem tem mais ouvintes; sem métricas, a ordem editorial permanece. A classificação se atualiza após carregar as estatísticas ou registrar novas interações, sem alterar a fila de reprodução.
+
 ## Conteúdo atual
 
 O catálogo tem **sete episódios publicados com áudio**, incluindo JavaScript, Margaret Hamilton e a Apollo 11, o Morris Worm, Linux/Git, o Ariane 5 e o Bug do Milênio. As datas informadas no catálogo são dos acontecimentos, não de lançamento.
