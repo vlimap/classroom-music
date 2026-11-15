@@ -16,7 +16,14 @@ O projeto foi reposicionado para um catálogo exclusivamente de podcasts sobre t
 
 ## Próximo passo editorial
 
-Colocar os arquivos de áudio em `audio/podcasts/` com os nomes definidos no catálogo. Depois, conferir locução, duração, MIME, reprodução, fila e fontes HTTPS de cada episódio.
+Os sete áudios M4A já estão versionados em `audio/podcasts/`. Conferir locução, duração, MIME, reprodução e fonte de cada episódio, além de registrar as datas reais de publicação e referências verificáveis antes de adicioná-las à página ou ao feed.
+
+## Descoberta e compartilhamento
+
+- Permalinks `/podcasts/:slug` renderizados por `api/episode.js` na Vercel.
+- `/sitemap.xml` e `/feed.xml` gerados automaticamente; manter o arquivo `AUDIO_FILE_BYTES` atualizado para novos áudios.
+- `src/share.js` abre o compartilhamento nativo/copia URLs canônicas; `/?episode=id` volta ao player.
+- Consulte `docs/SEO_GEO.md` para validações de indexação e de card social.
 
 ## Validação
 
