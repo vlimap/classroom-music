@@ -89,6 +89,9 @@ main{padding:38px 0}
 .timeline output{min-width:37px;font-size:.75rem;text-align:center;font-variant-numeric:tabular-nums;color:var(--color-text-muted)}
 input[type="range"]{width:100%;min-height:36px;accent-color:var(--color-accent);cursor:pointer}
 .volume-control{display:flex;align-items:center;gap:8px}
+.speed-control{display:flex;align-items:center;gap:6px;color:var(--color-text-muted);font-size:.74rem;white-space:nowrap}
+.speed-control select{min-height:34px;padding:4px 7px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface-raised);color:var(--color-text);font:inherit}
+.speed-control select:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
 .expand-player,.mobile-nav{display:none}
 @media(max-width:1000px){
 .shell{padding-inline:22px}
@@ -372,6 +375,7 @@ main{min-width:0;padding:48px 0 70px}
  body[data-expanded="true"] .transport{justify-content:space-evenly}
  body[data-expanded="true"] .transport .advanced-control{display:inline-flex}
  body[data-expanded="true"] .volume-control{grid-area:volume;display:flex}
+ body[data-expanded="true"] .speed-control{margin-left:auto}
  body[data-expanded="true"] .volume-control input{min-height:32px}
  .vlibras-fab{right:10px}
 }

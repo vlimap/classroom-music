@@ -9,11 +9,12 @@ import { updateTrackRow, renderTrackList } from "./track-rows.js";
 
 const $=id=>document.getElementById(id);
 const KEY="focodev:";
+const PLAYBACK_RATES=Object.freeze([1,1.5,2,2.5]);
 const publishedCatalog=[...PODCAST_EPISODES];
 const state={
   view:"discover",searchResults:[],
   queue:[],index:0,playing:false,shuffle:false,repeat:"off",
-  volume:40,muted:false,expanded:false,playableIds:new Set()
+  volume:40,playbackRate:1,muted:false,expanded:false,playableIds:new Set()
 };
 let podcastUI=null;
 let social=null;
@@ -26,6 +27,7 @@ function say(message){$("announcer").textContent=message;}
 function safeStorage(){try{return window.localStorage;}catch{return null;}}
 const storage=safeStorage();
 if(storage)state.volume=Math.max(0,Math.min(100,Number(readJsonStorage(KEY+"volume",40))||40));
+if(storage){const savedRate=Number(readJsonStorage(KEY+"playback-rate",1));if(PLAYBACK_RATES.includes(savedRate))state.playbackRate=savedRate;}
 function setView(view,{focus=true}={}){
   const names=["discover","search","podcasts","episode","about","queue"];
   if(!names.includes(view))return;
@@ -42,7 +44,7 @@ function setView(view,{focus=true}={}){
 }
 function saveSelection(){
   if(!storage)return;
-  try{saveJsonStorage(KEY+"volume",state.volume);}catch{}
+  try{saveJsonStorage(KEY+"volume",state.volume);saveJsonStorage(KEY+"playback-rate",state.playbackRate);}catch{}
 }
 
 function syncTrackRows() {
@@ -109,6 +111,7 @@ function prepareSelected(){
     return false;
   }
   fileAudio.src=published.audio;
+  fileAudio.playbackRate=state.playbackRate;
   fileAudio.load();
   return true;
 }
@@ -145,6 +148,8 @@ function renderPlayer(){
   $("repeat").setAttribute("aria-pressed",String(state.repeat!=="off"));
   $("repeat").setAttribute("aria-label",state.repeat==="one"?"Repetir faixa":state.repeat==="all"?"Repetir fila":"Repetição desligada");
   $("repeat-icon").className="bi "+(state.repeat==="one"?"bi-repeat-1":"bi-repeat");
+  $("playback-rate").value=String(state.playbackRate);
+  $("playback-rate").setAttribute("aria-label","Velocidade de reprodução: "+state.playbackRate.toLocaleString("pt-BR")+" vezes");
   updateTimeline();
   if("mediaSession" in navigator && "MediaMetadata" in window && t){
     try{
@@ -206,6 +211,11 @@ function setVolume(){
   $("mute").setAttribute("aria-pressed",String(state.muted));
   $("mute").setAttribute("aria-label",state.muted?"Ativar som":"Silenciar");
   $("volume-icon").className="bi "+(state.muted||state.volume===0?"bi-volume-mute-fill":state.volume<50?"bi-volume-down-fill":"bi-volume-up-fill");
+}
+function setPlaybackRate(){
+  fileAudio.playbackRate=state.playbackRate;
+  $("playback-rate").value=String(state.playbackRate);
+  $("playback-rate").setAttribute("aria-label","Velocidade de reprodução: "+state.playbackRate.toLocaleString("pt-BR")+" vezes");
 }
 
 function findVLibrasButton(){
@@ -320,6 +330,12 @@ function initPlayer(){
   $("repeat").addEventListener("click",()=>{state.repeat=state.repeat==="off"?"all":state.repeat==="all"?"one":"off";renderPlayer();say("Modo de repetição alterado.");});
   $("mute").addEventListener("click",()=>{state.muted=!state.muted;setVolume();});
   $("volume").addEventListener("input",()=>{state.volume=Number($("volume").value);state.muted=false;setVolume();saveSelection();});
+  $("playback-rate").addEventListener("change",event=>{
+    const rate=Number(event.currentTarget.value);
+    if(!PLAYBACK_RATES.includes(rate))return;
+    state.playbackRate=rate;setPlaybackRate();saveSelection();
+    say("Velocidade de reprodução: "+rate.toLocaleString("pt-BR")+" vezes.");
+  });
   $("seek").addEventListener("input",()=>{
     const position=currentDuration()*Number($("seek").value)/1000;
     if(Number.isFinite(position))fileAudio.currentTime=position;

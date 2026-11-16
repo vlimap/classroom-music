@@ -17,9 +17,11 @@ test("navegação mobile: ícones, rótulos e safe-area",()=>{
  assert.match(css,/safe-area-inset-bottom/);
  assert.match(html,/bootstrap-icons@1\.13\.2/);
 });
-test("player, podcasts e fila intactos",()=>{
- for(const id of ["discover-podcast-grid","file-player","queue-items"])
+test("player, podcasts, fila e velocidade intactos",()=>{
+ for(const id of ["discover-podcast-grid","file-player","queue-items","playback-rate"])
   assert.ok(html.includes('id="'+id+'"'),id);
+ assert.match(html,/value="1\.5">1,5×/);
+ assert.match(html,/value="2\.5">2,5×/);
  assert.match(main,/published\.audio/);
  for(const id of ["view-podcasts","view-episode","episode-sources"])
   assert.ok(html.includes('id="'+id+'"'),id);
