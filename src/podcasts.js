@@ -12,7 +12,10 @@ const summaries = Object.freeze({
   "ada-lovelace-primeiro-algoritmo": "Ada Lovelace percebeu que a máquina analítica poderia manipular símbolos e não apenas números. Este episódio apresenta a visão que levou ao primeiro algoritmo publicado para uma máquina e por que suas ideias continuam presentes na computação.",
   "eliza-ao-gpt-4o": "Da conversa simulada de ELIZA aos modelos multimodais contemporâneos, este episódio percorre as mudanças na relação entre pessoas e computadores. A história mostra o que evoluiu, o que permanece igual e como a linguagem virou uma interface de computação.",
   "alan-turing-enigma": "Alan Turing ajudou a transformar a quebra de códigos em um problema de computação sistemática. O episódio conecta a Enigma, as máquinas de criptoanálise e o legado de Turing para a computação moderna.",
-  "leis-de-asimov": "As Leis de Asimov parecem simples, mas situações reais revelam conflitos entre ordens, segurança e autonomia. Este episódio discute por que regras bem-intencionadas falham quando não conseguem prever contexto, ambiguidades e consequências inesperadas."
+  "leis-de-asimov": "As Leis de Asimov parecem simples, mas situações reais revelam conflitos entre ordens, segurança e autonomia. Este episódio discute por que regras bem-intencionadas falham quando não conseguem prever contexto, ambiguidades e consequências inesperadas.",
+  "origem-do-termo-bug": "A história do termo bug mistura engenharia, investigação e uma mariposa encontrada em um computador eletromecânico. Este episódio separa o mito da documentação histórica e mostra como a palavra passou a representar falhas de software.",
+  "rei-viking-bluetooth": "O nome Bluetooth nasceu de uma referência a Harald Bluetooth, um rei conhecido por unir povos escandinavos. O episódio acompanha como uma metáfora histórica batizou uma tecnologia de comunicação entre dispositivos.",
+  "feriado-entediante-python": "Durante um feriado, Guido van Rossum começou a trabalhar em uma linguagem que buscava ser simples, legível e divertida. Este episódio acompanha as escolhas que deram origem ao Python e ajudaram a torná-lo tão influente."
 });
 
 // Episódios editoriais em produção. Os botões de reprodução só aparecem após
@@ -75,6 +78,18 @@ export const PODCAST_EPISODES = Object.freeze([
   Object.freeze({
     ...episode("leis-de-asimov", "Por que as Leis de Asimov falham", "1942–1985", "Por que regras simples para robôs entram em conflito quando enfrentam situações reais, ambiguidades e consequências inesperadas.", "leis-de-asimov.m4a", "/covers/podcasts/leis-de-asimov.webp"),
     duration: 1301.293
+  }),
+  Object.freeze({
+    ...episode("origem-do-termo-bug", "A verdadeira origem do termo bug", "1947", "Como uma mariposa em um computador eletromecânico ajudou a popularizar o uso de bug para falar de falhas na computação.", "origem-do-termo-bug.m4a", "/covers/podcasts/origem-do-termo-bug.webp"),
+    duration: 846.576
+  }),
+  Object.freeze({
+    ...episode("rei-viking-bluetooth", "Como um rei viking batizou o Bluetooth", "1997", "A história de Harald Bluetooth e da metáfora que deu nome a uma das tecnologias mais usadas para conectar dispositivos.", "rei-viking-bluetooth.m4a", "/covers/podcasts/rei-viking-bluetooth.webp"),
+    duration: 2191.499
+  }),
+  Object.freeze({
+    ...episode("feriado-entediante-python", "Como um feriado entediante criou o Python", "1989–1991", "Como Guido van Rossum aproveitou um feriado para começar uma linguagem que mudaria a programação.", "feriado-entediante-python.m4a", "/covers/podcasts/feriado-entediante-python.webp"),
+    duration: 1960.043
   })
 ]);
 

@@ -87,7 +87,7 @@ test("GET consulta os totais reais de cada episódio em pipeline",async()=>{
     }
     assert.equal(url, "https://example.upstash.io/pipeline");
     const commands=JSON.parse(options.body);
-    assert.equal(commands.length,24);
+    assert.equal(commands.length,30);
     assert.ok(commands.every(([name])=>name==="SCARD"));
     return Response.json(commands.map((_,index)=>({result:index+1})));
   };
